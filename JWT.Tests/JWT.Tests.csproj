@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E71D1FC0-DCB8-418E-82D1-17C300EA2CC3}</ProjectGuid>
+    <ProjectGuid>{1CF0D2FD-A82E-47C8-B490-361F084E9714}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UnitTests</RootNamespace>
-    <AssemblyName>UnitTests</AssemblyName>
+    <RootNamespace>JWT.Tests</RootNamespace>
+    <AssemblyName>JWT.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -56,6 +56,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
@@ -66,16 +67,18 @@
         <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
       </ItemGroup>
     </When>
-    <Otherwise />
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+      </ItemGroup>
+    </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="OIDCTests.cs" />
-    <Compile Include="DynamicClientRegistrationTests.cs" />
     <Compile Include="DecodeTests.cs" />
-    <Compile Include="DiscoveryTests.cs" />
     <Compile Include="EncodeTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serializers.cs" />
+    <Compile Include="UnitTest1.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -84,10 +87,6 @@
     <ProjectReference Include="..\JWT\JWT.csproj">
       <Project>{a80b51b8-ddf6-4026-98a4-b59653e50b38}</Project>
       <Name>JWT</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OpenIDClient\OpenIDClient.csproj">
-      <Project>{c754e4ad-be64-4e69-b412-a3034a5fc95a}</Project>
-      <Name>OpenIDClient</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
