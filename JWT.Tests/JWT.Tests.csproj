@@ -77,7 +77,6 @@
     <Compile Include="DecodeTests.cs" />
     <Compile Include="EncodeTests.cs" />
     <Compile Include="Serializers.cs" />
-    <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

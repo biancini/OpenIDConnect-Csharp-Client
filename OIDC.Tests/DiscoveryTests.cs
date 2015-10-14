@@ -19,16 +19,16 @@ namespace OIDC.Tests
         /// An issuer location should be returned.
         /// </summary>
         [TestCase]
-        public void Can_Discover_OpenID_Providers_Using_URL_Syntax()
+        public void Should_Discover_OpenID_Providers_Using_URL_Syntax()
         {
             // given
             rpid = "rp-discovery-webfinger_url";
             claims = "normal";
-            string userid = "https://rp.certification.openid.net:8080/" + rpid;
+            string userid = "https://" + opBaseurl.Host + ":" + opBaseurl.Port + "/" + rpid;
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            string issuer = rp.ObtainIssuerFromURL(userid, baseurl.ToString());
+            string issuer = rp.ObtainIssuerFromURL(userid, opBaseurl.ToString());
 
             // then
             Assert.AreEqual(issuer.TrimEnd('/'), GetBaseUrl("/").TrimEnd('/'));
@@ -43,17 +43,17 @@ namespace OIDC.Tests
         /// An issuer location should be returned.
         /// </summary>
         [TestCase]
-        public void Can_Discover_OpenID_Providers_Using_URI_Syntax()
+        public void Should_Discover_OpenID_Providers_Using_URI_Syntax()
         {
             // given
             rpid = "rp-discovery-webfinger_acct";
             claims = "normal";
-            string userid = rpid + "@rp.certification.openid.net";
+            string userid = rpid + "@" + opBaseurl.Host;
 
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            string issuer = rp.ObtainIssuerFromEmail(userid, baseurl.ToString());
+            string issuer = rp.ObtainIssuerFromEmail(userid, opBaseurl.ToString());
 
             // then
             Assert.AreEqual(issuer.TrimEnd('/'), GetBaseUrl("/").TrimEnd('/'));
@@ -68,16 +68,16 @@ namespace OIDC.Tests
         /// An issuer location should be returned.
         /// </summary>
         [TestCase]
-        public void Can_Discover_OpenID_Providers()
+        public void Should_Discover_OpenID_Providers()
         {
             // given
             rpid = "rp-discovery";
             claims = "normal";
-            string userid = "https://rp.certification.openid.net:8080/" + rpid;
+            string userid = "https://" + opBaseurl.Host + ":" + opBaseurl.Port + "/" + rpid;
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            string issuer = rp.ObtainIssuerFromURL(userid, baseurl.ToString());
+            string issuer = rp.ObtainIssuerFromURL(userid, opBaseurl.ToString());
 
             // then
             Assert.AreEqual(issuer.TrimEnd('/'), GetBaseUrl("/").TrimEnd('/'));
@@ -93,15 +93,15 @@ namespace OIDC.Tests
         /// </summary>
         [TestCase]
         [ExpectedException(typeof(OIDCException), ExpectedMessage="Wrong issuer, discarding configuration")]
-        public void Reject_Wrong_Discovered_Issuer()
+        public void Should_Wrong_Discovered_Issuer_Be_Rejected()
         {
             // given
             rpid = "rp-discovery-issuer_not_matching_config";
             claims = "_";
             string hostname = GetBaseUrl("/");
-            string userid = "https://rp.certification.openid.net:8080/" + rpid;
+            string userid = "https://" + opBaseurl.Host + ":" + opBaseurl.Port + "/" + rpid;
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
-            string issuer = rp.ObtainIssuerFromURL(userid, baseurl.ToString());
+            string issuer = rp.ObtainIssuerFromURL(userid, opBaseurl.ToString());
 
             // when
             OIDCProviderMetadata response = rp.ObtainProviderInformation(hostname, issuer);
@@ -118,7 +118,7 @@ namespace OIDC.Tests
         /// Read and use the JSON object returned from the OpenID Connect Provider.
         /// </summary>
         [TestCase]
-        public void Obtain_Provider_Information()
+        public void Should_Obtain_Provider_Information()
         {
             // given
             rpid = "rp-discovery-openid_configuration";
@@ -142,7 +142,7 @@ namespace OIDC.Tests
         /// Should be able to verify signed responses and/or encrypt requests using obtained keys.
         /// </summary>
         [TestCase]
-        public void Can_Discover_OpenID_Providers_With_JWKS_Json()
+        public void Should_Obtain_Provider_Information_With_JWKS_Json()
         {
             // given
             rpid = "rp-discovery-jwks_uri_keys";
@@ -155,9 +155,6 @@ namespace OIDC.Tests
 
             // then
             response.validate();
-            Assert.NotNull(response.JwksUri);
-            Assert.NotNull(response.Keys);
-            Assert.Greater(response.Keys.Count, 0);
         }
     }
 }

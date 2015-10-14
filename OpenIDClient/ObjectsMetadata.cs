@@ -150,6 +150,19 @@ namespace OpenIDClient
                     }
                 }
             }
+
+            List<string> listUri = new List<string> { LogoUri, ClientUri, PolicyUri, TosUri, JwksUri, SectorIdentifierUri, InitiateLoginUri, RegistrationClientUri };
+            if (RedirectUris != null) listUri.AddRange(RedirectUris);
+            if (RequestUris != null) listUri.AddRange(RequestUris);
+            foreach (string uri in listUri)
+            {
+                if (uri == null) continue;
+
+                if (new Uri(uri).Scheme != "https")
+                {
+                    throw new OIDCException("Some of the URIs for the client is not on https");
+                }
+            }
         }
     }
 
@@ -157,11 +170,18 @@ namespace OpenIDClient
     {
         public string Use { get; set; }
         public string Crv { get; set; }
+        public string N { get; set; }
+        public string E { get; set; }
         public string D { get; set; }
         public string Y { get; set; }
         public string X { get; set; }
         public string Kid { get; set; }
         public string Kty { get; set; }
+
+        public OIDCKey()
+        {
+            // Do nothing
+        }
 
         public OIDCKey(dynamic o)
         {

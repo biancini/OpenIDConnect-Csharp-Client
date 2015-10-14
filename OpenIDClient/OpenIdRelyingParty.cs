@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Net;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using OpenIDClient.Messages;
 using JWT;
 
@@ -130,7 +131,7 @@ namespace OpenIDClient
         /// valid or if the returned message from server is not valid.</exception>
         public string ObtainIssuerFromEmail(string email, string hostname = null)
         {
-            Regex regex = new Regex(@"^([\w\.\-]+)@([\w\-]+)(\.([\w\-]+))*((\.(\w){2,3})+)$");
+            Regex regex = new Regex(@"^([\w\.\-]+)@([\w\-]+)(\.([\w\-]+))*((\.(\w){2,3})+)?$");
             Match match = regex.Match(email);
             if (!match.Success)
             {
@@ -201,6 +202,18 @@ namespace OpenIDClient
             return providerMetadata;
         }
 
+        /// <summary>
+        /// Method that performs a dynamic client registration with the OP server.
+        /// </summary>
+        /// <param name="RegistrationEndpoint">The URL of the OP describing the registration endpoint.</param>
+        /// <param name="clientMetadata">The OIDCClientInformation object describing the client information to
+        /// be submitted to the OP for registration.</param>
+        /// <param name="TokenEndpointAuthMethod">(optional) the endpoint authentication method used to
+        /// authenticate the client with the OP sever (if not specified using "client_secret_basic".</param>
+        /// <returns>An oject describing all client information as returned by the OP server after
+        /// registration.</returns>
+        /// <exception cref="OpenIDClient.OIDCException">Thrown when an error occurs while registering
+        /// the client with the OP.</exception>
         public OIDCClientInformation RegisterClient(string RegistrationEndpoint, OIDCClientInformation clientMetadata, string TokenEndpointAuthMethod = "client_secret_basic")
         {
             // Make registration request
@@ -208,6 +221,7 @@ namespace OpenIDClient
             registrationRequest.ApplicationType = clientMetadata.ApplicationType;
             registrationRequest.RedirectUris = clientMetadata.RedirectUris;
             registrationRequest.ResponseTypes = clientMetadata.ResponseTypes;
+            registrationRequest.JwksUri = clientMetadata.JwksUri;
             registrationRequest.TokenEndpointAuthMethod = TokenEndpointAuthMethod;
 
             // Check error and store client information from OP
@@ -222,6 +236,62 @@ namespace OpenIDClient
             OIDCClientInformation clientInformation = new OIDCClientInformation();
             clientInformation.deserializeFromDynamic(returnedJson);
             return clientInformation;
+        }
+
+        /// <summary>
+        /// Obtain the JWKS object describing certificates used by this RP for signing and encoding.
+        /// </summary>
+        /// <param name="EncodingCert">Certificate to be used for encoding.</param>
+        /// <param name="SigningCert">Certificate to be used for signing.</param>
+        /// <returns>The JWKS object with the keys of the RP.</returns>
+        public static Dictionary<string, object> GetKeysJwks(X509Certificate EncodingCert, X509Certificate SigningCert)
+        {
+            return GetKeysJwks(new List<X509Certificate>() { EncodingCert }, new List<X509Certificate>() { SigningCert });
+        }
+
+        /// <summary>
+        /// Obtain the JWKS object describing certificates used by this RP for signing and encoding.
+        /// </summary>
+        /// <param name="EncodingCerts">List of certificates to be used for encoding.</param>
+        /// <param name="SigningCerts">List of certificates to be used for signing.</param>
+        /// <returns>The JWKS object with the keys of the RP.</returns>
+        public static Dictionary<string, object> GetKeysJwks(List<X509Certificate> EncodingCerts, List<X509Certificate> SigningCerts)
+        {
+            List<OIDCKey> keys = new List<OIDCKey>();
+
+            int countEnc = 1;
+            foreach (X509Certificate certificate in EncodingCerts)
+            {
+                var plainTextBytes = Encoding.UTF8.GetBytes(certificate.GetRawCertDataString());
+                OIDCKey curCert = new OIDCKey();
+                curCert.Use = "enc";
+                curCert.N = Convert.ToBase64String(plainTextBytes);
+                curCert.E = "AQAB";
+                curCert.Kty = "RSA";
+                curCert.Kid = "Encoding Certificate " + countEnc;
+
+                countEnc++;
+                keys.Add(curCert);
+            }
+
+            int countSign = 1;
+            foreach (X509Certificate certificate in SigningCerts)
+            {
+                var plainTextBytes = Encoding.UTF8.GetBytes(certificate.GetRawCertDataString());
+                OIDCKey curCert = new OIDCKey();
+                curCert.Use = "enc";
+                curCert.N = Convert.ToBase64String(plainTextBytes);
+                curCert.E = "AQAB";
+                curCert.Kty = "RSA";
+                curCert.Kid = "Signing Certificate " + countEnc;
+
+                countSign++;
+                keys.Add(curCert);
+            }
+
+            Dictionary<string, object> keysDict = new Dictionary<string, object>();
+            keysDict.Add("keys", keys);
+            return keysDict;
         }
 
         public OIDCAuthCodeResponseMessage ParseAuthCodeResponse(string queryString, string scope = null, string state = null)
