@@ -164,6 +164,7 @@ namespace OIDC.Tests
             // when
             OIDCClientInformation response = rp.RegisterClient(registrationEndopoint, clientMetadata);
             response.JwksUri = clientMetadata.JwksUri.Replace("https", "http");
+
             // then
             response.validate();
         }

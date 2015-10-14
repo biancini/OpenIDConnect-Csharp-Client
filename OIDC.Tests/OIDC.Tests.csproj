@@ -79,8 +79,9 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="OIDCTests.cs" />
     <Compile Include="DynamicClientRegistrationTests.cs" />
+    <Compile Include="OIDCTests.cs" />
+    <Compile Include="ResponseTypeAndModeTests.cs" />
     <Compile Include="DiscoveryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleWebServer.cs" />

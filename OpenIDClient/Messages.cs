@@ -7,27 +7,44 @@ using JWT;
 
 namespace OpenIDClient.Messages
 {
+    /// <summary>
+    /// Abstract class extended by all messages between RP e OP.
+    /// </summary>
     public class OIDClientSerializableMessage
     {
+        /// <summary>
+        /// Method used to validate the message according to the rules specified in the
+        /// protocol specification.
+        /// </summary>
         public virtual void validate()
         {
             // Empty, method that can be overloaded by children to check if deserialized data is correct
             // or throw an exception if not.
         }
 
+        /// <summary>
+        /// Method to convert a long value to a UTC date.
+        /// </summary>
+        /// <param name="dateValue">The long UTC value.</param>
+        /// <returns>The date.</returns>
         protected DateTime secondsUtcToDateTime(long dateValue)
         {
             DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
             return epoch.AddSeconds(dateValue);
         }
 
+        /// <summary>
+        /// Method to convert a date to a UTC long value.
+        /// </summary>
+        /// <param name="dateValue">The date.</param>
+        /// <returns>The long UTC value.</returns>
         protected long dateTimeToSecondsUtc(DateTime dateValue)
         {
             DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
             return (long) (dateValue - epoch).TotalSeconds;
         }
 
-        public bool isSupportedType(Type t)
+        private bool isSupportedType(Type t)
         {
             List<Type> supportedTypes = new List<Type>() {
                 typeof(string),
@@ -41,6 +58,10 @@ namespace OpenIDClient.Messages
             return supportedTypes.Contains(t);
         }
 
+        /// <summary>
+        /// Method that deserializes message property values from a dynamic object as input.
+        /// </summary>
+        /// <param name="data">Dynamic object with the property values for the current message.</param>
         public void deserializeFromDynamic(dynamic data)
         {
             PropertyInfo[] properties = this.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -109,6 +130,10 @@ namespace OpenIDClient.Messages
             validate();
         }
 
+        /// <summary>
+        /// Method that deserializes message property values from a string obtained from query string.
+        /// </summary>
+        /// <param name="query">The query string.</param>
         public void deserializeFromQueryString(string query)
         {
             if (query.StartsWith("?"))
@@ -179,6 +204,10 @@ namespace OpenIDClient.Messages
             return data;
         }
 
+        /// <summary>
+        /// Method that serializes message property values to a JSON string.
+        /// </summary>
+        /// <returns>A JSON string serialization of the message.</returns>
         public string serializeToJsonString()
         {
             Dictionary<string, object> data = getData();
@@ -186,6 +215,10 @@ namespace OpenIDClient.Messages
             return JsonSerializer.Serialize(data);
         }
 
+        /// <summary>
+        /// Method that serializes message property values to a query string.
+        /// </summary>
+        /// <returns>A query string serialization of the message.</returns>
         public string serializeToQueryString()
         {
             string uri = "";
@@ -198,6 +231,9 @@ namespace OpenIDClient.Messages
         }
     }
 
+    /// <summary>
+    /// Message describing a registration request.
+    /// </summary>
     public class OIDCClientRegistrationRequest : OIDClientSerializableMessage
     {
         private WebRequest PostRequest { get; set; }
@@ -217,6 +253,9 @@ namespace OpenIDClient.Messages
         public List<string> ResponseTypes { get; set; }
     }
 
+    /// <summary>
+    /// Message describing an authorization request.
+    /// </summary>
     public class OIDCAuthorizationRequestMessage : OIDClientSerializableMessage
     {
         public string Scope { get; set; }
@@ -241,6 +280,9 @@ namespace OpenIDClient.Messages
         public string LoginHint { get; set; }
         public string AcrValues { get; set; }
 
+        /// <summary>
+        /// <see cref="OIDClientSerializableMessage.validate()"/>
+        /// </summary>
         public override void validate()
         {
             if (Scope == null)
@@ -265,12 +307,18 @@ namespace OpenIDClient.Messages
         }
     }
 
+    /// <summary>
+    /// Message describing an authentication code response.
+    /// </summary>
     public class OIDCAuthCodeResponseMessage : OIDClientSerializableMessage
     {
         public string Code { get; set; }
         public string State { get; set; }
         public string Scope { get; set; }
 
+        /// <summary>
+        /// <see cref="OIDClientSerializableMessage.validate()"/>
+        /// </summary>
         public override void validate()
         {
             if (Code == null)
@@ -280,6 +328,9 @@ namespace OpenIDClient.Messages
         }
     }
 
+    /// <summary>
+    /// Message describing an authentication implicit response.
+    /// </summary>
     public class OIDCAuthImplicitResponseMessage : OIDClientSerializableMessage
     {
         public string AccessToken { get; set; }
@@ -289,6 +340,9 @@ namespace OpenIDClient.Messages
         public string Scope { get; set; }
         public string State { get; set; }
 
+        /// <summary>
+        /// <see cref="OIDClientSerializableMessage.validate()"/>
+        /// </summary>
         public override void validate()
         {
             if (AccessToken == null)
@@ -313,6 +367,9 @@ namespace OpenIDClient.Messages
         }
     }
 
+    /// <summary>
+    /// Abstract class describing a client authenticated message.
+    /// </summary>
     public class OIDCAuthenticatedMessage : OIDClientSerializableMessage
     {
         public string ClientId { get; set; }
@@ -321,6 +378,9 @@ namespace OpenIDClient.Messages
         public string ClientAssertion { get; set; }
     }
 
+    /// <summary>
+    /// Message describing a token request.
+    /// </summary>
     public class OIDCTokenRequestMessage : OIDCAuthenticatedMessage
     {
         public string GrantType { get; set; }
@@ -330,6 +390,9 @@ namespace OpenIDClient.Messages
         public string Scope { get; set; }
     }
 
+    /// <summary>
+    /// Message describing an the client secret JWT.
+    /// </summary>
     public class OIDCClientSecretJWT : OIDClientSerializableMessage
     {
         public string Iss { get; set; }
@@ -340,6 +403,9 @@ namespace OpenIDClient.Messages
         public DateTime Iat { get; set; }
     }
 
+    /// <summary>
+    /// Message describing a token response.
+    /// </summary>
     public class OIDCTokenResponseMessage : OIDClientSerializableMessage
     {
         public string AccessToken { get; set; }
@@ -348,6 +414,9 @@ namespace OpenIDClient.Messages
         public long ExpiresIn { get; set; }
         public string IdToken { get; set; }
 
+        /// <summary>
+        /// <see cref="OIDClientSerializableMessage.validate()"/>
+        /// </summary>
         public override void validate()
         {
             if (AccessToken == null)
@@ -362,12 +431,18 @@ namespace OpenIDClient.Messages
         }
     }
 
+    /// <summary>
+    /// Message describing a user info request.
+    /// </summary>
     public class OIDCUserInfoRequestMessage : OIDCAuthenticatedMessage
     {
         public string Scope { get; set; }
         public string State { get; set; }
     }
 
+    /// <summary>
+    /// Message describing a user info response.
+    /// </summary>
     public class OIDCUserInfoResponseMessage : OIDClientSerializableMessage
     {
         public string Sub { get; set; }
@@ -379,6 +454,9 @@ namespace OpenIDClient.Messages
         public string Picture { get; set; }
     }
 
+    /// <summary>
+    /// Message describing an ID token.
+    /// </summary>
     public class OIDCIdToken : OIDClientSerializableMessage
     {
         public string Iss { get; set; }
@@ -393,6 +471,9 @@ namespace OpenIDClient.Messages
         public string Azp { get; set; }
         public string AtHash { get; set; }
 
+        /// <summary>
+        /// <see cref="OIDClientSerializableMessage.validate()"/>
+        /// </summary>
         public override void validate()
         {
             if (Iss == null)
@@ -422,6 +503,9 @@ namespace OpenIDClient.Messages
         }
     }
 
+    /// <summary>
+    /// Message describing an error from the OP.
+    /// </summary>
     public class OIDCResponseError : OIDClientSerializableMessage
     {
         public string Error { get; set; }

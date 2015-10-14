@@ -279,7 +279,7 @@ namespace OpenIDClient
             {
                 var plainTextBytes = Encoding.UTF8.GetBytes(certificate.GetRawCertDataString());
                 OIDCKey curCert = new OIDCKey();
-                curCert.Use = "enc";
+                curCert.Use = "sig";
                 curCert.N = Convert.ToBase64String(plainTextBytes);
                 curCert.E = "AQAB";
                 curCert.Kty = "RSA";

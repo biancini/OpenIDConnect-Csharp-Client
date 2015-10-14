@@ -5,6 +5,9 @@ using System.Net;
 
 namespace OpenIDClient
 {
+    /// <summary>
+    /// Object describing the OP metadata.
+    /// </summary>
     public class OIDCProviderMetadata : Messages.OIDClientSerializableMessage
     {
         public string Issuer { get; set; }
@@ -63,6 +66,9 @@ namespace OpenIDClient
         }
     }
 
+    /// <summary>
+    /// Object describing the RP client information.
+    /// </summary>
     public class OIDCClientInformation : Messages.OIDClientSerializableMessage
     {
         public List<string> RedirectUris { get; set; }
@@ -166,6 +172,9 @@ namespace OpenIDClient
         }
     }
 
+    /// <summary>
+    /// Object describing a security key in JWK format.
+    /// </summary>
     public class OIDCKey : Messages.OIDClientSerializableMessage
     {
         public string Use { get; set; }
