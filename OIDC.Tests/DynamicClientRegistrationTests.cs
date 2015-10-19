@@ -19,8 +19,8 @@ namespace OIDC.Tests
     {
         WebServer ws;
 
-        [SetUp]
-        public void StartWebServer()
+        [TestFixtureSetUp]
+        public void SetupTests()
         {
             X509Certificate2 certificate = new X509Certificate2("certificate.crt", "");
             ws = new WebServer(myBaseUrl.ToString(), certificate);
@@ -28,8 +28,8 @@ namespace OIDC.Tests
             ws.Run();
         }
 
-        [TearDown]
-        public void Cleanup()
+        [TestFixtureTearDown]
+        public void TearDownTests()
         {
             ws.Stop();
         }
@@ -74,7 +74,7 @@ namespace OIDC.Tests
             OIDCClientInformation response = rp.RegisterClient(registrationEndopoint, clientMetadata);
 
             // then
-            response.validate();
+            response.Validate();
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace OIDC.Tests
             OIDCClientInformation response = rp.RegisterClient(registrationEndopoint, clientMetadata);
 
             // then
-            response.validate();
+            response.Validate();
             CollectionAssert.AreEquivalent(clientMetadata.RedirectUris, response.RedirectUris);
         }
 
@@ -134,7 +134,7 @@ namespace OIDC.Tests
             OIDCClientInformation response = rp.RegisterClient(registrationEndopoint, clientMetadata);
 
             // then
-            response.validate();
+            response.Validate();
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace OIDC.Tests
             response.JwksUri = clientMetadata.JwksUri.Replace("https", "http");
 
             // then
-            response.validate();
+            response.Validate();
         }
     }
 }

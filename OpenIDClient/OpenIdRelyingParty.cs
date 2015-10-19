@@ -23,7 +23,7 @@ namespace OpenIDClient
         /// </summary>
         /// <param name="length">The length of the string to generate.</param>
         /// <returns>The random string generated.</returns>
-        public string RandomString(int length = 16)
+        public static string RandomString(int length = 16)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             var random = new Random();
@@ -35,13 +35,57 @@ namespace OpenIDClient
         /// of the content returned from the call.
         /// </summary>
         /// <param name="webRequest">The WebRequest object to be used for the call.</param>
+        /// <param name="returnJson">(optional) Specify whether the output page should be parsed as a JSON.
+        /// In case this should not happen, a dictionary with a single "body" key will be returned with the
+        /// complete HTML text returned from HTTP call.</param>
         /// <returns>Json deserialization of the content returned from the call.</returns>
-        public static Dictionary<string,object> GetUrlContent(WebRequest webRequest)
+        public static Dictionary<string,object> GetUrlContent(WebRequest webRequest, bool returnJson = true)
         {
+            if (webRequest.RequestUri.Scheme == "openid")
+            {
+                // we are dealing with a Self-Issued OpenID provider
+                string queryString = webRequest.RequestUri.Query;
+                return PerformSelfIssuedAuthentication(queryString);
+            }
+
             Stream content = webRequest.GetResponse().GetResponseStream();
             string returnedText = new StreamReader(content).ReadToEnd();
             IJsonSerializer JsonSerializer = new DefaultJsonSerializer();
-            return JsonSerializer.Deserialize<Dictionary<string, object>>(returnedText);
+            if (returnJson)
+            {
+                return JsonSerializer.Deserialize<Dictionary<string, object>>(returnedText);
+            }
+            else
+            {
+                Dictionary<string, object> response = new Dictionary<string, object>();
+                response.Add("body", returnedText);
+                return response;
+            }
+        }
+
+        private static Dictionary<string, object> PerformSelfIssuedAuthentication(string queryString)
+        {
+            OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
+            requestMessage.DeserializeFromQueryString(queryString);
+
+            X509Certificate2 certificate = new X509Certificate2();
+            certificate.Import("server.crt");
+
+            OIDCIdToken idToken = new OIDCIdToken();
+            idToken.Iss = "https://self-issued.me";
+            idToken.Sub = Convert.ToBase64String(Encoding.UTF8.GetBytes(certificate.Thumbprint));
+            idToken.Aud = new List<string> { requestMessage.RedirectUri };
+            idToken.Nonce = requestMessage.Nonce;
+            idToken.Exp = DateTime.MaxValue;
+            idToken.Iat = DateTime.MaxValue;
+            idToken.SubJkw = GetOIDCKey(certificate, "RSA", "AQAB", "sig");
+            idToken.Validate();
+
+            Dictionary<string, object> responseMessage = new Dictionary<string, object>();
+            responseMessage["id_token"] = idToken.SerializeToJsonString();
+            responseMessage["state"] = requestMessage.State;
+
+            return responseMessage;
         }
 
         /// <summary>
@@ -63,11 +107,11 @@ namespace OpenIDClient
             {
                 if (json)
                 {
-                    postData = message.serializeToJsonString();
+                    postData = message.SerializeToJsonString();
                 }
                 else
                 {
-                    postData = message.serializeToQueryString();
+                    postData = message.SerializeToQueryString();
                 }
             }
             byte[] postBytes = Encoding.UTF8.GetBytes(postData);
@@ -131,17 +175,18 @@ namespace OpenIDClient
         /// valid or if the returned message from server is not valid.</exception>
         public string ObtainIssuerFromEmail(string email, string hostname = null)
         {
+            string issuerHostname = hostname;
             Regex regex = new Regex(@"^([\w\.\-]+)@([\w\-]+)(\.([\w\-]+))*((\.(\w){2,3})+)?$");
             Match match = regex.Match(email);
             if (!match.Success)
             {
                 throw new OIDCException("Wrong format for email passed as parameter.");
             }
-            if (hostname == null)
+            if (issuerHostname == null)
             {
-                hostname = "https://" + email.Split('@')[1];
+                issuerHostname = "https://" + email.Split('@')[1];
             }
-            return ObtainIssuer(hostname, "acct:" + email);
+            return ObtainIssuer(issuerHostname, "acct:" + email);
         }
 
         /// <summary>
@@ -156,25 +201,18 @@ namespace OpenIDClient
         /// valid or if the returned message from server is not valid.</exception>
         public string ObtainIssuerFromURL(string url, string hostname = null)
         {
+            string issuerHostname = hostname;
             Regex regex = new Regex(@"^https://([\w+?\.\w+])+([a-zA-Z0-9\~\!\@\#\$\%\^\&\*\(\)_\-\=\+\\\/\?\.\:\;\'\,]*)?$", RegexOptions.IgnoreCase);
             Match match = regex.Match(url);
             if (!match.Success)
             {
                 throw new OIDCException("Wrong format for url passed as parameter.");
             }
-            if (hostname == null)
+            if (issuerHostname == null)
             {
-                hostname = url;
-                for (int i = url.Length - 1; i >= 0; i--)
-                {
-                    if (url[i] == '/')
-                    {
-                        hostname = url;
-                        break;
-                    }
-                }
+                issuerHostname = url.TrimEnd('/');
             }
-            return ObtainIssuer(hostname, url);
+            return ObtainIssuer(issuerHostname, url);
         }
 
         /// <summary>
@@ -234,7 +272,7 @@ namespace OpenIDClient
             }
 
             OIDCClientInformation clientInformation = new OIDCClientInformation();
-            clientInformation.deserializeFromDynamic(returnedJson);
+            clientInformation.DeserializeFromDynamic(returnedJson);
             return clientInformation;
         }
 
@@ -247,6 +285,18 @@ namespace OpenIDClient
         public static Dictionary<string, object> GetKeysJwks(X509Certificate EncodingCert, X509Certificate SigningCert)
         {
             return GetKeysJwks(new List<X509Certificate>() { EncodingCert }, new List<X509Certificate>() { SigningCert });
+        }
+
+        private static OIDCKey GetOIDCKey(X509Certificate certificate, string keyType, string exponent, string use, string uniqueName = null)
+        {
+            byte[] plainTextBytes = certificate.GetRawCertData();
+            OIDCKey curCert = new OIDCKey();
+            curCert.Use = use;
+            curCert.N = Convert.ToBase64String(plainTextBytes);
+            curCert.E = exponent;
+            curCert.Kty = keyType;
+            curCert.Kid = uniqueName;
+            return curCert;
         }
 
         /// <summary>
@@ -262,14 +312,7 @@ namespace OpenIDClient
             int countEnc = 1;
             foreach (X509Certificate certificate in EncodingCerts)
             {
-                var plainTextBytes = Encoding.UTF8.GetBytes(certificate.GetRawCertDataString());
-                OIDCKey curCert = new OIDCKey();
-                curCert.Use = "enc";
-                curCert.N = Convert.ToBase64String(plainTextBytes);
-                curCert.E = "AQAB";
-                curCert.Kty = "RSA";
-                curCert.Kid = "Encoding Certificate " + countEnc;
-
+                OIDCKey curCert = GetOIDCKey(certificate, "RSA", "AQAB", "enc", "Encoding Certificate " + countEnc);
                 countEnc++;
                 keys.Add(curCert);
             }
@@ -277,14 +320,7 @@ namespace OpenIDClient
             int countSign = 1;
             foreach (X509Certificate certificate in SigningCerts)
             {
-                var plainTextBytes = Encoding.UTF8.GetBytes(certificate.GetRawCertDataString());
-                OIDCKey curCert = new OIDCKey();
-                curCert.Use = "sig";
-                curCert.N = Convert.ToBase64String(plainTextBytes);
-                curCert.E = "AQAB";
-                curCert.Kty = "RSA";
-                curCert.Kid = "Signing Certificate " + countEnc;
-
+                OIDCKey curCert = GetOIDCKey(certificate, "RSA", "AQAB", "sig", "Signing Certificate " + countEnc);
                 countSign++;
                 keys.Add(curCert);
             }
@@ -294,17 +330,25 @@ namespace OpenIDClient
             return keysDict;
         }
 
+        /// <summary>
+        /// Method called toparse an authentication code response from OP.
+        /// </summary>
+        /// <param name="queryString">The string reprsenting the authentication response provided
+        /// by the OP.</param>
+        /// <param name="scope">(optional) Eventual scope used for the call to be used for verification.</param>
+        /// <param name="state">(optional) Eventual state used for the call to be used for verification.</param>
+        /// <returns>A validated message containing answer frop OP.</returns>
         public OIDCAuthCodeResponseMessage ParseAuthCodeResponse(string queryString, string scope = null, string state = null)
         {
             OIDCAuthCodeResponseMessage responseMessage = new OIDCAuthCodeResponseMessage();
             try
             {
-                responseMessage.deserializeFromQueryString(queryString);
+                responseMessage.DeserializeFromQueryString(queryString);
             }
             catch (OIDCException)
             {
                 OIDCResponseError error = new OIDCResponseError();
-                error.deserializeFromQueryString(queryString);
+                error.DeserializeFromQueryString(queryString);
                 throw new OIDCException("Error while parsing authorization response: " + error.Error + "\n" + error.ErrorDescription);
             }
 
@@ -321,17 +365,25 @@ namespace OpenIDClient
             return responseMessage;
         }
 
+        /// <summary>
+        /// Method called toparse an authentication implicit response from OP.
+        /// </summary>
+        /// <param name="queryString">The string reprsenting the authentication response provided
+        /// by the OP.</param>
+        /// <param name="scope">(optional) Eventual scope used for the call to be used for verification.</param>
+        /// <param name="state">(optional) Eventual state used for the call to be used for verification.</param>
+        /// <returns>A validated message containing answer frop OP.</returns>
         public OIDCAuthImplicitResponseMessage ParseAuthImplicitResponse(string queryString, string scope = null, string state = null)
         {
             OIDCAuthImplicitResponseMessage responseMessage = new OIDCAuthImplicitResponseMessage();
             try
             {
-                responseMessage.deserializeFromQueryString(queryString);
+                responseMessage.DeserializeFromQueryString(queryString);
             }
             catch (OIDCException)
             {
                 OIDCResponseError error = new OIDCResponseError();
-                error.deserializeFromQueryString(queryString);
+                error.DeserializeFromQueryString(queryString);
                 throw new OIDCException("Error while parsing authorization response: " + error.Error + "\n" + error.ErrorDescription);
             }
 
@@ -385,18 +437,18 @@ namespace OpenIDClient
             WebRequest request = WebRequest.Create(url);
             OIDCAuthenticatedMessage message = tokenRequestMessage as OIDCAuthenticatedMessage;
             string grantType = clientInformation.TokenEndpointAuthMethod;
-            OIDCClientSecretJWT tokenData = AddClientAuthenticatedToRequest(ref request, ref message, grantType, clientInformation);
+            AddClientAuthenticatedToRequest(ref request, ref message, grantType, clientInformation);
             Dictionary<string, object> returnedJson = PostUrlContent(request, message);
 
             if (returnedJson.Keys.Contains("error"))
             {
                 OIDCResponseError error = new OIDCResponseError();
-                error.deserializeFromDynamic(returnedJson);
+                error.DeserializeFromDynamic(returnedJson);
                 throw new OIDCException("Error while registering client: " + error.Error + "\n" + error.ErrorDescription);
             }
 
             OIDCTokenResponseMessage tokenResponse = new OIDCTokenResponseMessage();
-            tokenResponse.deserializeFromDynamic(returnedJson);
+            tokenResponse.DeserializeFromDynamic(returnedJson);
             return tokenResponse;
         }
 
@@ -409,12 +461,12 @@ namespace OpenIDClient
             if (returnedJson.Keys.Contains("error"))
             {
                 OIDCResponseError error = new OIDCResponseError();
-                error.deserializeFromDynamic(returnedJson);
+                error.DeserializeFromDynamic(returnedJson);
                 throw new OIDCException("Error while asking for user info: " + error.Error + "\n" + error.ErrorDescription);
             }
 
             OIDCUserInfoResponseMessage userInfoResponse = new OIDCUserInfoResponseMessage();
-            userInfoResponse.deserializeFromDynamic(returnedJson);
+            userInfoResponse.DeserializeFromDynamic(returnedJson);
             return userInfoResponse;
         }
 
@@ -457,8 +509,15 @@ namespace OpenIDClient
         }
     }
 
+    /// <summary>
+    /// Class representing an exception in the library.
+    /// </summary>
     public class OIDCException : Exception
     {
+        /// <summary>
+        /// Contructor with a message string.
+        /// </summary>
+        /// <param name="message">The message to be saved in the exception.</param>
         public OIDCException(string message) : base(message)
         {
         }

@@ -51,6 +51,10 @@
       <HintPath>..\packages\Griffin.WebServer.0.5.2\lib\net40\Griffin.WebServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="HtmlAgilityPack, Version=1.4.9.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.4.9\lib\Net45\HtmlAgilityPack.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -81,6 +85,7 @@
   <ItemGroup>
     <Compile Include="DynamicClientRegistrationTests.cs" />
     <Compile Include="OIDCTests.cs" />
+    <Compile Include="ClaimsRequestParameterTests.cs" />
     <Compile Include="ResponseTypeAndModeTests.cs" />
     <Compile Include="DiscoveryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

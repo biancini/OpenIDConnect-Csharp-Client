@@ -43,14 +43,21 @@ namespace OpenIDClient
         public List<string> GrantTypesSupported { get; set; }
         public List<OIDCKey> Keys { get; set; }
 
+        /// <summary>
+        /// Empty constructor creating an empty message.
+        /// </summary>
         public OIDCProviderMetadata()
         {
             // Empty constructor
         }
 
+        /// <summary>
+        /// Constructor deserializing message properties from dynamic.
+        /// </summary>
+        /// <param name="o">The dynamic object containing message properties.</param>
         public OIDCProviderMetadata(dynamic o)
         {
-            deserializeFromDynamic(o);
+            DeserializeFromDynamic(o);
 
             if (JwksUri != null)
             {
@@ -108,17 +115,27 @@ namespace OpenIDClient
         public string RegistrationAccessToken { get; set; }
         public string RegistrationClientUri { get; set; }
 
+        /// <summary>
+        /// Empty constructor creating an empty message.
+        /// </summary>
         public OIDCClientInformation()
         {
             // Empty constructor
         }
 
+        /// <summary>
+        /// Constructor deserializing message properties from dynamic.
+        /// </summary>
+        /// <param name="o">The dynamic object containing message properties.</param>
         public OIDCClientInformation(dynamic o)
         {
-            deserializeFromDynamic(o);
+            DeserializeFromDynamic(o);
         }
 
-        public override void validate()
+        /// <summary>
+        /// <see cref="OIDClientSerializableMessage.Validate()"/>
+        /// </summary>
+        public override void Validate()
         {
             if (RedirectUris != null && ResponseTypes != null && RedirectUris.Count != ResponseTypes.Count)
             {
@@ -158,11 +175,21 @@ namespace OpenIDClient
             }
 
             List<string> listUri = new List<string> { LogoUri, ClientUri, PolicyUri, TosUri, JwksUri, SectorIdentifierUri, InitiateLoginUri, RegistrationClientUri };
-            if (RedirectUris != null) listUri.AddRange(RedirectUris);
-            if (RequestUris != null) listUri.AddRange(RequestUris);
+            if (RedirectUris != null)
+            {
+                listUri.AddRange(RedirectUris);
+            }
+            if (RequestUris != null)
+            {
+                listUri.AddRange(RequestUris);
+            }
+
             foreach (string uri in listUri)
             {
-                if (uri == null) continue;
+                if (uri == null)
+                {
+                    continue;
+                }
 
                 if (new Uri(uri).Scheme != "https")
                 {
@@ -187,17 +214,27 @@ namespace OpenIDClient
         public string Kid { get; set; }
         public string Kty { get; set; }
 
+        /// <summary>
+        /// Empty constructor creating an empty message.
+        /// </summary>
         public OIDCKey()
         {
             // Do nothing
         }
 
+        /// <summary>
+        /// Constructor deserializing message properties from dynamic.
+        /// </summary>
+        /// <param name="o">The dynamic object containing message properties.</param>
         public OIDCKey(dynamic o)
         {
-            deserializeFromDynamic(o);
+            DeserializeFromDynamic(o);
         }
 
-        public override void validate()
+        /// <summary>
+        /// <see cref="OIDClientSerializableMessage.Validate()"/>
+        /// </summary>
+        public override void Validate()
         {
             if (Use == null)
             {

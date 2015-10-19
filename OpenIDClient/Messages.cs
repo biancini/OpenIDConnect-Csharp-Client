@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Net;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography.X509Certificates;
 using JWT;
 
 namespace OpenIDClient.Messages
@@ -16,7 +19,7 @@ namespace OpenIDClient.Messages
         /// Method used to validate the message according to the rules specified in the
         /// protocol specification.
         /// </summary>
-        public virtual void validate()
+        public virtual void Validate()
         {
             // Empty, method that can be overloaded by children to check if deserialized data is correct
             // or throw an exception if not.
@@ -27,7 +30,7 @@ namespace OpenIDClient.Messages
         /// </summary>
         /// <param name="dateValue">The long UTC value.</param>
         /// <returns>The date.</returns>
-        protected DateTime secondsUtcToDateTime(long dateValue)
+        protected DateTime SecondsUtcToDateTime(long dateValue)
         {
             DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
             return epoch.AddSeconds(dateValue);
@@ -38,37 +41,48 @@ namespace OpenIDClient.Messages
         /// </summary>
         /// <param name="dateValue">The date.</param>
         /// <returns>The long UTC value.</returns>
-        protected long dateTimeToSecondsUtc(DateTime dateValue)
+        protected long DateTimeToSecondsUtc(DateTime dateValue)
         {
             DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
             return (long) (dateValue - epoch).TotalSeconds;
         }
 
-        private bool isSupportedType(Type t)
+        private bool IsSupportedType(Type t)
         {
             List<Type> supportedTypes = new List<Type>() {
                 typeof(string),
-                typeof(List<string>),
+                typeof(List<>),
+                typeof(Dictionary<, >),
                 typeof(DateTime),
                 typeof(long),
                 typeof(int),
-                typeof(bool)
+                typeof(bool),
+                typeof(OIDCKey),
+                typeof(OIDClaims),
+                typeof(OIDClaimData)
             };
 
-            return supportedTypes.Contains(t);
+            if (t.IsGenericType)
+            { 
+                return supportedTypes.Contains(t.GetGenericTypeDefinition());
+            }
+            else
+            {
+                return supportedTypes.Contains(t);
+            }
         }
 
         /// <summary>
         /// Method that deserializes message property values from a dynamic object as input.
         /// </summary>
         /// <param name="data">Dynamic object with the property values for the current message.</param>
-        public void deserializeFromDynamic(dynamic data)
+        public void DeserializeFromDynamic(dynamic data)
         {
             PropertyInfo[] properties = this.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
             foreach (PropertyInfo p in properties)
             {
-                if (!isSupportedType(p.PropertyType))
+                if (!IsSupportedType(p.PropertyType))
                 {
                     continue;
                 }
@@ -110,39 +124,70 @@ namespace OpenIDClient.Messages
                     }
                     p.SetValue(this, propertyValue);
                 }
+                else if (p.PropertyType == typeof(Dictionary<string, object>))
+                {
+                    Dictionary<string, object> propertyValue = new Dictionary<string, object>();
+
+                    throw new Exception("Not yet implemented");
+                    p.SetValue(this, propertyValue);
+                }
                 else if (p.PropertyType == typeof(DateTime))
                 {
-                    DateTime propertyValue = secondsUtcToDateTime((long)data[propertyUnderscore]);
+                    long dataLong = long.Parse("" + data[propertyUnderscore]);
+                    DateTime propertyValue = DateTime.MaxValue;
+                    if (dataLong != 0)
+                    {
+                        propertyValue = SecondsUtcToDateTime(dataLong);
+                    }
                     p.SetValue(this, propertyValue);
                 }
                 else if (p.PropertyType == typeof(bool))
                 {
-                    bool propertyValue = (bool)data[propertyUnderscore];
+                    bool propertyValue = bool.Parse("" + data[propertyUnderscore]);
                     p.SetValue(this, propertyValue);
                 }
                 else if (p.PropertyType == typeof(int))
                 {
-                    int propertyValue = (int)data[propertyUnderscore];
+                    int propertyValue = int.Parse("" + data[propertyUnderscore]);
+                    p.SetValue(this, propertyValue);
+                }
+                else if (p.PropertyType == typeof(OIDCKey))
+                {
+                    OIDCKey propertyValue = new OIDCKey();
+                    propertyValue.DeserializeFromDynamic(data[propertyUnderscore]);
+                    p.SetValue(this, propertyValue);
+                }
+                else if (p.PropertyType == typeof(OIDClaims))
+                {
+                    OIDClaims propertyValue = new OIDClaims();
+                    propertyValue.DeserializeFromDynamic(data[propertyUnderscore]);
+                    p.SetValue(this, propertyValue);
+                }
+                else if (p.PropertyType == typeof(OIDClaimData))
+                {
+                    OIDClaimData propertyValue = new OIDClaimData();
+                    propertyValue.DeserializeFromDynamic(data[propertyUnderscore]);
                     p.SetValue(this, propertyValue);
                 }
             }
 
-            validate();
+            Validate();
         }
 
         /// <summary>
         /// Method that deserializes message property values from a string obtained from query string.
         /// </summary>
         /// <param name="query">The query string.</param>
-        public void deserializeFromQueryString(string query)
+        public void DeserializeFromQueryString(string query)
         {
-            if (query.StartsWith("?"))
+            String queryString = query;
+            if (queryString.StartsWith("?"))
             {
-                query = query.Substring(1);
+                queryString = queryString.Substring(1);
             }
 
             Dictionary<string, object> data = new Dictionary<string, object>();
-            foreach (string param in query.Split('&'))
+            foreach (string param in queryString.Split('&'))
             {
                 string[] vals = param.Split('=');
                 data.Add(vals[0], Uri.UnescapeDataString(vals[1]));
@@ -150,84 +195,35 @@ namespace OpenIDClient.Messages
 
             if (!data.ContainsKey("error"))
             {
-                deserializeFromDynamic(data);
+                DeserializeFromDynamic(data);
             }
         }
 
-        private Dictionary<string, object> getData()
+        /// <summary>
+        /// Method that serializes message property values to a Dictionary object.
+        /// </summary>
+        /// <returns>A dictionary serialization of the message.</returns>
+        public Dictionary<string, object> SerializeToDictionary()
         {
-            PropertyInfo[] properties = this.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            Dictionary<string, object> data = new Dictionary<string, object>();
-            foreach (PropertyInfo p in properties)
-            {
-                if (!isSupportedType(p.PropertyType))
-                {
-                    continue;
-                }
-
-                string propertyCamel = p.Name;
-                string propertyUnderscore = Regex.Replace(propertyCamel, "(?<=.)([A-Z])", "_$0", RegexOptions.Compiled).ToLower();
-
-                if (p.GetValue(this, null) == null)
-                {
-                    continue;
-                }
-
-                if (p.PropertyType == typeof(string))
-                {
-                    string propertyValue = (string)p.GetValue(this, null);
-                    data.Add(propertyUnderscore, propertyValue);
-                }
-                else if (p.PropertyType == typeof(List<string>))
-                {
-                    List<string> propertyValue = (List<string>)p.GetValue(this, null);
-                    data.Add(propertyUnderscore, propertyValue.ToArray());
-                }
-                else if (p.PropertyType == typeof(DateTime))
-                {
-                    long propertyValue = dateTimeToSecondsUtc((DateTime)p.GetValue(this, null));
-                    data.Add(propertyUnderscore, propertyValue);
-                }
-                else if (p.PropertyType == typeof(bool))
-                {
-                    bool propertyValue = (bool)p.GetValue(this, null);
-                    data.Add(propertyUnderscore, propertyValue);
-                }
-                else if (p.PropertyType == typeof(int))
-                {
-                    int propertyValue = (int)p.GetValue(this, null);
-                    data.Add(propertyUnderscore, propertyValue);
-                }
-            }
-
-            return data;
+            return Serializer.SerializeToDictionary(this);
         }
 
         /// <summary>
         /// Method that serializes message property values to a JSON string.
         /// </summary>
         /// <returns>A JSON string serialization of the message.</returns>
-        public string serializeToJsonString()
+        public string SerializeToJsonString()
         {
-            Dictionary<string, object> data = getData();
-            IJsonSerializer JsonSerializer = new DefaultJsonSerializer();
-            return JsonSerializer.Serialize(data);
+            return Serializer.SerializeToJsonString(this);
         }
 
         /// <summary>
         /// Method that serializes message property values to a query string.
         /// </summary>
         /// <returns>A query string serialization of the message.</returns>
-        public string serializeToQueryString()
+        public string SerializeToQueryString()
         {
-            string uri = "";
-            Dictionary<string, object> data = getData();
-            foreach (KeyValuePair<string, object> entry in data)
-            {
-                uri += entry.Key + "=" + entry.Value + "&";
-            }
-            return uri.TrimEnd('&');
+            return Serializer.SerializeToQueryString(this);
         }
     }
 
@@ -279,11 +275,12 @@ namespace OpenIDClient.Messages
         public string IdTokenHint { get; set; }
         public string LoginHint { get; set; }
         public string AcrValues { get; set; }
+        public OIDClaims Claims { get; set; }
 
         /// <summary>
-        /// <see cref="OIDClientSerializableMessage.validate()"/>
+        /// <see cref="OIDClientSerializableMessage.Validate()"/>
         /// </summary>
-        public override void validate()
+        public override void Validate()
         {
             if (Scope == null)
             {
@@ -317,9 +314,9 @@ namespace OpenIDClient.Messages
         public string Scope { get; set; }
 
         /// <summary>
-        /// <see cref="OIDClientSerializableMessage.validate()"/>
+        /// <see cref="OIDClientSerializableMessage.Validate()"/>
         /// </summary>
-        public override void validate()
+        public override void Validate()
         {
             if (Code == null)
             {
@@ -341,20 +338,10 @@ namespace OpenIDClient.Messages
         public string State { get; set; }
 
         /// <summary>
-        /// <see cref="OIDClientSerializableMessage.validate()"/>
+        /// <see cref="OIDClientSerializableMessage.Validate()"/>
         /// </summary>
-        public override void validate()
+        public override void Validate()
         {
-            if (AccessToken == null)
-            {
-                throw new OIDCException("Mising access_token required parameter.");
-            }
-
-            if (TokenType == null)
-            {
-                throw new OIDCException("Mising token_type required parameter.");
-            }
-
             if (IdToken == null)
             {
                 throw new OIDCException("Mising id_token required parameter.");
@@ -415,9 +402,9 @@ namespace OpenIDClient.Messages
         public string IdToken { get; set; }
 
         /// <summary>
-        /// <see cref="OIDClientSerializableMessage.validate()"/>
+        /// <see cref="OIDClientSerializableMessage.Validate()"/>
         /// </summary>
-        public override void validate()
+        public override void Validate()
         {
             if (AccessToken == null)
             {
@@ -438,6 +425,7 @@ namespace OpenIDClient.Messages
     {
         public string Scope { get; set; }
         public string State { get; set; }
+        public OIDClaims Claims { get; set; }
     }
 
     /// <summary>
@@ -449,9 +437,22 @@ namespace OpenIDClient.Messages
         public string Name { get; set; }
         public string GivenName { get; set; }
         public string FamilyName { get; set; }
+        public string MiddleName { get; set; }
+        public string Nickname { get; set; }
         public string PreferredUsername { get; set; }
-        public string Email { get; set; }
+        public string Profile { get; set; }
         public string Picture { get; set; }
+        public string Website { get; set; }
+        public string Email { get; set; }
+        public string EmailVerified { get; set; }
+        public string Gender { get; set; }
+        public string Birthdate { get; set; }
+        public string Zoneinfo { get; set; }
+        public string Locale { get; set; }
+        public string PhoneNumber { get; set; }
+        public string PhoneNumberVerified { get; set; }
+        public string Address { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 
     /// <summary>
@@ -470,17 +471,63 @@ namespace OpenIDClient.Messages
         public List<string> Amr { get; set; }
         public string Azp { get; set; }
         public string AtHash { get; set; }
+        public OIDCKey SubJkw { get; set; }
+        public string Name { get; set; }
+        public string GivenName { get; set; }
+        public string FamilyName { get; set; }
+        public string MiddleName { get; set; }
+        public string Nickname { get; set; }
+        public string PreferredUsername { get; set; }
+        public string Profile { get; set; }
+        public string Picture { get; set; }
+        public string Website { get; set; }
+        public string Email { get; set; }
+        public string EmailVerified { get; set; }
+        public string Gender { get; set; }
+        public string Birthdate { get; set; }
+        public string Zoneinfo { get; set; }
+        public string Locale { get; set; }
+        public string PhoneNumber { get; set; }
+        public string PhoneNumberVerified { get; set; }
+        public string Address { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
         /// <summary>
-        /// <see cref="OIDClientSerializableMessage.validate()"/>
+        /// <see cref="OIDClientSerializableMessage.Validate()"/>
         /// </summary>
-        public override void validate()
-        {
+        public override void Validate()
+        {   
             if (Iss == null)
             {
                 throw new OIDCException("Mising iss required parameter.");
             }
 
+            if (Iss == "https://self-issued.me")
+            {
+                ValidateSelfIssued();
+            }
+            else
+            {
+                ValidateGeneric();
+            }
+        }
+
+        private void ValidateSelfIssued()
+        {
+            if (SubJkw != null && SubJkw.N != null)
+            {
+                byte[] key = Convert.FromBase64String(SubJkw.N);
+                X509Certificate2 certificate = new X509Certificate2(key);
+
+                if (Sub != Convert.ToBase64String(Encoding.UTF8.GetBytes(certificate.Thumbprint)))
+                {
+                    throw new OIDCException("Wrong signature for subject.");
+                }
+            }
+        }
+
+        private void ValidateGeneric()
+        {
             if (Sub == null)
             {
                 throw new OIDCException("Mising sub required parameter.");
@@ -501,6 +548,25 @@ namespace OpenIDClient.Messages
                 throw new OIDCException("Mising iat required parameter.");
             }
         }
+    }
+
+    /// <summary>
+    /// Message describing claims for a request
+    /// </summary>
+    public class OIDClaimData : OIDClientSerializableMessage
+    {
+        public bool Essential { get; set; }
+        public string Value { get; set; }
+        public List<string> Values { get; set; }
+    }
+
+    /// <summary>
+    /// Message describing claims for a request
+    /// </summary>
+    public class OIDClaims : OIDClientSerializableMessage
+    {
+        public Dictionary<string, OIDClaimData> Userinfo { get; set; }
+        public Dictionary<string, OIDClaimData> IdToken { get; set; }
     }
 
     /// <summary>

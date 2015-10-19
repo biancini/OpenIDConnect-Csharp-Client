@@ -44,7 +44,9 @@
     <Compile Include="Messages.cs" />
     <Compile Include="ObjectsMetadata.cs" />
     <Compile Include="OpenIdRelyingParty.cs" />
+    <Compile Include="OpenIdWebRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

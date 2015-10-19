@@ -130,7 +130,7 @@ namespace OIDC.Tests
             OIDCProviderMetadata response = rp.ObtainProviderInformation(hostname);
 
             // then
-            response.validate();
+            response.Validate();
         }
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace OIDC.Tests
             OIDCProviderMetadata response = rp.ObtainProviderInformation(hostname);
 
             // then
-            response.validate();
+            response.Validate();
         }
     }
 }
