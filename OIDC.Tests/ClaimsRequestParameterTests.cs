@@ -16,21 +16,14 @@ namespace OIDC.Tests
     [TestFixture]
     public class ClaimsRequestParameterTests : OIDCTests
     {
-        WebServer ws;
         OIDCClientInformation clientInformation;
-        Dictionary<string, Semaphore> semaphores = new Dictionary<string, Semaphore>();
-        Dictionary<string, string> results = new Dictionary<string, string>();
         IJsonSerializer JsonSerializer;
 
         [TestFixtureSetUp]
         public void SetupTests()
         {
+            StartWebServer();
             JsonSerializer = new DefaultJsonSerializer();
-
-            X509Certificate2 certificate = new X509Certificate2("certificate.crt", "");
-            ws = new WebServer(myBaseUrl.ToString(), certificate);
-            ws.addUrlAction("/id_token_flow_callback", IdTokenFlowCallback);
-            ws.Run();
 
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
@@ -47,26 +40,6 @@ namespace OIDC.Tests
             clientInformation = rp.RegisterClient(registrationEndopoint, clientMetadata);
         }
 
-        [TestFixtureTearDown]
-        public void TearDownTests()
-        {
-            ws.Stop();
-        }
-
-        private void CodeFlowCallback(IHttpContext context)
-        {
-            string queryString = context.Request.Uri.Query;
-            results[rpid] = queryString;
-            semaphores[rpid].Release();
-        }
-
-        private void IdTokenFlowCallback(IHttpContext context)
-        {
-            string queryString = context.Request.Uri.Query;
-            results[rpid] = queryString;
-            semaphores[rpid].Release();
-        }
-
         /// <summary>
         /// Can request and use claims in ID Token using the 'claims' request parameter
         /// 
@@ -81,7 +54,6 @@ namespace OIDC.Tests
             // given
             rpid = "rp-response_type-id_token+token";
             claims = "normal";
-            semaphores[rpid] = new Semaphore(0, 1);
 
             OIDClaims requestClaims = new OIDClaims();
             requestClaims.IdToken = new Dictionary<string, OIDClaimData>();
@@ -102,8 +74,8 @@ namespace OIDC.Tests
 
             // when
             OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
-            semaphores[rpid].WaitOne();
-            string queryString = results[rpid];
+            semaphore.WaitOne();
+            string queryString = result;
             OIDCAuthImplicitResponseMessage response = rp.ParseAuthImplicitResponse(queryString, requestMessage.Scope, requestMessage.State);
 
             // then
@@ -132,7 +104,6 @@ namespace OIDC.Tests
             // given
             rpid = "rp-claims_request-userinfo_claims";
             claims = "normal";
-            semaphores[rpid] = new Semaphore(0, 1);
 
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
@@ -154,9 +125,8 @@ namespace OIDC.Tests
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
-            semaphores[rpid].WaitOne();
-            string queryString = results[rpid];
-            OIDCAuthImplicitResponseMessage authResponse = rp.ParseAuthImplicitResponse(queryString, requestMessage.Scope, requestMessage.State);
+            semaphore.WaitOne();
+            OIDCAuthImplicitResponseMessage authResponse = rp.ParseAuthImplicitResponse(result, requestMessage.Scope, requestMessage.State);
 
             OIDCUserInfoRequestMessage userInfoRequestMessage = new OIDCUserInfoRequestMessage();
             userInfoRequestMessage.Scope = authResponse.Scope;

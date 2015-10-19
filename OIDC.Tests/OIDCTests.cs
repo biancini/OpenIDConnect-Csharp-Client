@@ -1,18 +1,30 @@
 ﻿using System;
 using System.Net;
 using System.Configuration;
+using SimpleWebServer;
+
+using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using OpenIDClient;
+using JWT;
+using Griffin.WebServer;
 
 namespace OIDC.Tests
 {
     public class OIDCTests
     {
-        protected Uri myBaseUrl = new Uri(ConfigurationManager.AppSettings["MyBaseUrl"]);
-        protected Uri opBaseurl = new Uri(ConfigurationManager.AppSettings["TestOP"]);
-        protected string rpid = "_";
-        protected string signalg = "_";
-        protected string encalg = "_";
-        protected string errtype = "_";
-        protected string claims = "_";
+        protected static Uri myBaseUrl = new Uri(ConfigurationManager.AppSettings["MyBaseUrl"]);
+        protected static Uri opBaseurl = new Uri(ConfigurationManager.AppSettings["TestOP"]);
+        protected static string rpid = "_";
+        protected static string signalg = "_";
+        protected static string encalg = "_";
+        protected static string errtype = "_";
+        protected static string claims = "_";
+
+        protected static WebServer ws = null;
+        protected static Semaphore semaphore = new Semaphore(0, 1);
+        protected static string result = "";
 
         public OIDCTests()
         { 
@@ -31,6 +43,45 @@ namespace OIDC.Tests
             path += "/" + claims;
             path += "/" + (endpoint[0] == '/' ? endpoint.Substring(1) : endpoint);
             return new Uri(opBaseurl, path).ToString();
+        }
+
+        protected static void StartWebServer()
+        {
+            if (ws == null)
+            {
+                X509Certificate2 certificate = new X509Certificate2("certificate.crt", "");
+                ws = new WebServer(myBaseUrl.ToString(), certificate);
+                ws.addUrlAction("/my_public_keys.jwks", RespondWithJwks);
+                ws.addUrlAction("/id_token_flow_callback", IdTokenFlowCallback);
+                ws.addUrlAction("/code_flow_callback", CodeFlowCallback);
+                ws.Run();
+            }
+        }
+
+        private static void RespondWithJwks(IHttpContext context)
+        {
+            X509Certificate signCert = new X509Certificate();
+            signCert.Import("server.crt");
+            X509Certificate encCert = new X509Certificate();
+            encCert.Import("server.crt");
+
+            Dictionary<string, object> keysDict = OpenIdRelyingParty.GetKeysJwks(signCert, encCert);
+
+            IJsonSerializer JsonSerializer = new DefaultJsonSerializer();
+            string rstring = JsonSerializer.Serialize(keysDict);
+            HttpWorker.WriteTextToResponse(context, rstring);
+        }
+
+        private static void IdTokenFlowCallback(IHttpContext context)
+        {
+            result = context.Request.Uri.Query;
+            semaphore.Release();
+        }
+
+        private static void CodeFlowCallback(IHttpContext context)
+        {
+            result = context.Request.Uri.Query;
+            semaphore.Release();
         }
     }
 }

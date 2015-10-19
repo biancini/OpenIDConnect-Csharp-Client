@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading;
 using HtmlAgilityPack;
 using System.Collections.Generic;
@@ -16,22 +17,14 @@ namespace OIDC.Tests
     [TestFixture]
     public class ResponseTypeAndModeTests : OIDCTests
     {
-        WebServer ws;
         OIDCClientInformation clientInformation;
-        Dictionary<string, Semaphore> semaphores = new Dictionary<string, Semaphore>();
-        Dictionary<string, string> results = new Dictionary<string, string>();
         IJsonSerializer JsonSerializer;
 
         [TestFixtureSetUp]
         public void SetupTests()
         {
             JsonSerializer = new DefaultJsonSerializer();
-
-            X509Certificate2 certificate = new X509Certificate2("certificate.crt", "");
-            ws = new WebServer(myBaseUrl.ToString(), certificate);
-            ws.addUrlAction("/code_flow_callback", CodeFlowCallback);
-            ws.addUrlAction("/id_token_flow_callback", IdTokenFlowCallback);
-            ws.Run();
+            StartWebServer();
 
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
@@ -50,26 +43,6 @@ namespace OIDC.Tests
             clientInformation = rp.RegisterClient(registrationEndopoint, clientMetadata);
         }
 
-        [TestFixtureTearDown]
-        public void TearDownTests()
-        {
-            ws.Stop();
-        }
-
-        private void CodeFlowCallback(IHttpContext context)
-        {
-            string queryString = context.Request.Uri.Query;
-            results[rpid] = queryString;
-            semaphores[rpid].Release();
-        }
-
-        private void IdTokenFlowCallback(IHttpContext context)
-        {
-            string queryString = context.Request.Uri.Query;
-            results[rpid] = queryString;
-            semaphores[rpid].Release();
-        }
-
         /// <summary>
         /// Can make request using response_type 'code'
         /// 
@@ -84,7 +57,6 @@ namespace OIDC.Tests
             // given
             rpid = "rp-response_type-code";
             claims = "normal";
-            semaphores[rpid] = new Semaphore(0, 1);
 
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
@@ -98,9 +70,8 @@ namespace OIDC.Tests
             
             // when
             OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
-            semaphores[rpid].WaitOne();
-            string queryString = results[rpid];
-            OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(queryString, requestMessage.Scope);
+            semaphore.WaitOne();
+            OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope);
 
             // then
             response.Validate();
@@ -120,7 +91,6 @@ namespace OIDC.Tests
             // given
             rpid = "rp-response_type-id_token";
             claims = "normal";
-            semaphores[rpid] = new Semaphore(0, 1);
 
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
@@ -136,9 +106,8 @@ namespace OIDC.Tests
 
             // when
             OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
-            semaphores[rpid].WaitOne();
-            string queryString = results[rpid];
-            OIDCAuthImplicitResponseMessage response = rp.ParseAuthImplicitResponse(queryString, requestMessage.Scope, requestMessage.State);
+            semaphore.WaitOne();
+            OIDCAuthImplicitResponseMessage response = rp.ParseAuthImplicitResponse(result, requestMessage.Scope, requestMessage.State);
 
             // then
             response.Validate();
@@ -158,7 +127,6 @@ namespace OIDC.Tests
             // given
             rpid = "rp-response_type-id_token+token";
             claims = "normal";
-            semaphores[rpid] = new Semaphore(0, 1);
 
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
@@ -174,9 +142,8 @@ namespace OIDC.Tests
 
             // when
             OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
-            semaphores[rpid].WaitOne();
-            string queryString = results[rpid];
-            OIDCAuthImplicitResponseMessage response = rp.ParseAuthImplicitResponse(queryString, requestMessage.Scope, requestMessage.State);
+            semaphore.WaitOne();
+            OIDCAuthImplicitResponseMessage response = rp.ParseAuthImplicitResponse(result, requestMessage.Scope, requestMessage.State);
 
             // then
             response.Validate();

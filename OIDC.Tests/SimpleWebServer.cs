@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -80,7 +81,7 @@ namespace SimpleWebServer
                 WriteTextToResponse(context, "Error 404 - Page not found.");
             }
 
-            return ModuleResult.Continue;
+            return ModuleResult.Stop;
         }
 
         public static void WriteTextToResponse(IHttpContext context, string bodyText)

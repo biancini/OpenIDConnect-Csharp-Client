@@ -17,35 +17,10 @@ namespace OIDC.Tests
     [TestFixture]
     public class DynamicClientRegistrationTests : OIDCTests
     {
-        WebServer ws;
-
         [TestFixtureSetUp]
         public void SetupTests()
         {
-            X509Certificate2 certificate = new X509Certificate2("certificate.crt", "");
-            ws = new WebServer(myBaseUrl.ToString(), certificate);
-            ws.addUrlAction("/my_public_keys.jwks", RespondWithJwks);
-            ws.Run();
-        }
-
-        [TestFixtureTearDown]
-        public void TearDownTests()
-        {
-            ws.Stop()
-        }
-
-        private void RespondWithJwks(IHttpContext context)
-        {
-            X509Certificate signCert = new X509Certificate();
-            signCert.Import("server.crt");
-            X509Certificate encCert = new X509Certificate();
-            encCert.Import("server.crt");
-
-            Dictionary<string, object> keysDict = OpenIdRelyingParty.GetKeysJwks(signCert, encCert);
-
-            IJsonSerializer JsonSerializer = new DefaultJsonSerializer();
-            string rstring = JsonSerializer.Serialize(keysDict);
-            HttpWorker.WriteTextToResponse(context, rstring);
+            StartWebServer();
         }
 
         /// <summary>
