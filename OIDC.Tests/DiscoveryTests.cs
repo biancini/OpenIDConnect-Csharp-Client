@@ -104,7 +104,7 @@ namespace OIDC.Tests
             string issuer = rp.ObtainIssuerFromURL(userid, opBaseurl.ToString());
 
             // when
-            OIDCProviderMetadata response = rp.ObtainProviderInformation(hostname, issuer);
+            rp.ObtainProviderInformation(hostname, issuer);
 
             // then
         }

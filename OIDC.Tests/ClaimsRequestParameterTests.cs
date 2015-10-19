@@ -113,7 +113,7 @@ namespace OIDC.Tests
             string jsonToken = JsonWebToken.Decode(response.IdToken, response.AccessToken, false);
             OIDCIdToken idToken = new OIDCIdToken();
             Dictionary<string, object> o = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonToken);
-            idToken.DeserializeFromDynamic(o);
+            idToken.DeserializeFromDictionary(o);
 
             Assert.IsNotNullOrEmpty(idToken.Name);
         }

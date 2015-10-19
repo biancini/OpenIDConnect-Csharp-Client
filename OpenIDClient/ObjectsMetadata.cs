@@ -52,12 +52,12 @@ namespace OpenIDClient
         }
 
         /// <summary>
-        /// Constructor deserializing message properties from dynamic.
+        /// Constructor deserializing message properties from dictionary.
         /// </summary>
-        /// <param name="o">The dynamic object containing message properties.</param>
-        public OIDCProviderMetadata(dynamic o)
+        /// <param name="o">The dictionary object containing message properties.</param>
+        public OIDCProviderMetadata(Dictionary<string, object> o)
         {
-            DeserializeFromDynamic(o);
+            DeserializeFromDictionary(o);
 
             if (JwksUri != null)
             {
@@ -124,12 +124,12 @@ namespace OpenIDClient
         }
 
         /// <summary>
-        /// Constructor deserializing message properties from dynamic.
+        /// Constructor deserializing message properties from dictionary.
         /// </summary>
         /// <param name="o">The dynamic object containing message properties.</param>
-        public OIDCClientInformation(dynamic o)
+        public OIDCClientInformation(Dictionary<string, object> o)
         {
-            DeserializeFromDynamic(o);
+            DeserializeFromDictionary(o);
         }
 
         /// <summary>
@@ -223,12 +223,12 @@ namespace OpenIDClient
         }
 
         /// <summary>
-        /// Constructor deserializing message properties from dynamic.
+        /// Constructor deserializing message properties from dictionary.
         /// </summary>
-        /// <param name="o">The dynamic object containing message properties.</param>
+        /// <param name="o">The dictionary object containing message properties.</param>
         public OIDCKey(dynamic o)
         {
-            DeserializeFromDynamic(o);
+            DeserializeFromDictionary(o);
         }
 
         /// <summary>

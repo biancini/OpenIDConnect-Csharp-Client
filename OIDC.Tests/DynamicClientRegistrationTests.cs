@@ -31,7 +31,7 @@ namespace OIDC.Tests
         [TestFixtureTearDown]
         public void TearDownTests()
         {
-            ws.Stop();
+            ws.Stop()
         }
 
         private void RespondWithJwks(IHttpContext context)

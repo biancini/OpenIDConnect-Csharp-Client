@@ -272,7 +272,7 @@ namespace OpenIDClient
             }
 
             OIDCClientInformation clientInformation = new OIDCClientInformation();
-            clientInformation.DeserializeFromDynamic(returnedJson);
+            clientInformation.DeserializeFromDictionary(returnedJson);
             return clientInformation;
         }
 
@@ -443,12 +443,12 @@ namespace OpenIDClient
             if (returnedJson.Keys.Contains("error"))
             {
                 OIDCResponseError error = new OIDCResponseError();
-                error.DeserializeFromDynamic(returnedJson);
+                error.DeserializeFromDictionary(returnedJson);
                 throw new OIDCException("Error while registering client: " + error.Error + "\n" + error.ErrorDescription);
             }
 
             OIDCTokenResponseMessage tokenResponse = new OIDCTokenResponseMessage();
-            tokenResponse.DeserializeFromDynamic(returnedJson);
+            tokenResponse.DeserializeFromDictionary(returnedJson);
             return tokenResponse;
         }
 
@@ -461,12 +461,12 @@ namespace OpenIDClient
             if (returnedJson.Keys.Contains("error"))
             {
                 OIDCResponseError error = new OIDCResponseError();
-                error.DeserializeFromDynamic(returnedJson);
+                error.DeserializeFromDictionary(returnedJson);
                 throw new OIDCException("Error while asking for user info: " + error.Error + "\n" + error.ErrorDescription);
             }
 
             OIDCUserInfoResponseMessage userInfoResponse = new OIDCUserInfoResponseMessage();
-            userInfoResponse.DeserializeFromDynamic(returnedJson);
+            userInfoResponse.DeserializeFromDictionary(returnedJson);
             return userInfoResponse;
         }
 

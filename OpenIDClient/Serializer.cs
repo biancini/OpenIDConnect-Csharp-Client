@@ -15,31 +15,6 @@ namespace OpenIDClient
             return (long)(dateValue - epoch).TotalSeconds;
         }
 
-        private static bool IsSupportedType(Type t)
-        {
-            List<Type> supportedTypes = new List<Type>() {
-                typeof(string),
-                typeof(List<>),
-                typeof(Dictionary<, >),
-                typeof(DateTime),
-                typeof(long),
-                typeof(int),
-                typeof(bool),
-                typeof(OIDCKey),
-                typeof(OIDClaims),
-                typeof(OIDClaimData)
-            };
-
-            if (t.IsGenericType)
-            {
-                return supportedTypes.Contains(t.GetGenericTypeDefinition());
-            }
-            else
-            {
-                return supportedTypes.Contains(t);
-            }
-        }
-
         private static object ParsePropertyType(Type propertyType, object value)
         {
             if (propertyType == typeof(string) || propertyType == typeof(bool) || propertyType == typeof(int))
@@ -104,7 +79,7 @@ namespace OpenIDClient
             Dictionary<string, object> data = new Dictionary<string, object>();
             foreach (PropertyInfo p in properties)
             {
-                if (!IsSupportedType(p.PropertyType))
+                if (!OIDClientSerializableMessage.IsSupportedType(p.PropertyType))
                 {
                     continue;
                 }

@@ -268,12 +268,12 @@ namespace OIDC.Tests
             // when
             Dictionary<string, object> respo = OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
             OIDCAuthImplicitResponseMessage response = new OIDCAuthImplicitResponseMessage();
-            response.DeserializeFromDynamic(respo);
+            response.DeserializeFromDictionary(respo);
 
             // then
             OIDCIdToken idToken = new OIDCIdToken();
             Dictionary<string, object> o = JsonSerializer.Deserialize<Dictionary<string, object>>(response.IdToken);
-            idToken.DeserializeFromDynamic(o);
+            idToken.DeserializeFromDictionary(o);
 
             //The Client MUST validate that the aud (audience) Claim contains the value of the
             //redirect_uri that the Client sent in the Authentication Request as an audience.

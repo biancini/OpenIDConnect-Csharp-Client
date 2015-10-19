@@ -16,38 +16,12 @@ namespace OpenIDClient.Messages
     public class OIDClientSerializableMessage
     {
         /// <summary>
-        /// Method used to validate the message according to the rules specified in the
-        /// protocol specification.
+        /// Method that returns true or false if the type passed is one of the types supported
+        /// in serialization and deserialization.
         /// </summary>
-        public virtual void Validate()
-        {
-            // Empty, method that can be overloaded by children to check if deserialized data is correct
-            // or throw an exception if not.
-        }
-
-        /// <summary>
-        /// Method to convert a long value to a UTC date.
-        /// </summary>
-        /// <param name="dateValue">The long UTC value.</param>
-        /// <returns>The date.</returns>
-        protected DateTime SecondsUtcToDateTime(long dateValue)
-        {
-            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
-            return epoch.AddSeconds(dateValue);
-        }
-
-        /// <summary>
-        /// Method to convert a date to a UTC long value.
-        /// </summary>
-        /// <param name="dateValue">The date.</param>
-        /// <returns>The long UTC value.</returns>
-        protected long DateTimeToSecondsUtc(DateTime dateValue)
-        {
-            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
-            return (long) (dateValue - epoch).TotalSeconds;
-        }
-
-        private bool IsSupportedType(Type t)
+        /// <param name="t">The type to be checked to verify serializability</param>
+        /// <returns>True or false, true if the type can be serialized</returns>
+        public static bool IsSupportedType(Type t)
         {
             List<Type> supportedTypes = new List<Type>() {
                 typeof(string),
@@ -63,7 +37,7 @@ namespace OpenIDClient.Messages
             };
 
             if (t.IsGenericType)
-            { 
+            {
                 return supportedTypes.Contains(t.GetGenericTypeDefinition());
             }
             else
@@ -73,104 +47,22 @@ namespace OpenIDClient.Messages
         }
 
         /// <summary>
+        /// Method used to validate the message according to the rules specified in the
+        /// protocol specification.
+        /// </summary>
+        public virtual void Validate()
+        {
+            // Empty, method that can be overloaded by children to check if deserialized data is correct
+            // or throw an exception if not.
+        }
+
+        /// <summary>
         /// Method that deserializes message property values from a dynamic object as input.
         /// </summary>
-        /// <param name="data">Dynamic object with the property values for the current message.</param>
-        public void DeserializeFromDynamic(dynamic data)
+        /// <param name="data">Dictionary object with the property values for the current message.</param>
+        public void DeserializeFromDictionary(Dictionary<string, object> data)
         {
-            PropertyInfo[] properties = this.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            foreach (PropertyInfo p in properties)
-            {
-                if (!IsSupportedType(p.PropertyType))
-                {
-                    continue;
-                }
-
-                string propertyCamel = p.Name;
-                string propertyUnderscore = Regex.Replace(propertyCamel, "(?<=.)([A-Z])", "_$0", RegexOptions.Compiled).ToLower();
-
-                try
-                {
-                    if (data[propertyUnderscore] == null)
-                    {
-                        continue;
-                    }
-                }
-                catch (KeyNotFoundException)
-                {
-                    continue;
-                }
-
-                if (p.PropertyType == typeof(string))
-                {
-                    string propertyValue = (string)data[propertyUnderscore];
-                    p.SetValue(this, propertyValue);
-                }
-                else if (p.PropertyType == typeof(List<string>))
-                {
-                    List<string> propertyValue = new List<string>();
-                    if (data[propertyUnderscore].GetType() == typeof(string))
-                    {
-                        propertyValue.Add(data[propertyUnderscore]);
-                    }
-                    else
-                    {
-                        dynamic arrayData = data[propertyUnderscore];
-                        foreach (string val in arrayData)
-                        {
-                            propertyValue.Add(val);
-                        }
-                    }
-                    p.SetValue(this, propertyValue);
-                }
-                else if (p.PropertyType == typeof(Dictionary<string, object>))
-                {
-                    Dictionary<string, object> propertyValue = new Dictionary<string, object>();
-
-                    throw new Exception("Not yet implemented");
-                    p.SetValue(this, propertyValue);
-                }
-                else if (p.PropertyType == typeof(DateTime))
-                {
-                    long dataLong = long.Parse("" + data[propertyUnderscore]);
-                    DateTime propertyValue = DateTime.MaxValue;
-                    if (dataLong != 0)
-                    {
-                        propertyValue = SecondsUtcToDateTime(dataLong);
-                    }
-                    p.SetValue(this, propertyValue);
-                }
-                else if (p.PropertyType == typeof(bool))
-                {
-                    bool propertyValue = bool.Parse("" + data[propertyUnderscore]);
-                    p.SetValue(this, propertyValue);
-                }
-                else if (p.PropertyType == typeof(int))
-                {
-                    int propertyValue = int.Parse("" + data[propertyUnderscore]);
-                    p.SetValue(this, propertyValue);
-                }
-                else if (p.PropertyType == typeof(OIDCKey))
-                {
-                    OIDCKey propertyValue = new OIDCKey();
-                    propertyValue.DeserializeFromDynamic(data[propertyUnderscore]);
-                    p.SetValue(this, propertyValue);
-                }
-                else if (p.PropertyType == typeof(OIDClaims))
-                {
-                    OIDClaims propertyValue = new OIDClaims();
-                    propertyValue.DeserializeFromDynamic(data[propertyUnderscore]);
-                    p.SetValue(this, propertyValue);
-                }
-                else if (p.PropertyType == typeof(OIDClaimData))
-                {
-                    OIDClaimData propertyValue = new OIDClaimData();
-                    propertyValue.DeserializeFromDynamic(data[propertyUnderscore]);
-                    p.SetValue(this, propertyValue);
-                }
-            }
-
+            Deserializer.DeserializeFromDictionary(this, data);
             Validate();
         }
 
@@ -180,23 +72,8 @@ namespace OpenIDClient.Messages
         /// <param name="query">The query string.</param>
         public void DeserializeFromQueryString(string query)
         {
-            String queryString = query;
-            if (queryString.StartsWith("?"))
-            {
-                queryString = queryString.Substring(1);
-            }
-
-            Dictionary<string, object> data = new Dictionary<string, object>();
-            foreach (string param in queryString.Split('&'))
-            {
-                string[] vals = param.Split('=');
-                data.Add(vals[0], Uri.UnescapeDataString(vals[1]));
-            }
-
-            if (!data.ContainsKey("error"))
-            {
-                DeserializeFromDynamic(data);
-            }
+            Deserializer.DeserializeFromQueryString(this, query);
+            Validate();
         }
 
         /// <summary>
