@@ -1,15 +1,16 @@
-﻿using System;
-using System.Net;
-using System.Configuration;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using Griffin.WebServer;
-using SimpleWebServer;
-using OpenIDClient;
-
-namespace OIDC.Tests
+﻿namespace OIDC.Tests
 {
+    using System;
+    using System.Net;
+    using System.Configuration;
+    using System.Collections.Generic;
+    using System.Security.Cryptography.X509Certificates;
+    using System.Threading;
+    using Griffin.WebServer;
+    using SimpleWebServer;
+    using OpenIDClient;
+    using NUnit.Framework;
+
     public class OIDCTests
     {
         protected static Uri myBaseUrl = new Uri(ConfigurationManager.AppSettings["MyBaseUrl"]);
@@ -18,11 +19,13 @@ namespace OIDC.Tests
         protected static string signalg = "_";
         protected static string encalg = "_";
         protected static string errtype = "_";
-        protected static string claims = "_";
+        protected static string claims = "normal";
 
         protected static WebServer ws = null;
         protected static Semaphore semaphore = new Semaphore(0, 1);
+        
         protected static string result = "";
+        protected static string request = "";
 
         public OIDCTests()
         { 
@@ -30,6 +33,16 @@ namespace OIDC.Tests
             {
                 ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             }
+        }
+
+        [SetUp]
+        public void RunBeforeAnyTests()
+        {
+	        rpid = "_";
+            signalg = "_";
+            encalg = "_";
+            errtype = "_";
+            claims = "normal";
         }
 
         protected string GetBaseUrl(string endpoint)
@@ -52,16 +65,20 @@ namespace OIDC.Tests
                 ws.addUrlAction("/my_public_keys.jwks", RespondWithJwks);
                 ws.addUrlAction("/id_token_flow_callback", IdTokenFlowCallback);
                 ws.addUrlAction("/code_flow_callback", CodeFlowCallback);
+                ws.addUrlAction("/request.jwt", RequestUriCallback);
                 ws.Run();
             }
         }
 
+        private static void RequestUriCallback(IHttpContext context)
+        {
+            HttpWorker.WriteTextToResponse(context, request);
+        }
+
         private static void RespondWithJwks(IHttpContext context)
         {
-            X509Certificate signCert = new X509Certificate();
-            signCert.Import("server.crt");
-            X509Certificate encCert = new X509Certificate();
-            encCert.Import("server.crt");
+            X509Certificate signCert = new X509Certificate("server.pfx", "");
+            X509Certificate encCert = new X509Certificate("server.pfx", "");
 
             Dictionary<string, object> keysDict = OpenIdRelyingParty.GetKeysJwks(signCert, encCert);
 

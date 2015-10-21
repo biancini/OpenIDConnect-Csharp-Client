@@ -1,14 +1,15 @@
-﻿using System;
-using System.Net;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Security.Cryptography.X509Certificates;
-
-namespace OpenIDClient.Messages
+﻿namespace OpenIDClient.Messages
 {
+    using System;
+    using System.Net;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Reflection;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Security.Cryptography;
+    using System.Security.Cryptography.X509Certificates;
+
     /// <summary>
     /// Abstract class extended by all messages between RP e OP.
     /// </summary>
@@ -22,7 +23,8 @@ namespace OpenIDClient.Messages
         /// <returns>True or false, true if the type can be serialized</returns>
         public static bool IsSupportedType(Type t)
         {
-            List<Type> supportedTypes = new List<Type>() {
+            List<Type> supportedTypes = new List<Type>()
+            {
                 typeof(string),
                 typeof(List<>),
                 typeof(Dictionary<, >),
@@ -62,7 +64,7 @@ namespace OpenIDClient.Messages
         public void DeserializeFromDictionary(Dictionary<string, object> data)
         {
             Deserializer.DeserializeFromDictionary(this, data);
-            Validate();
+            this.Validate();
         }
 
         /// <summary>
@@ -72,7 +74,7 @@ namespace OpenIDClient.Messages
         public void DeserializeFromQueryString(string query)
         {
             Deserializer.DeserializeFromQueryString(this, query);
-            Validate();
+            this.Validate();
         }
 
         /// <summary>
@@ -108,8 +110,6 @@ namespace OpenIDClient.Messages
     /// </summary>
     public class OIDCClientRegistrationRequest : OIDClientSerializableMessage
     {
-        private WebRequest PostRequest { get; set; }
-
         public string ApplicationType { get; set; }
         public List<string> RedirectUris { get; set; }
         public string ClientName { get; set; }
@@ -123,6 +123,8 @@ namespace OpenIDClient.Messages
         public List<string> Contacts { get; set; }
         public List<string> RequestUris { get; set; }
         public List<string> ResponseTypes { get; set; }
+
+        private WebRequest PostRequest { get; set; }
     }
 
     /// <summary>
@@ -130,11 +132,14 @@ namespace OpenIDClient.Messages
     /// </summary>
     public class OIDCAuthorizationRequestMessage : OIDClientSerializableMessage
     {
+        public string Iss { get; set; }
+        public string Aud { get; set; }
         public string Scope { get; set; }
         public string ResponseType { get; set; }
         public string ClientId { get; set; }
         public string RedirectUri { get; set; }
         public string State { get; set; }
+        public string RequestUri { get; set; }
         public string ResponseMode { get; set; }
         public string Nonce { get; set; }
         public string Display { get; set; }
@@ -160,22 +165,22 @@ namespace OpenIDClient.Messages
         {
             if (Scope == null)
             {
-                throw new OIDCException("Mising scope required parameter.");
+                throw new OIDCException("Missing scope required parameter.");
             }
 
             if (ResponseType == null)
             {
-                throw new OIDCException("Mising response_type required parameter.");
+                throw new OIDCException("Missing response_type required parameter.");
             }
 
             if (ClientId == null)
             {
-                throw new OIDCException("Mising client_id required parameter.");
+                throw new OIDCException("Missing client_id required parameter.");
             }
 
             if (RedirectUri == null)
             {
-                throw new OIDCException("Mising redirect_uri required parameter.");
+                throw new OIDCException("Missing redirect_uri required parameter.");
             }
         }
     }
@@ -196,7 +201,7 @@ namespace OpenIDClient.Messages
         {
             if (Code == null)
             {
-                throw new OIDCException("Mising code required parameter.");
+                throw new OIDCException("Missing code required parameter.");
             }
         }
     }
@@ -220,12 +225,12 @@ namespace OpenIDClient.Messages
         {
             if (IdToken == null)
             {
-                throw new OIDCException("Mising id_token required parameter.");
+                throw new OIDCException("Missing id_token required parameter.");
             }
 
             if (State == null)
             {
-                throw new OIDCException("Mising state required parameter.");
+                throw new OIDCException("Missing state required parameter.");
             }
         }
     }
@@ -284,12 +289,12 @@ namespace OpenIDClient.Messages
         {
             if (AccessToken == null)
             {
-                throw new OIDCException("Mising access_token required parameter.");
+                throw new OIDCException("Missing access_token required parameter.");
             }
 
             if (TokenType == null)
             {
-                throw new OIDCException("Mising token_type required parameter.");
+                throw new OIDCException("Missing token_type required parameter.");
             }
         }
     }
@@ -375,30 +380,12 @@ namespace OpenIDClient.Messages
         {   
             if (Iss == null)
             {
-                throw new OIDCException("Mising iss required parameter.");
+                throw new OIDCException("Missing iss required parameter.");
             }
 
-            if (Iss == "https://self-issued.me")
-            {
-                ValidateSelfIssued();
-            }
-            else
+            if (Iss != "https://self-issued.me")
             {
                 ValidateGeneric();
-            }
-        }
-
-        private void ValidateSelfIssued()
-        {
-            if (SubJkw != null && SubJkw.N != null)
-            {
-                byte[] key = Convert.FromBase64String(SubJkw.N);
-                X509Certificate2 certificate = new X509Certificate2(key);
-
-                if (Sub != Convert.ToBase64String(Encoding.UTF8.GetBytes(certificate.Thumbprint)))
-                {
-                    throw new OIDCException("Wrong signature for subject.");
-                }
             }
         }
 
@@ -406,22 +393,22 @@ namespace OpenIDClient.Messages
         {
             if (Sub == null)
             {
-                throw new OIDCException("Mising sub required parameter.");
+                throw new OIDCException("Missing sub required parameter.");
             }
 
             if (Aud == null)
             {
-                throw new OIDCException("Mising aud required parameter.");
+                throw new OIDCException("Missing aud required parameter.");
             }
 
             if (Exp == null)
             {
-                throw new OIDCException("Mising exp required parameter.");
+                throw new OIDCException("Missing exp required parameter.");
             }
 
             if (Iat == null)
             {
-                throw new OIDCException("Mising iat required parameter.");
+                throw new OIDCException("Missing iat required parameter.");
             }
         }
     }

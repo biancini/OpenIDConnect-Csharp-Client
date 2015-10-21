@@ -90,6 +90,7 @@
     <Compile Include="DynamicClientRegistrationTests.cs" />
     <Compile Include="OIDCTests.cs" />
     <Compile Include="ClaimsRequestParameterTests.cs" />
+    <Compile Include="RequestUriRequestParameterTests.cs" />
     <Compile Include="ResponseTypeAndModeTests.cs" />
     <Compile Include="DiscoveryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -100,12 +101,8 @@
     <None Include="certificate.crt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="LICENSE" />
     <None Include="packages.config" />
-    <None Include="server.crt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="server.key">
+    <None Include="server.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

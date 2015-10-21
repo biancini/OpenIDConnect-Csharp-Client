@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Net;
-
-namespace OpenIDClient
+﻿namespace OpenIDClient
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Net;
+
     /// <summary>
     /// Object describing the OP metadata.
     /// </summary>

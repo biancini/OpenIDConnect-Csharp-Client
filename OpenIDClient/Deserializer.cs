@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using OpenIDClient.Messages;
-
-namespace OpenIDClient
+﻿namespace OpenIDClient
 {
-    class Deserializer
-    {
-        private static DateTime SecondsUtcToDateTime(long dateValue)
-        {
-            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
-            return epoch.AddSeconds(dateValue);
-        }
+    using System;
+    using System.Collections.Generic;
+    using System.Reflection;
+    using System.Text.RegularExpressions;
+    using OpenIDClient.Messages;
 
+    public class Deserializer
+    {
         public static void DeserializeFromDictionary(OIDClientSerializableMessage obj, Dictionary<string, object> data)
         {
             PropertyInfo[] properties = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -60,6 +54,7 @@ namespace OpenIDClient
                             propertyValue.Add(val);
                         }
                     }
+
                     p.SetValue(obj, propertyValue);
                 }
                 else if (p.PropertyType == typeof(Dictionary<string, object>))
@@ -69,22 +64,23 @@ namespace OpenIDClient
                 }
                 else if (p.PropertyType == typeof(DateTime))
                 {
-                    long dataLong = long.Parse("" + data[propertyUnderscore]);
+                    long dataLong = long.Parse(string.Empty + data[propertyUnderscore]);
                     DateTime propertyValue = DateTime.MaxValue;
                     if (dataLong != 0)
                     {
                         propertyValue = SecondsUtcToDateTime(dataLong);
                     }
+
                     p.SetValue(obj, propertyValue);
                 }
                 else if (p.PropertyType == typeof(bool))
                 {
-                    bool propertyValue = bool.Parse("" + data[propertyUnderscore]);
+                    bool propertyValue = bool.Parse(string.Empty + data[propertyUnderscore]);
                     p.SetValue(obj, propertyValue);
                 }
                 else if (p.PropertyType == typeof(int))
                 {
-                    int propertyValue = int.Parse("" + data[propertyUnderscore]);
+                    int propertyValue = int.Parse(string.Empty + data[propertyUnderscore]);
                     p.SetValue(obj, propertyValue);
                 }
                 else if (p.PropertyType == typeof(OIDCKey))
@@ -110,7 +106,7 @@ namespace OpenIDClient
 
         public static void DeserializeFromQueryString(OIDClientSerializableMessage obj, string query)
         {
-            String queryString = query;
+            string queryString = query;
             if (queryString.StartsWith("?"))
             {
                 queryString = queryString.Substring(1);
@@ -127,6 +123,12 @@ namespace OpenIDClient
             {
                 DeserializeFromDictionary(obj, data);
             }
+        }
+
+        private static DateTime SecondsUtcToDateTime(long dateValue)
+        {
+            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
+            return epoch.AddSeconds(dateValue);
         }
     }
 }

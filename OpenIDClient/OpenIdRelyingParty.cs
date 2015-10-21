@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Net;
-using System.IO;
-using System.Security.Cryptography.X509Certificates;
-using OpenIDClient.Messages;
-
-namespace OpenIDClient
+﻿namespace OpenIDClient
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Net;
+    using System.IO;
+    using System.Security.Cryptography;
+    using System.Security.Cryptography.X509Certificates;
+    using OpenIDClient.Messages;
+
     /// <summary>
     /// Class implementing an OpenIDConnect Relying Party and that could be used to authenticat users
     /// with OpenID OP.
@@ -25,7 +26,7 @@ namespace OpenIDClient
         public static string RandomString(int length = 16)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            var random = new Random();
+            var random = new Random(new System.DateTime().Millisecond);
             return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
@@ -65,9 +66,7 @@ namespace OpenIDClient
         {
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.DeserializeFromQueryString(queryString);
-
-            X509Certificate2 certificate = new X509Certificate2();
-            certificate.Import("server.crt");
+            X509Certificate2 certificate = new X509Certificate2("server.pfx", "");
 
             OIDCIdToken idToken = new OIDCIdToken();
             idToken.Iss = "https://self-issued.me";
@@ -286,7 +285,7 @@ namespace OpenIDClient
 
         private static OIDCKey GetOIDCKey(X509Certificate certificate, string keyType, string exponent, string use, string uniqueName = null)
         {
-            byte[] plainTextBytes = certificate.GetRawCertData();
+            byte[] plainTextBytes = certificate.GetPublicKey();
             OIDCKey curCert = new OIDCKey();
             curCert.Use = use;
             curCert.N = Convert.ToBase64String(plainTextBytes);

@@ -1,16 +1,16 @@
-﻿using NUnit.Framework;
-using OpenIDClient;
-using OpenIDClient.Messages;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using Jose;
-
-namespace OIDC.Tests
+﻿namespace OIDC.Tests
 {
+    using NUnit.Framework;
+    using OpenIDClient;
+    using OpenIDClient.Messages;
+    using System;
+    using System.Collections.Generic;
+    using System.Net;
+    using System.Text;
+    using System.Security.Cryptography;
+    using System.Security.Cryptography.X509Certificates;
+    using Jose;
+
     [TestFixture]
     public class ClaimsRequestParameterTests : OIDCTests
     {
@@ -50,7 +50,6 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-response_type-id_token+token";
-            claims = "normal";
             signalg = "RS256";
 
             OIDClaims requestClaims = new OIDClaims();
@@ -119,7 +118,6 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-claims_request-userinfo_claims";
-            claims = "normal";
 
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;

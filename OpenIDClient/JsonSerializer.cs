@@ -1,7 +1,7 @@
-﻿using System.Web.Script.Serialization;
-
-namespace OpenIDClient
+﻿namespace OpenIDClient
 {
+    using System.Web.Script.Serialization;
+
     /// <summary>
     /// JSON Serializer using JavaScriptSerializer
     /// </summary>

@@ -1,12 +1,12 @@
-﻿using System.Net;
-using HtmlAgilityPack;
-using System.Collections.Generic;
-using NUnit.Framework;
-using OpenIDClient;
-using OpenIDClient.Messages;
-
-namespace OIDC.Tests
+﻿namespace OIDC.Tests
 {
+    using System.Net;
+    using HtmlAgilityPack;
+    using System.Collections.Generic;
+    using NUnit.Framework;
+    using OpenIDClient;
+    using OpenIDClient.Messages;
+
     [TestFixture]
     public class ResponseTypeAndModeTests : OIDCTests
     {
@@ -18,6 +18,7 @@ namespace OIDC.Tests
             StartWebServer();
 
             string registrationEndopoint = GetBaseUrl("/registration");
+
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
             clientMetadata.RedirectUris = new List<string> {
@@ -28,9 +29,8 @@ namespace OIDC.Tests
                 "code",
                 "id_token"
             };
-            OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
-            // when
+            OpenIdRelyingParty rp = new OpenIdRelyingParty();
             clientInformation = rp.RegisterClient(registrationEndopoint, clientMetadata);
         }
 
@@ -47,7 +47,6 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-response_type-code";
-            claims = "normal";
 
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
@@ -81,7 +80,6 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-response_type-id_token";
-            claims = "normal";
 
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
@@ -117,7 +115,6 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-response_type-id_token+token";
-            claims = "normal";
 
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
@@ -154,7 +151,6 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-response_mode-form_post";
-            claims = "normal";
 
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
@@ -208,7 +204,6 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-response_type-self_issued";
-            claims = "normal";
 
             WebRequest.RegisterPrefix("openid", new OIDCWebRequestCreate());
 

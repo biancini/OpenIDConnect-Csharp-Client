@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Security.Cryptography.X509Certificates;
-using Griffin.WebServer;
-using Griffin.WebServer.Modules;
-
-namespace SimpleWebServer
+﻿namespace SimpleWebServer
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Net;
+    using System.Security.Cryptography.X509Certificates;
+    using Griffin.WebServer;
+    using Griffin.WebServer.Modules;
+
     public class WebServer
     {
         int port;
@@ -80,14 +80,14 @@ namespace SimpleWebServer
                 WriteTextToResponse(context, "Error 404 - Page not found.");
             }
 
-            return ModuleResult.Stop;
+            return ModuleResult.Continue;
         }
 
         public static void WriteTextToResponse(IHttpContext context, string bodyText)
         {
             context.Response.Body = new MemoryStream();
             var writer = new StreamWriter(context.Response.Body);
-            writer.WriteLine(bodyText);
+            writer.Write(bodyText);
             writer.Flush();
         }
     }

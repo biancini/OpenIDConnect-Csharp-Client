@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using NUnit.Framework;
-using OpenIDClient;
-
-namespace OIDC.Tests
+﻿namespace OIDC.Tests
 {
+    using System.Collections.Generic;
+    using NUnit.Framework;
+    using OpenIDClient;
+
     [TestFixture]
     public class DynamicClientRegistrationTests : OIDCTests
     {
@@ -26,7 +26,6 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-registration-dynamic";
-            claims = "normal";
 
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
@@ -55,7 +54,6 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-registration-redirect_uris";
-            claims = "normal";
 
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
@@ -85,7 +83,6 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-registration-well_formed_jwk";
-            claims = "normal";
 
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
@@ -116,7 +113,6 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-registration-uses_https_endpoints";
-            claims = "normal";
 
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using OpenIDClient.Messages;
-
-namespace OpenIDClient
+﻿namespace OpenIDClient
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Reflection;
+    using System.Text.RegularExpressions;
+    using OpenIDClient.Messages;
+
     class Serializer
     {
         private static long DateTimeToSecondsUtc(DateTime dateValue)
@@ -133,7 +133,7 @@ namespace OpenIDClient
                     }
                 }
 
-                uri += entry.Key + "=" + value + "&";
+                uri += entry.Key + "=" + Uri.EscapeDataString(value) + "&";
             }
 
             return uri.TrimEnd('&');

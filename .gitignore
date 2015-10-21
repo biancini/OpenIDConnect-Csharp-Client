@@ -7,3 +7,5 @@ obj
 .nuget
 TestResults
 coverage.xml
+
+StyleCop.cache

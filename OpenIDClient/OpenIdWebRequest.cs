@@ -1,9 +1,10 @@
-﻿using System;
-using System.Net;
-
+﻿
 namespace OpenIDClient
 {
-public class OpenIdWebRequest : WebRequest
+    using System;
+    using System.Net;
+
+    public class OpenIdWebRequest : WebRequest
     {
         private Uri uri;
 

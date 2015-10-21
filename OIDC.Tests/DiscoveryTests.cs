@@ -1,8 +1,8 @@
-﻿using NUnit.Framework;
-using OpenIDClient;
-
-namespace OIDC.Tests
+﻿namespace OIDC.Tests
 {
+    using NUnit.Framework;
+    using OpenIDClient;
+
     [TestFixture]
     public class DiscoveryTests : OIDCTests
     {
@@ -19,7 +19,7 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-discovery-webfinger_url";
-            claims = "normal";
+
             string userid = "https://" + opBaseurl.Host + ":" + opBaseurl.Port + "/" + rpid;
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
@@ -43,9 +43,8 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-discovery-webfinger_acct";
-            claims = "normal";
-            string userid = rpid + "@" + opBaseurl.Host;
 
+            string userid = rpid + "@" + opBaseurl.Host;
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
@@ -68,7 +67,7 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-discovery";
-            claims = "normal";
+
             string userid = "https://" + opBaseurl.Host + ":" + opBaseurl.Port + "/" + rpid;
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
@@ -93,7 +92,7 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-discovery-issuer_not_matching_config";
-            claims = "_";
+
             string hostname = GetBaseUrl("/");
             string userid = "https://" + opBaseurl.Host + ":" + opBaseurl.Port + "/" + rpid;
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
@@ -118,7 +117,7 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-discovery-openid_configuration";
-            claims = "normal";
+
             string hostname = GetBaseUrl("/");
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
@@ -142,7 +141,7 @@ namespace OIDC.Tests
         {
             // given
             rpid = "rp-discovery-jwks_uri_keys";
-            claims = "normal";
+
             string hostname = GetBaseUrl("/");
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
