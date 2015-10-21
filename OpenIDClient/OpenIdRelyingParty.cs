@@ -8,7 +8,6 @@ using System.Net;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using OpenIDClient.Messages;
-using JWT;
 
 namespace OpenIDClient
 {
@@ -50,7 +49,6 @@ namespace OpenIDClient
 
             Stream content = webRequest.GetResponse().GetResponseStream();
             string returnedText = new StreamReader(content).ReadToEnd();
-            IJsonSerializer JsonSerializer = new DefaultJsonSerializer();
             if (returnJson)
             {
                 return JsonSerializer.Deserialize<Dictionary<string, object>>(returnedText);
@@ -126,7 +124,6 @@ namespace OpenIDClient
             HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
 
             StreamReader rdr = new StreamReader(response.GetResponseStream());
-            IJsonSerializer JsonSerializer = new DefaultJsonSerializer();
             return JsonSerializer.Deserialize<Dictionary<string, object>>(rdr.ReadToEnd());
         }
 
@@ -423,7 +420,7 @@ namespace OpenIDClient
                     tokenData.Exp = DateTime.Now;
                     tokenData.Iat = DateTime.Now - new TimeSpan(0, 10, 0);
                     requestMessage.ClientAssertionType = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
-                    requestMessage.ClientAssertion = JsonWebToken.Encode(tokenData, Encoding.UTF8.GetBytes(clientInformation.ClientSecret), JwtHashAlgorithm.HS256);
+                    requestMessage.ClientAssertion = Jose.JWT.Encode(tokenData, Encoding.UTF8.GetBytes(clientInformation.ClientSecret), Jose.JwsAlgorithm.HS256);
                     break;
                 default: // case "none"
                     break;

@@ -1,15 +1,13 @@
-﻿using System.Net;
-using System.Threading;
-using HtmlAgilityPack;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using NUnit.Framework;
-using SimpleWebServer;
-using JWT;
-using Griffin.WebServer;
-
+﻿using NUnit.Framework;
 using OpenIDClient;
 using OpenIDClient.Messages;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Text;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using Jose;
 
 namespace OIDC.Tests
 {
@@ -17,13 +15,12 @@ namespace OIDC.Tests
     public class ClaimsRequestParameterTests : OIDCTests
     {
         OIDCClientInformation clientInformation;
-        IJsonSerializer JsonSerializer;
+        OIDCProviderMetadata providerMetadata;
 
         [TestFixtureSetUp]
         public void SetupTests()
         {
             StartWebServer();
-            JsonSerializer = new DefaultJsonSerializer();
 
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
@@ -54,6 +51,7 @@ namespace OIDC.Tests
             // given
             rpid = "rp-response_type-id_token+token";
             claims = "normal";
+            signalg = "RS256";
 
             OIDClaims requestClaims = new OIDClaims();
             requestClaims.IdToken = new Dictionary<string, OIDClaimData>();
@@ -72,6 +70,9 @@ namespace OIDC.Tests
             string login_url = GetBaseUrl("/authorization") + "?" + requestMessage.SerializeToQueryString();
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
+            string hostname = GetBaseUrl("/");
+            providerMetadata = rp.ObtainProviderInformation(hostname);
+
             // when
             OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
             semaphore.WaitOne();
@@ -82,7 +83,22 @@ namespace OIDC.Tests
             response.Validate();
             Assert.NotNull(response.AccessToken);
 
-            string jsonToken = JsonWebToken.Decode(response.IdToken, response.AccessToken, false);
+            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
+            foreach (OIDCKey curKey in providerMetadata.Keys)
+            {
+                if (curKey.Use == "sig" && curKey.Kty == "RSA")
+                {
+                    var modBytes = Base64UrlEncoder.DecodeBytes(curKey.N);
+                    rsa.ImportParameters(
+                        new RSAParameters
+                        {
+                            Exponent = Base64UrlEncoder.DecodeBytes(curKey.E),
+                            Modulus = modBytes
+                        }
+                    );
+                }
+            }
+            string jsonToken = JWT.Decode(response.IdToken, rsa);
             OIDCIdToken idToken = new OIDCIdToken();
             Dictionary<string, object> o = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonToken);
             idToken.DeserializeFromDictionary(o);

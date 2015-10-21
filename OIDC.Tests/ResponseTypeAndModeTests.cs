@@ -1,14 +1,7 @@
-﻿using System;
-using System.Net;
-using System.Threading;
+﻿using System.Net;
 using HtmlAgilityPack;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using NUnit.Framework;
-using SimpleWebServer;
-using JWT;
-using Griffin.WebServer;
-
 using OpenIDClient;
 using OpenIDClient.Messages;
 
@@ -18,12 +11,10 @@ namespace OIDC.Tests
     public class ResponseTypeAndModeTests : OIDCTests
     {
         OIDCClientInformation clientInformation;
-        IJsonSerializer JsonSerializer;
 
         [TestFixtureSetUp]
         public void SetupTests()
         {
-            JsonSerializer = new DefaultJsonSerializer();
             StartWebServer();
 
             string registrationEndopoint = GetBaseUrl("/registration");

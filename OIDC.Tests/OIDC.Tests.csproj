@@ -35,6 +35,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="jose-jwt, Version=1.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\jose-jwt.1.9.0\lib\4.0\jose-jwt.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FluentAssertions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentAssertions.4.0.0\lib\net45\FluentAssertions.dll</HintPath>
       <Private>True</Private>
@@ -96,6 +100,7 @@
     <None Include="certificate.crt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="LICENSE" />
     <None Include="packages.config" />
     <None Include="server.crt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -105,10 +110,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\JWT\JWT.csproj">
-      <Project>{a80b51b8-ddf6-4026-98a4-b59653e50b38}</Project>
-      <Name>JWT</Name>
-    </ProjectReference>
     <ProjectReference Include="..\OpenIDClient\OpenIDClient.csproj">
       <Project>{c754e4ad-be64-4e69-b412-a3034a5fc95a}</Project>
       <Name>OpenIDClient</Name>

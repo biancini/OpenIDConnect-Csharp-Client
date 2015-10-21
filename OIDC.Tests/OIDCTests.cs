@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Net;
 using System.Configuration;
-using SimpleWebServer;
-
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-using OpenIDClient;
-using JWT;
 using Griffin.WebServer;
+using SimpleWebServer;
+using OpenIDClient;
 
 namespace OIDC.Tests
 {
@@ -67,7 +65,6 @@ namespace OIDC.Tests
 
             Dictionary<string, object> keysDict = OpenIdRelyingParty.GetKeysJwks(signCert, encCert);
 
-            IJsonSerializer JsonSerializer = new DefaultJsonSerializer();
             string rstring = JsonSerializer.Serialize(keysDict);
             HttpWorker.WriteTextToResponse(context, rstring);
         }

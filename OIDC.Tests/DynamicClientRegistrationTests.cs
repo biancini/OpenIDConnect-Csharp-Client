@@ -1,16 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Collections.Generic;
-using System.Web.Script.Serialization;
-using System.Security.Cryptography.X509Certificates;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
-using FluentAssertions;
 using OpenIDClient;
-using SimpleWebServer;
-using JWT;
-using Griffin.WebServer;
-using Griffin.WebServer.Modules;
 
 namespace OIDC.Tests
 {

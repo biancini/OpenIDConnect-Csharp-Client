@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using OpenIDClient.Messages;
-using JWT;
 
 namespace OpenIDClient
 {
@@ -62,13 +61,11 @@ namespace OpenIDClient
 
         public static string SerializeToJsonString(object obj)
         {
-            IJsonSerializer JsonSerializer = new DefaultJsonSerializer();
             return JsonSerializer.Serialize(obj);
         }
 
         public static string SerializeToJsonString(Dictionary<string, object> obj)
         {
-            IJsonSerializer JsonSerializer = new DefaultJsonSerializer();
             return JsonSerializer.Serialize(obj);
         }
 

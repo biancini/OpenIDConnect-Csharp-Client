@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography.X509Certificates;
-using JWT;
 
 namespace OpenIDClient.Messages
 {

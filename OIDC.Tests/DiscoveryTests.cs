@@ -1,8 +1,4 @@
-﻿using System;
-using NUnit.Framework;
-using System.Collections.Generic;
-using System.Web.Script.Serialization;
-using FluentAssertions;
+﻿using NUnit.Framework;
 using OpenIDClient;
 
 namespace OIDC.Tests
@@ -155,6 +151,9 @@ namespace OIDC.Tests
 
             // then
             response.Validate();
+
+            Assert.IsNotNull(response.Keys);
+            Assert.Greater(response.Keys.Count, 0);
         }
     }
 }
