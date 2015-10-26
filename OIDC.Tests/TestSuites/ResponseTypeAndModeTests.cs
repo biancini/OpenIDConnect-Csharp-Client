@@ -218,9 +218,7 @@
             OIDCAuthImplicitResponseMessage response = rp.Authenticate("openid://", requestMessage);
 
             // then
-            OIDCIdToken idToken = new OIDCIdToken();
-            Dictionary<string, object> o = JsonSerializer.Deserialize<Dictionary<string, object>>(response.IdToken);
-            idToken.DeserializeFromDictionary(o);
+            OIDCIdToken idToken = response.GetIdToken();
 
             //The Client MUST validate that the aud (audience) Claim contains the value of the
             //redirect_uri that the Client sent in the Authentication Request as an audience.

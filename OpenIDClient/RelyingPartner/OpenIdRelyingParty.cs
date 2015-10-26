@@ -9,6 +9,7 @@
     using System.Net;
     using System.Security.Cryptography.X509Certificates;
     using OpenIDClient.Messages;
+    using Jose;
 
     /// <summary>
     /// Class implementing an OpenIDConnect Relying Party and that could be used to authenticat users
@@ -82,7 +83,7 @@
             idToken.Validate();
 
             Dictionary<string, object> responseMessage = new Dictionary<string, object>();
-            responseMessage["id_token"] = idToken.SerializeToJsonString();
+            responseMessage["id_token"] = JWT.Encode(idToken.SerializeToJsonString(), null, JwsAlgorithm.none);
             responseMessage["state"] = requestMessage.State;
 
             return responseMessage;
@@ -348,6 +349,13 @@
             return tokenData;
         }
 
+        /// <summary>
+        /// Method that submits a tokn request to the OP.
+        /// </summary>
+        /// <param name="url">The URL to be used where to send the request</param>
+        /// <param name="tokenRequestMessage">The token request message</param>
+        /// <param name="clientInformation">The client information obtained from the OP</param>
+        /// <returns>Returns the token response obtained from the OP</returns>
         public OIDCTokenResponseMessage SubmitTokenRequest(string url, OIDCTokenRequestMessage tokenRequestMessage, OIDCClientInformation clientInformation)
         {
             WebRequest request = WebRequest.Create(url);
@@ -368,6 +376,13 @@
             return tokenResponse;
         }
 
+        /// <summary>
+        /// Get user information from the OP after user authentication
+        /// </summary>
+        /// <param name="url">The url to be used to retrieve user information</param>
+        /// <param name="userInfoRequestMessage">The user info request message</param>
+        /// <param name="accessToken">The access token obtain during authentication</param>
+        /// <returns>The response message containing user information</returns>
         public OIDCUserInfoResponseMessage GetUserInfo(string url, OIDCUserInfoRequestMessage userInfoRequestMessage, string accessToken)
         {
             WebRequest request = WebRequest.Create(url);
@@ -386,14 +401,21 @@
             return userInfoResponse;
         }
 
-        public void ValidateIdToken(OIDCIdToken idToken, OIDCClientInformation clientInformation, OIDCProviderMetadata providerMetadata, string nonce)
+        /// <summary>
+        /// Method that validates the IdToken with specific rules
+        /// </summary>
+        /// <param name="idToken"></param>
+        /// <param name="clientInformation"></param>
+        /// <param name="providerMetadata"></param>
+        /// <param name="nonce"></param>
+        public void ValidateIdToken(OIDCIdToken idToken, OIDCClientInformation clientInformation, string Issuer, string Nonce)
         {
-            if (idToken.Iss.Trim('/') != providerMetadata.Issuer.Trim('/'))
+            if (idToken.Iss.Trim('/') != Issuer.Trim('/'))
             {
                 throw new OIDCException("Wrong issuer for the token.");
             }
             
-            if (!idToken.Aud.Contains(clientInformation.ClientId))
+            if (Issuer != "https://self-issued.me" && !idToken.Aud.Contains(clientInformation.ClientId))
             {
                 throw new OIDCException("Intended audience of the token does not include client_id.");
             }
@@ -418,7 +440,7 @@
                 throw new OIDCException("The token has ben issued more than a day ago.");
             }
 
-            if (nonce != null && idToken.Nonce != nonce)
+            if (Nonce != null && idToken.Nonce != Nonce)
             {
                 throw new OIDCException("Wrong nonce value in token.");
             }

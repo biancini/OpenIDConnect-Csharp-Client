@@ -77,27 +77,15 @@
             response.Validate();
             Assert.NotNull(response.AccessToken);
 
-            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-            foreach (OIDCKey curKey in providerMetadata.Keys)
-            {
-                if (curKey.Use == "sig" && curKey.Kty == "RSA")
+            RSACryptoServiceProvider rsa = providerMetadata.Keys.Find(
+                delegate(OIDCKey k)
                 {
-                    var modBytes = Base64UrlEncoder.DecodeBytes(curKey.N);
-                    rsa.ImportParameters(
-                        new RSAParameters
-                        {
-                            Exponent = Base64UrlEncoder.DecodeBytes(curKey.E),
-                            Modulus = modBytes
-                        }
-                    );
+                    return k.Use == "sig" && k.Kty == "RSA";
                 }
-            }
+            ).getRSA();
 
-            string jsonToken = JWT.Decode(response.IdToken, rsa);
-            OIDCIdToken idToken = new OIDCIdToken();
-            Dictionary<string, object> o = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonToken);
-            idToken.DeserializeFromDictionary(o);
-
+            OIDCIdToken idToken = response.GetIdToken(rsa);
+            rp.ValidateIdToken(idToken, clientInformation, providerMetadata.Issuer, requestMessage.Nonce);
             Assert.IsNotNullOrEmpty(idToken.Name);
         }
 

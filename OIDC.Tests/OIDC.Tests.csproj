@@ -92,6 +92,7 @@
     <Compile Include="Helpers\OIDCTests.cs" />
     <Compile Include="TestSuites\ClaimsRequestParameterTests.cs" />
     <Compile Include="TestSuites\RequestUriRequestParameterTests.cs" />
+    <Compile Include="TestSuites\NonceRequestParameterTests.cs" />
     <Compile Include="TestSuites\ScopeRequestParameterTests.cs" />
     <Compile Include="TestSuites\ThirdPartyInitiatedLoginTests.cs" />
     <Compile Include="TestSuites\ResponseTypeAndModeTests.cs" />

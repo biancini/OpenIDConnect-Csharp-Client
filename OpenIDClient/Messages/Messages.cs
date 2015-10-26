@@ -9,6 +9,7 @@
     using System.Text.RegularExpressions;
     using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
+    using Jose;
 
     /// <summary>
     /// Abstract class extended by all messages between RP e OP.
@@ -260,6 +261,29 @@
             {
                 throw new OIDCException("Missing state required parameter.");
             }
+        }
+
+        /// <summary>
+        /// Method that returns the IDToken decoding the JWT.
+        /// </summary>
+        /// <param name="sigKey">The key used for checking signature.</param>
+        /// <param name="encKey">The key used for decrypting the message.</param>
+        /// <returns>The IdToken as an object.</returns>
+        public OIDCIdToken GetIdToken(RSACryptoServiceProvider sigKey = null, RSACryptoServiceProvider encKey = null)
+        {
+            string jsonToken = IdToken;
+
+            if (encKey != null)
+            {
+                jsonToken = JWT.Decode(jsonToken, encKey);
+            }
+
+            jsonToken = JWT.Decode(jsonToken, sigKey);
+            Dictionary<string, object> o = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonToken);
+            OIDCIdToken idToken = new OIDCIdToken();
+            idToken.DeserializeFromDictionary(o);
+
+            return idToken;
         }
     }
 

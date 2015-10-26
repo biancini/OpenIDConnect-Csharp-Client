@@ -1,7 +1,6 @@
 ﻿namespace OIDC.Tests
 {
     using System.Net;
-    using HtmlAgilityPack;
     using System.Collections.Generic;
     using NUnit.Framework;
     using OpenIDClient;
@@ -11,12 +10,14 @@
     public class ScopeRequestParameterTests : OIDCTests
     {
         OIDCClientInformation clientInformation;
+        OIDCProviderMetadata providerMetadata;
 
         [TestFixtureSetUp]
         public void SetupTests()
         {
             StartWebServer();
 
+            string hostname = GetBaseUrl("/");
             string registrationEndopoint = GetBaseUrl("/registration");
 
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
@@ -26,6 +27,7 @@
 
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
             clientInformation = rp.RegisterClient(registrationEndopoint, clientMetadata);
+            providerMetadata = rp.ObtainProviderInformation(hostname);
         }
 
         /// <summary>
@@ -140,12 +142,11 @@
 
             // when
             OIDCAuthImplicitResponseMessage response = rp.Authenticate("openid://", requestMessage);
-            OIDCIdToken idToken = new OIDCIdToken();
-            Dictionary<string, object> o = JsonSerializer.Deserialize<Dictionary<string, object>>(response.IdToken);
-            idToken.DeserializeFromDictionary(o);
+            OIDCIdToken idToken = response.GetIdToken();
 
             // then
             response.Validate();
+            rp.ValidateIdToken(idToken, clientInformation, idToken.Iss, requestMessage.Nonce);
             Assert.IsNotNullOrEmpty(idToken.Name);
             Assert.IsNotNullOrEmpty(idToken.GivenName);
             Assert.IsNotNullOrEmpty(idToken.FamilyName);
