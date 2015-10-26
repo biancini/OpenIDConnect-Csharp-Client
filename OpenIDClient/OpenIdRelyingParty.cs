@@ -66,7 +66,7 @@
         {
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.DeserializeFromQueryString(queryString);
-            X509Certificate2 certificate = new X509Certificate2("server.pfx", "");
+            X509Certificate2 certificate = new X509Certificate2("server.pfx", "", X509KeyStorageFlags.Exportable);
 
             OIDCIdToken idToken = new OIDCIdToken();
             idToken.Iss = "https://self-issued.me";
@@ -257,6 +257,7 @@
             registrationRequest.ResponseTypes = clientMetadata.ResponseTypes;
             registrationRequest.JwksUri = clientMetadata.JwksUri;
             registrationRequest.TokenEndpointAuthMethod = TokenEndpointAuthMethod;
+            registrationRequest.InitiateLoginUri = clientMetadata.InitiateLoginUri;
 
             // Check error and store client information from OP
             WebRequest request = WebRequest.Create(RegistrationEndpoint);
@@ -273,23 +274,42 @@
         }
 
         /// <summary>
+        /// Method to perform third party initiated login.
+        /// </summary>
+        /// <param name="queryString">The query string representation of the authentication request</param>
+        /// <param name="authEndpoint">The OP authorization endpoint</param>
+        public void ThirdPartyInitiatedLogin(string queryString, string authEndpoint)
+        {
+            OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
+            requestMessage.DeserializeFromQueryString(queryString);
+
+            string login_url = authEndpoint + "?" + requestMessage.SerializeToQueryString();
+            OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
+        }
+
+        /// <summary>
         /// Obtain the JWKS object describing certificates used by this RP for signing and encoding.
         /// </summary>
         /// <param name="EncodingCert">Certificate to be used for encoding.</param>
         /// <param name="SigningCert">Certificate to be used for signing.</param>
         /// <returns>The JWKS object with the keys of the RP.</returns>
-        public static Dictionary<string, object> GetKeysJwks(X509Certificate EncodingCert, X509Certificate SigningCert)
+        public static Dictionary<string, object> GetKeysJwks(X509Certificate2 EncodingCert, X509Certificate2 SigningCert)
         {
-            return GetKeysJwks(new List<X509Certificate>() { EncodingCert }, new List<X509Certificate>() { SigningCert });
+            return GetKeysJwks(new List<X509Certificate2>() { EncodingCert }, new List<X509Certificate2>() { SigningCert });
         }
 
-        private static OIDCKey GetOIDCKey(X509Certificate certificate, string keyType, string exponent, string use, string uniqueName = null)
+        private static OIDCKey GetOIDCKey(X509Certificate2 certificate, string keyType, string use, string uniqueName = null)
         {
-            byte[] plainTextBytes = certificate.GetPublicKey();
+            RSACryptoServiceProvider rsa = certificate.PrivateKey as RSACryptoServiceProvider;
+            RSAParameters par = rsa.ExportParameters(true);
+
+            byte[] key = certificate.GetPublicKey();
             OIDCKey curCert = new OIDCKey();
             curCert.Use = use;
-            curCert.N = Convert.ToBase64String(plainTextBytes);
-            curCert.E = exponent;
+            curCert.N = Base64UrlEncoder.EncodeBytes(par.Modulus);
+            curCert.E = Base64UrlEncoder.EncodeBytes(par.Exponent);
+            curCert.D = Base64UrlEncoder.EncodeBytes(par.D);
+            curCert.Q = Base64UrlEncoder.EncodeBytes(par.Q);
             curCert.Kty = keyType;
             curCert.Kid = uniqueName;
             return curCert;
@@ -301,24 +321,24 @@
         /// <param name="EncodingCerts">List of certificates to be used for encoding.</param>
         /// <param name="SigningCerts">List of certificates to be used for signing.</param>
         /// <returns>The JWKS object with the keys of the RP.</returns>
-        public static Dictionary<string, object> GetKeysJwks(List<X509Certificate> EncodingCerts, List<X509Certificate> SigningCerts)
+        public static Dictionary<string, object> GetKeysJwks(List<X509Certificate2> EncodingCerts, List<X509Certificate2> SigningCerts)
         {
-            List<OIDCKey> keys = new List<OIDCKey>();
+            List<Dictionary<string, object>> keys = new List<Dictionary<string, object>>();
 
             int countEnc = 1;
-            foreach (X509Certificate certificate in EncodingCerts)
+            foreach (X509Certificate2 certificate in EncodingCerts)
             {
-                OIDCKey curCert = GetOIDCKey(certificate, "RSA", "AQAB", "enc", "Encoding Certificate " + countEnc);
+                OIDCKey curCert = GetOIDCKey(certificate, "RSA", "enc", "Encoding Certificate " + countEnc);
                 countEnc++;
-                keys.Add(curCert);
+                keys.Add(curCert.SerializeToDictionary());
             }
 
             int countSign = 1;
-            foreach (X509Certificate certificate in SigningCerts)
+            foreach (X509Certificate2 certificate in SigningCerts)
             {
-                OIDCKey curCert = GetOIDCKey(certificate, "RSA", "AQAB", "sig", "Signing Certificate " + countEnc);
+                OIDCKey curCert = GetOIDCKey(certificate, "RSA", "sig", "Signing Certificate " + countEnc);
                 countSign++;
-                keys.Add(curCert);
+                keys.Add(curCert.SerializeToDictionary());
             }
 
             Dictionary<string, object> keysDict = new Dictionary<string, object>();

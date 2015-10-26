@@ -17,9 +17,9 @@
         [TestCase]
         public void Should_Discover_OpenID_Providers_Using_URL_Syntax()
         {
-            // given
             rpid = "rp-discovery-webfinger_url";
 
+            // given
             string userid = "https://" + opBaseurl.Host + ":" + opBaseurl.Port + "/" + rpid;
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
@@ -41,9 +41,9 @@
         [TestCase]
         public void Should_Discover_OpenID_Providers_Using_URI_Syntax()
         {
-            // given
             rpid = "rp-discovery-webfinger_acct";
 
+            // given
             string userid = rpid + "@" + opBaseurl.Host;
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
@@ -65,9 +65,9 @@
         [TestCase]
         public void Should_Discover_OpenID_Providers()
         {
-            // given
             rpid = "rp-discovery";
 
+            // given
             string userid = "https://" + opBaseurl.Host + ":" + opBaseurl.Port + "/" + rpid;
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
@@ -90,9 +90,9 @@
         [ExpectedException(typeof(OIDCException), ExpectedMessage="Wrong issuer, discarding configuration")]
         public void Should_Wrong_Discovered_Issuer_Be_Rejected()
         {
-            // given
             rpid = "rp-discovery-issuer_not_matching_config";
 
+            // given
             string hostname = GetBaseUrl("/");
             string userid = "https://" + opBaseurl.Host + ":" + opBaseurl.Port + "/" + rpid;
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
@@ -115,9 +115,9 @@
         [TestCase]
         public void Should_Obtain_Provider_Information()
         {
-            // given
             rpid = "rp-discovery-openid_configuration";
 
+            // given
             string hostname = GetBaseUrl("/");
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
@@ -139,9 +139,9 @@
         [TestCase]
         public void Should_Obtain_Provider_Information_With_JWKS_Json()
         {
-            // given
             rpid = "rp-discovery-jwks_uri_keys";
 
+            // given
             string hostname = GetBaseUrl("/");
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 

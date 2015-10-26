@@ -24,9 +24,9 @@
         [TestCase]
         public void Should_Client_Be_Able_To_Register()
         {
-            // given
             rpid = "rp-registration-dynamic";
 
+            // given
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
@@ -52,9 +52,9 @@
         [TestCase]
         public void Should_Registration_Request_Has_RedirectUris()
         {
-            // given
             rpid = "rp-registration-redirect_uris";
 
+            // given
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
@@ -81,9 +81,9 @@
         [TestCase]
         public void Should_Keys_Be_Published_As_JWK()
         {
-            // given
             rpid = "rp-registration-well_formed_jwk";
 
+            // given
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
@@ -111,9 +111,9 @@
         [ExpectedException(typeof(OIDCException), ExpectedMessage = "Some of the URIs for the client is not on https")]
         public void Should_Client_Only_Use_Https_Endpoints()
         {
-            // given
             rpid = "rp-registration-uses_https_endpoints";
 
+            // given
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";

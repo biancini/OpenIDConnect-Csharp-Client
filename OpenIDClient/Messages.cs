@@ -123,6 +123,7 @@
         public List<string> Contacts { get; set; }
         public List<string> RequestUris { get; set; }
         public List<string> ResponseTypes { get; set; }
+        public string InitiateLoginUri { get; set; }
 
         private WebRequest PostRequest { get; set; }
     }
@@ -181,6 +182,27 @@
             if (RedirectUri == null)
             {
                 throw new OIDCException("Missing redirect_uri required parameter.");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Message describing a third-party initiated login request.
+    /// </summary>
+    public class OIDCThirdPartyLoginRequest : OIDClientSerializableMessage
+    {
+        public string Iss { get; set; }
+        public string LoginHint { get; set; }
+        public string TargetLinkUri { get; set; }
+
+        /// <summary>
+        /// <see cref="OIDClientSerializableMessage.Validate()"/>
+        /// </summary>
+        public override void Validate()
+        {
+            if (Iss == null)
+            {
+                throw new OIDCException("Missing iss required parameter.");
             }
         }
     }

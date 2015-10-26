@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Net;
+    using System.Security.Cryptography;
 
     /// <summary>
     /// Object describing the OP metadata.
@@ -209,6 +210,8 @@
         public string N { get; set; }
         public string E { get; set; }
         public string D { get; set; }
+        public string P { get; set; }
+        public string Q { get; set; }
         public string Y { get; set; }
         public string X { get; set; }
         public string Kid { get; set; }
@@ -240,6 +243,23 @@
             {
                 throw new OIDCException("The use parameter is missing in key.");
             }
+        }
+
+        public RSACryptoServiceProvider getRSA()
+        {
+            if (Kty != "RSA")
+            {
+                throw new OIDCException("Requesting RSA on a key which is not RSA.");
+            }
+
+            RSAParameters parameters = new RSAParameters
+            {
+                Exponent = Base64UrlEncoder.DecodeBytes(E),
+                Modulus = Base64UrlEncoder.DecodeBytes(N)
+            };
+            RSACryptoServiceProvider key = new RSACryptoServiceProvider();
+            key.ImportParameters(parameters);
+            return key;
         }
     }
 }

@@ -45,9 +45,9 @@
         [TestCase]
         public void Should_Authenticate_With_Code_Response_Type()
         {
-            // given
             rpid = "rp-response_type-code";
 
+            // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = "openid";
@@ -78,9 +78,9 @@
         [TestCase]
         public void Should_Authenticate_With_IdToken_Response_Type()
         {
-            // given
             rpid = "rp-response_type-id_token";
 
+            // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = "openid";
@@ -113,9 +113,9 @@
         [TestCase]
         public void Should_Authenticate_With_IdToken_Token_Response_Type()
         {
-            // given
             rpid = "rp-response_type-id_token+token";
 
+            // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = "openid";
@@ -149,9 +149,9 @@
         [TestCase]
         public void Should_Authenticate_With_IdToken_Token_Response_Type_Post()
         {
-            // given
             rpid = "rp-response_mode-form_post";
 
+            // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = "openid";
@@ -202,11 +202,10 @@
         [TestCase]
         public void Should_Authenticate_With_Self_Issued_Provider()
         {
-            // given
             rpid = "rp-response_type-self_issued";
-
             WebRequest.RegisterPrefix("openid", new OIDCWebRequestCreate());
 
+            // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.RedirectUris[1];
             requestMessage.Scope = "openid";

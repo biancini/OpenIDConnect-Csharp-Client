@@ -26,6 +26,7 @@
         
         protected static string result = "";
         protected static string request = "";
+        protected static string param = "";
 
         public OIDCTests()
         { 
@@ -66,8 +67,15 @@
                 ws.addUrlAction("/id_token_flow_callback", IdTokenFlowCallback);
                 ws.addUrlAction("/code_flow_callback", CodeFlowCallback);
                 ws.addUrlAction("/request.jwt", RequestUriCallback);
+                ws.addUrlAction("/initiated_login", ThirdPartyInitiatedLoginCallback);
                 ws.Run();
             }
+        }
+
+        private static void ThirdPartyInitiatedLoginCallback(IHttpContext context)
+        {
+            result = context.Request.Uri.Query;OpenIdRelyingParty rp = new OpenIdRelyingParty();
+            rp.ThirdPartyInitiatedLogin(request, param);
         }
 
         private static void RequestUriCallback(IHttpContext context)
@@ -77,11 +85,11 @@
 
         private static void RespondWithJwks(IHttpContext context)
         {
-            X509Certificate signCert = new X509Certificate("server.pfx", "");
-            X509Certificate encCert = new X509Certificate("server.pfx", "");
+            X509Certificate2 signCert = new X509Certificate2("server.pfx", "", X509KeyStorageFlags.Exportable);
+            X509Certificate2 encCert = new X509Certificate2("server.pfx", "", X509KeyStorageFlags.Exportable);
 
             Dictionary<string, object> keysDict = OpenIdRelyingParty.GetKeysJwks(signCert, encCert);
-
+            
             string rstring = JsonSerializer.Serialize(keysDict);
             HttpWorker.WriteTextToResponse(context, rstring);
         }

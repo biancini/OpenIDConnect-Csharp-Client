@@ -48,10 +48,10 @@
         [TestCase]
         public void Should_Request_And_Use_Claims_Id_Token()
         {
-            // given
             rpid = "rp-response_type-id_token+token";
             signalg = "RS256";
 
+            // given
             OIDClaims requestClaims = new OIDClaims();
             requestClaims.IdToken = new Dictionary<string, OIDClaimData>();
             requestClaims.IdToken.Add("name", new OIDClaimData());
@@ -97,6 +97,7 @@
                     );
                 }
             }
+
             string jsonToken = JWT.Decode(response.IdToken, rsa);
             OIDCIdToken idToken = new OIDCIdToken();
             Dictionary<string, object> o = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonToken);
@@ -116,9 +117,9 @@
         [TestCase]
         public void Should_Request_And_Use_Claims_Userinfo()
         {
-            // given
             rpid = "rp-claims_request-userinfo_claims";
 
+            // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
 
