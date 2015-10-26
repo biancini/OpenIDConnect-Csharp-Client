@@ -1,14 +1,13 @@
-﻿
-namespace OpenIDClient
+﻿namespace OpenIDClient
 {
     using System;
     using System.Net;
 
-    public class OpenIdWebRequest : WebRequest
+    public class OIDCWebRequest : WebRequest
     {
         private Uri uri;
 
-        public OpenIdWebRequest(Uri uri)
+        public OIDCWebRequest(Uri uri)
         {
             this.uri = uri;
         }
@@ -29,7 +28,7 @@ namespace OpenIDClient
                 throw new ArgumentNullException();
             }
 
-            return new OpenIdWebRequest(uri);
+            return new OIDCWebRequest(uri);
         }
     }
 }

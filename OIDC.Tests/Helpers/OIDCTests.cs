@@ -7,9 +7,10 @@
     using System.Security.Cryptography.X509Certificates;
     using System.Threading;
     using Griffin.WebServer;
-    using SimpleWebServer;
-    using OpenIDClient;
+    using SimpleWebServer;    
     using NUnit.Framework;
+    using OpenIDClient;
+    using OpenIDClient.Messages;
 
     public class OIDCTests
     {
@@ -74,8 +75,12 @@
 
         private static void ThirdPartyInitiatedLoginCallback(IHttpContext context)
         {
-            result = context.Request.Uri.Query;OpenIdRelyingParty rp = new OpenIdRelyingParty();
-            rp.ThirdPartyInitiatedLogin(request, param);
+            result = context.Request.Uri.Query;
+            OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
+            requestMessage.DeserializeFromQueryString(request);
+
+            OpenIdRelyingParty rp = new OpenIdRelyingParty();
+            rp.ThirdPartyInitiatedLogin(requestMessage, param);
         }
 
         private static void RequestUriCallback(IHttpContext context)
@@ -88,7 +93,7 @@
             X509Certificate2 signCert = new X509Certificate2("server.pfx", "", X509KeyStorageFlags.Exportable);
             X509Certificate2 encCert = new X509Certificate2("server.pfx", "", X509KeyStorageFlags.Exportable);
 
-            Dictionary<string, object> keysDict = OpenIdRelyingParty.GetKeysJwks(signCert, encCert);
+            Dictionary<string, object> keysDict = KeyManager.GetKeysJwks(signCert, encCert);
             
             string rstring = JsonSerializer.Serialize(keysDict);
             HttpWorker.WriteTextToResponse(context, rstring);

@@ -5,11 +5,11 @@
     using HtmlAgilityPack;
     using System.Collections.Generic;
     using NUnit.Framework;
-    using OpenIDClient;
-    using OpenIDClient.Messages;
     using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
     using Jose;
+    using OpenIDClient;
+    using OpenIDClient.Messages;
 
     [TestFixture]
     public class RequestUriRequestParameterTests : OIDCTests
@@ -27,9 +27,9 @@
 
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
-            clientMetadata.RequestUris = new List<string> { myBaseUrl + "request.jwt" };
-            clientMetadata.RedirectUris = new List<string> { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string> { "code" };
+            clientMetadata.RequestUris = new List<string>() { myBaseUrl + "request.jwt" };
+            clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
+            clientMetadata.ResponseTypes = new List<string>() { "code" };
             clientMetadata.JwksUri = myBaseUrl + "my_public_keys.jwks";
 
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
@@ -41,11 +41,11 @@
         {
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = "openid";
+            requestMessage.Scope = new List<string>() { "openid" };
             requestMessage.ResponseType = "code";
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
-            requestMessage.State = OpenIdRelyingParty.RandomString();
-            requestMessage.Nonce = OpenIdRelyingParty.RandomString();
+            requestMessage.State = WebOperations.RandomString();
+            requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.RequestUri = myBaseUrl + "request.jwt";
             requestMessage.Validate();
 
@@ -58,7 +58,7 @@
             requestObject.Iss = clientInformation.ClientId;
             requestObject.Aud = opBaseurl.ToString();
             requestObject.ClientId = clientInformation.ClientId;
-            requestObject.Scope = "openid";
+            requestObject.Scope = new List<string>() { "openid" };
             requestObject.ResponseType = "code";
             requestObject.RedirectUri = clientInformation.RedirectUris[0];
             requestObject.State = state;
@@ -118,7 +118,7 @@
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
             
             // when
-            OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
+            WebOperations.GetUrlContent(WebRequest.Create(login_url));
             semaphore.WaitOne();
             OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope);
 
@@ -149,7 +149,7 @@
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
+            WebOperations.GetUrlContent(WebRequest.Create(login_url));
             semaphore.WaitOne();
             OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope);
 
@@ -181,7 +181,7 @@
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
+            WebOperations.GetUrlContent(WebRequest.Create(login_url));
             semaphore.WaitOne();
             OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope);
 
@@ -218,7 +218,7 @@
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
+            WebOperations.GetUrlContent(WebRequest.Create(login_url));
             semaphore.WaitOne();
             OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope);
 

@@ -113,13 +113,12 @@
 
                     if (entry.Value.GetType().GetGenericTypeDefinition() == typeof(List<>))
                     {
-                        value = "[ ";
+                        value = "";
                         foreach (string val in dValue)
                         {
-                            value += val + ",";
+                            value += (value == "") ? "" : " ";
+                            value += val;
                         }
-                        value.TrimEnd(',');
-                        value += " ]";
                     }
                     else if (entry.Value.GetType().GetGenericTypeDefinition() == typeof(Dictionary<,>))
                     {

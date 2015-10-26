@@ -101,6 +101,12 @@
                     propertyValue.DeserializeFromDictionary((Dictionary<string, object>)data[propertyUnderscore]);
                     p.SetValue(obj, propertyValue);
                 }
+                else if (p.PropertyType == typeof(OIDCAddress))
+                {
+                    OIDCAddress propertyValue = new OIDCAddress();
+                    propertyValue.DeserializeFromDictionary((Dictionary<string, object>)data[propertyUnderscore]);
+                    p.SetValue(obj, propertyValue);
+                }
             }
         }
 

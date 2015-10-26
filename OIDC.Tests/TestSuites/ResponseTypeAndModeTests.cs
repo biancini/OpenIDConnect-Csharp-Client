@@ -21,11 +21,11 @@
 
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
-            clientMetadata.RedirectUris = new List<string> {
+            clientMetadata.RedirectUris = new List<string>() {
                 myBaseUrl + "code_flow_callback",
                 myBaseUrl + "id_token_flow_callback"
             };
-            clientMetadata.ResponseTypes = new List<string> {
+            clientMetadata.ResponseTypes = new List<string>() {
                 "code",
                 "id_token"
             };
@@ -50,16 +50,15 @@
             // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = "openid";
+            requestMessage.Scope = new List<string>() { "openid" };
             requestMessage.ResponseType = "code";
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Validate();
 
-            string login_url = GetBaseUrl("/authorization") + "?" + requestMessage.SerializeToQueryString();
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
             
             // when
-            OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
+            rp.Authenticate(GetBaseUrl("/authorization"), requestMessage);
             semaphore.WaitOne();
             OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope);
 
@@ -83,18 +82,17 @@
             // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = "openid";
+            requestMessage.Scope = new List<string>() { "openid" };
             requestMessage.ResponseType = "id_token";
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
-            requestMessage.Nonce = OpenIdRelyingParty.RandomString();
-            requestMessage.State = OpenIdRelyingParty.RandomString();
+            requestMessage.Nonce = WebOperations.RandomString();
+            requestMessage.State = WebOperations.RandomString();
             requestMessage.Validate();
 
-            string login_url = GetBaseUrl("/authorization") + "?" + requestMessage.SerializeToQueryString();
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
+            rp.Authenticate(GetBaseUrl("/authorization"), requestMessage);
             semaphore.WaitOne();
             OIDCAuthImplicitResponseMessage response = rp.ParseAuthImplicitResponse(result, requestMessage.Scope, requestMessage.State);
 
@@ -118,18 +116,17 @@
             // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = "openid";
+            requestMessage.Scope = new List<string>() { "openid" };
             requestMessage.ResponseType = "id_token token";
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
-            requestMessage.Nonce = OpenIdRelyingParty.RandomString();
-            requestMessage.State = OpenIdRelyingParty.RandomString();
+            requestMessage.Nonce = WebOperations.RandomString();
+            requestMessage.State = WebOperations.RandomString();
             requestMessage.Validate();
 
-            string login_url = GetBaseUrl("/authorization") + "?" + requestMessage.SerializeToQueryString();
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
+            rp.Authenticate(GetBaseUrl("/authorization"), requestMessage);
             semaphore.WaitOne();
             OIDCAuthImplicitResponseMessage response = rp.ParseAuthImplicitResponse(result, requestMessage.Scope, requestMessage.State);
 
@@ -154,19 +151,19 @@
             // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = "openid";
+            requestMessage.Scope = new List<string>() { "openid" };
             requestMessage.ResponseType = "id_token token";
             requestMessage.ResponseMode = "form_post";
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
-            requestMessage.Nonce = OpenIdRelyingParty.RandomString();
-            requestMessage.State = OpenIdRelyingParty.RandomString();
+            requestMessage.Nonce = WebOperations.RandomString();
+            requestMessage.State = WebOperations.RandomString();
             requestMessage.Validate();
 
             string login_url = GetBaseUrl("/authorization") + "?" + requestMessage.SerializeToQueryString();
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            Dictionary<string, object> html = OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url), false);
+            Dictionary<string, object> html = WebOperations.GetUrlContent(WebRequest.Create(login_url), false);
 
             // then
             Assert.NotNull(html);
@@ -208,19 +205,17 @@
             // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.RedirectUris[1];
-            requestMessage.Scope = "openid";
-            requestMessage.State = OpenIdRelyingParty.RandomString();
-            requestMessage.Nonce = OpenIdRelyingParty.RandomString();
+            requestMessage.Scope = new List<string>() { "openid" };
+            requestMessage.State = WebOperations.RandomString();
+            requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.ResponseType = "id_token";
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Validate();
 
-            string login_url = "openid://?" + requestMessage.SerializeToQueryString();
+            OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            Dictionary<string, object> respo = OpenIdRelyingParty.GetUrlContent(WebRequest.Create(login_url));
-            OIDCAuthImplicitResponseMessage response = new OIDCAuthImplicitResponseMessage();
-            response.DeserializeFromDictionary(respo);
+            OIDCAuthImplicitResponseMessage response = rp.Authenticate("openid://", requestMessage);
 
             // then
             OIDCIdToken idToken = new OIDCIdToken();

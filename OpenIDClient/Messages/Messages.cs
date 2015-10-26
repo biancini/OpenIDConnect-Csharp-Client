@@ -34,7 +34,8 @@
                 typeof(bool),
                 typeof(OIDCKey),
                 typeof(OIDClaims),
-                typeof(OIDClaimData)
+                typeof(OIDClaimData),
+                typeof(OIDCAddress)
             };
 
             if (t.IsGenericType)
@@ -135,7 +136,7 @@
     {
         public string Iss { get; set; }
         public string Aud { get; set; }
-        public string Scope { get; set; }
+        public List<string> Scope { get; set; }
         public string ResponseType { get; set; }
         public string ClientId { get; set; }
         public string RedirectUri { get; set; }
@@ -164,24 +165,29 @@
         /// </summary>
         public override void Validate()
         {
-            if (Scope == null)
+            if (Scope == null || Scope.Count == 0)
             {
-                throw new OIDCException("Missing scope required parameter.");
+                throw new OIDCException("Missing scope required parameter");
+            }
+
+            if (!Scope.Contains("openid"))
+            {
+                throw new OIDCException("Missing required openid scope");
             }
 
             if (ResponseType == null)
             {
-                throw new OIDCException("Missing response_type required parameter.");
+                throw new OIDCException("Missing response_type required parameter");
             }
 
             if (ClientId == null)
             {
-                throw new OIDCException("Missing client_id required parameter.");
+                throw new OIDCException("Missing client_id required parameter");
             }
 
             if (RedirectUri == null)
             {
-                throw new OIDCException("Missing redirect_uri required parameter.");
+                throw new OIDCException("Missing redirect_uri required parameter");
             }
         }
     }
@@ -214,7 +220,7 @@
     {
         public string Code { get; set; }
         public string State { get; set; }
-        public string Scope { get; set; }
+        public List<string> Scope { get; set; }
 
         /// <summary>
         /// <see cref="OIDClientSerializableMessage.Validate()"/>
@@ -237,7 +243,7 @@
         public long ExpiresIn { get; set; }
         public string TokenType { get; set; }
         public string IdToken { get; set; }
-        public string Scope { get; set; }
+        public List<string> Scope { get; set; }
         public string State { get; set; }
 
         /// <summary>
@@ -326,7 +332,7 @@
     /// </summary>
     public class OIDCUserInfoRequestMessage : OIDCAuthenticatedMessage
     {
-        public string Scope { get; set; }
+        public List<string> Scope { get; set; }
         public string State { get; set; }
         public OIDClaims Claims { get; set; }
     }
@@ -347,14 +353,14 @@
         public string Picture { get; set; }
         public string Website { get; set; }
         public string Email { get; set; }
-        public string EmailVerified { get; set; }
+        public bool EmailVerified { get; set; }
         public string Gender { get; set; }
         public string Birthdate { get; set; }
         public string Zoneinfo { get; set; }
         public string Locale { get; set; }
         public string PhoneNumber { get; set; }
-        public string PhoneNumberVerified { get; set; }
-        public string Address { get; set; }
+        public bool PhoneNumberVerified { get; set; }
+        public OIDCAddress Address { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
 
@@ -385,14 +391,14 @@
         public string Picture { get; set; }
         public string Website { get; set; }
         public string Email { get; set; }
-        public string EmailVerified { get; set; }
+        public bool EmailVerified { get; set; }
         public string Gender { get; set; }
         public string Birthdate { get; set; }
         public string Zoneinfo { get; set; }
         public string Locale { get; set; }
         public string PhoneNumber { get; set; }
-        public string PhoneNumberVerified { get; set; }
-        public string Address { get; set; }
+        public bool PhoneNumberVerified { get; set; }
+        public OIDCAddress Address { get; set; }
         public DateTime UpdatedAt { get; set; }
 
         /// <summary>

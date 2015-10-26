@@ -63,7 +63,7 @@
             if (JwksUri != null)
             {
                 Keys = new List<OIDCKey>();
-                Dictionary<string, object> jwks = OpenIdRelyingParty.GetUrlContent(WebRequest.Create(JwksUri));
+                Dictionary<string, object> jwks = WebOperations.GetUrlContent(WebRequest.Create(JwksUri));
                 ArrayList keys = (ArrayList)jwks["keys"];
                 foreach (Dictionary<string, object> key in keys)
                 {
@@ -146,7 +146,7 @@
             if (RedirectUris != null && SectorIdentifierUri != null)
             {
                 List<string> siUris = new List<string>();
-                dynamic uris = OpenIdRelyingParty.GetUrlContent(WebRequest.Create(SectorIdentifierUri));
+                dynamic uris = WebOperations.GetUrlContent(WebRequest.Create(SectorIdentifierUri));
                 foreach (string uri in uris)
                 {
                     siUris.Add(uri);
@@ -175,7 +175,7 @@
                 }
             }
 
-            List<string> listUri = new List<string> { LogoUri, ClientUri, PolicyUri, TosUri, JwksUri, SectorIdentifierUri, InitiateLoginUri, RegistrationClientUri };
+            List<string> listUri = new List<string>() { LogoUri, ClientUri, PolicyUri, TosUri, JwksUri, SectorIdentifierUri, InitiateLoginUri, RegistrationClientUri };
             if (RedirectUris != null)
             {
                 listUri.AddRange(RedirectUris);
@@ -245,6 +245,10 @@
             }
         }
 
+        /// <summary>
+        /// Get the RSA crypting key.
+        /// </summary>
+        /// <returns>The RSA key</returns>
         public RSACryptoServiceProvider getRSA()
         {
             if (Kty != "RSA")
@@ -261,5 +265,16 @@
             key.ImportParameters(parameters);
             return key;
         }
+    }
+
+    /// <summary>
+    /// Class representing a user address to be expressed in claims.
+    /// </summary>
+    public class OIDCAddress : Messages.OIDClientSerializableMessage
+    {
+        public string Country { get; set; }
+        public string PostalCode { get; set; }
+        public string StreetAddress { get; set; }
+        public string Locality { get; set; }
     }
 }

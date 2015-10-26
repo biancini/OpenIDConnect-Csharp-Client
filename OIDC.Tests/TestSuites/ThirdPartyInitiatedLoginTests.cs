@@ -23,10 +23,10 @@
 
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
-            clientMetadata.RedirectUris = new List<string> {
+            clientMetadata.RedirectUris = new List<string>() {
                 myBaseUrl + "code_flow_callback"
             };
-            clientMetadata.ResponseTypes = new List<string> {
+            clientMetadata.ResponseTypes = new List<string>() {
                 "code"
             };
             clientMetadata.InitiateLoginUri = myBaseUrl + "initiated_login";
@@ -57,7 +57,7 @@
 
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = "openid";
+            requestMessage.Scope = new List<string>{ "openid" };
             requestMessage.ResponseType = "code";
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Validate();
@@ -68,7 +68,7 @@
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
             
             // when
-            OpenIdRelyingParty.GetUrlContent(webRequest);
+            WebOperations.GetUrlContent(webRequest);
             semaphore.WaitOne();
             OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result);
 

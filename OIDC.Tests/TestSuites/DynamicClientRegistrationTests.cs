@@ -30,8 +30,8 @@
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
-            clientMetadata.RedirectUris = new List<string> { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string> { "code" };
+            clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
+            clientMetadata.ResponseTypes = new List<string>() { "code" };
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
@@ -58,8 +58,8 @@
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
-            clientMetadata.RedirectUris = new List<string> { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string> { "code" };
+            clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
+            clientMetadata.ResponseTypes = new List<string>() { "code" };
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
@@ -87,8 +87,8 @@
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
-            clientMetadata.RedirectUris = new List<string> { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string> { "code" };
+            clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
+            clientMetadata.ResponseTypes = new List<string>() { "code" };
             clientMetadata.JwksUri = myBaseUrl + "my_public_keys.jwks";
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
@@ -117,8 +117,8 @@
             string registrationEndopoint = GetBaseUrl("/registration");
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
-            clientMetadata.RedirectUris = new List<string> { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string> { "code" };
+            clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
+            clientMetadata.ResponseTypes = new List<string>() { "code" };
             clientMetadata.JwksUri = myBaseUrl + "my_public_keys.jwks";
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
