@@ -7,6 +7,7 @@
     using System.Text;
     using System.Text.RegularExpressions;
     using System.Net;
+    using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
     using OpenIDClient.Messages;
     using Jose;
@@ -18,17 +19,18 @@
     public class OpenIdRelyingParty
     {
         /// <summary>
-        /// 
+        /// Method that sends authentication request to the OP.
         /// </summary>
-        /// <param name="authenticateUrl"></param>
-        /// <param name="requestMessage"></param>
-        /// <returns></returns>
-        public OIDCAuthImplicitResponseMessage Authenticate(string AuthenticateUrl, OIDCAuthorizationRequestMessage RequestMessage)
+        /// <param name="AuthenticateUrl">The URL to be used for the authentication request.</param>
+        /// <param name="RequestMessage">The reuqest message to be sent to the OP.</param>
+        /// <param name="Certificate">The certificate to be used, in case of a self-issued authentication.</param>
+        /// <returns>The authentication response from the OP.</returns>
+        public OIDCAuthImplicitResponseMessage Authenticate(string AuthenticateUrl, OIDCAuthorizationRequestMessage RequestMessage, X509Certificate2 Certificate = null)
         {
             if (new Uri(AuthenticateUrl).Scheme == "openid")
             {
                 // we are dealing with a Self-Issued OpenID provider
-                Dictionary<string, object> response = PerformSelfIssuedAuthentication(RequestMessage);
+                Dictionary<string, object> response = PerformSelfIssuedAuthentication(RequestMessage, Certificate);
                 OIDCAuthImplicitResponseMessage responseMessage = new OIDCAuthImplicitResponseMessage();
                 responseMessage.DeserializeFromDictionary(response);
                 return responseMessage;
@@ -41,10 +43,8 @@
             }
         }
 
-        private Dictionary<string, object> PerformSelfIssuedAuthentication(OIDCAuthorizationRequestMessage requestMessage)
+        private Dictionary<string, object> PerformSelfIssuedAuthentication(OIDCAuthorizationRequestMessage requestMessage, X509Certificate2 certificate)
         {
-            X509Certificate2 certificate = new X509Certificate2("server.pfx", "", X509KeyStorageFlags.Exportable);
-
             OIDCIdToken idToken = new OIDCIdToken();
             idToken.Iss = "https://self-issued.me";
             idToken.Sub = Convert.ToBase64String(Encoding.UTF8.GetBytes(certificate.Thumbprint));
@@ -312,13 +312,15 @@
             return responseMessage;
         }
 
-        private OIDCClientSecretJWT AddClientAuthenticatedToRequest(ref WebRequest request, ref OIDCAuthenticatedMessage requestMessage, string grantType, OIDCClientInformation clientInformation)
+        private OIDCClientSecretJWT AddClientAuthenticatedToRequest(ref WebRequest request, ref OIDCAuthenticatedMessage requestMessage, string grantType, OIDCClientInformation clientInformation, byte[] privateKey)
         {
             OIDCClientSecretJWT tokenData = null;
+            byte[] encKey = null;
             switch (grantType)
             {
                 case "client_secret_basic":
                     string basic = clientInformation.ClientId + ":" + clientInformation.ClientSecret;
+                    basic = Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(basic));
                     request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(basic)));
                     break;
                 case "client_secret_post":
@@ -326,24 +328,32 @@
                     requestMessage.ClientSecret = clientInformation.ClientSecret;
                     break;
                 case "client_secret_jwt":
+                    encKey = Encoding.UTF8.GetBytes(clientInformation.ClientSecret);
+                    break;
                 case "private_key_jwt":
-                    // TODO understand how to sign JWT
-                    tokenData = new OIDCClientSecretJWT();
-                    tokenData.Iss = clientInformation.ClientId;
-                    tokenData.Sub = clientInformation.ClientId;
-                    tokenData.Aud = request.RequestUri.ToString();
-                    if (tokenData.Aud.Contains("?"))
-                    {
-                        tokenData.Aud = tokenData.Aud.Substring(0, tokenData.Aud.IndexOf("?"));
-                    }
-                    tokenData.Jti = WebOperations.RandomString();
-                    tokenData.Exp = DateTime.Now;
-                    tokenData.Iat = DateTime.Now - new TimeSpan(0, 10, 0);
-                    requestMessage.ClientAssertionType = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
-                    requestMessage.ClientAssertion = Jose.JWT.Encode(tokenData, Encoding.UTF8.GetBytes(clientInformation.ClientSecret), Jose.JwsAlgorithm.HS256);
+                    encKey = privateKey;
                     break;
                 default: // case "none"
                     break;
+            }
+
+            // If client_secret_jwt or private_key_jwt pass a JWT bearer token with the
+            // specified key for encryption.
+            if (encKey != null)
+            {
+                tokenData = new OIDCClientSecretJWT();
+                tokenData.Iss = clientInformation.ClientId;
+                tokenData.Sub = clientInformation.ClientId;
+                tokenData.Aud = request.RequestUri.ToString();
+                if (tokenData.Aud.Contains("?"))
+                {
+                    tokenData.Aud = tokenData.Aud.Substring(0, tokenData.Aud.IndexOf("?"));
+                }
+                tokenData.Jti = WebOperations.RandomString();
+                tokenData.Exp = DateTime.Now;
+                tokenData.Iat = DateTime.Now - new TimeSpan(0, 10, 0);
+                requestMessage.ClientAssertionType = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+                requestMessage.ClientAssertion = JWT.Encode(tokenData, encKey, Jose.JwsAlgorithm.HS256);
             }
 
             return tokenData;
@@ -356,12 +366,12 @@
         /// <param name="tokenRequestMessage">The token request message</param>
         /// <param name="clientInformation">The client information obtained from the OP</param>
         /// <returns>Returns the token response obtained from the OP</returns>
-        public OIDCTokenResponseMessage SubmitTokenRequest(string url, OIDCTokenRequestMessage tokenRequestMessage, OIDCClientInformation clientInformation)
+        public OIDCTokenResponseMessage SubmitTokenRequest(string url, OIDCTokenRequestMessage tokenRequestMessage, OIDCClientInformation clientInformation, byte[] privateKey = null)
         {
             WebRequest request = WebRequest.Create(url);
             OIDCAuthenticatedMessage message = tokenRequestMessage as OIDCAuthenticatedMessage;
             string grantType = clientInformation.TokenEndpointAuthMethod;
-            AddClientAuthenticatedToRequest(ref request, ref message, grantType, clientInformation);
+            AddClientAuthenticatedToRequest(ref request, ref message, grantType, clientInformation, privateKey);
             Dictionary<string, object> returnedJson = WebOperations.PostUrlContent(request, message);
 
             if (returnedJson.Keys.Contains("error"))

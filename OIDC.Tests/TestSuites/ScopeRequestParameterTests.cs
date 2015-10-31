@@ -2,6 +2,7 @@
 {
     using System.Net;
     using System.Collections.Generic;
+    using System.Security.Cryptography.X509Certificates;
     using NUnit.Framework;
     using OpenIDClient;
     using OpenIDClient.Messages;
@@ -138,10 +139,11 @@
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Validate();
 
+            X509Certificate2 certificate = new X509Certificate2("server.pfx", "", X509KeyStorageFlags.Exportable);
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            OIDCAuthImplicitResponseMessage response = rp.Authenticate("openid://", requestMessage);
+            OIDCAuthImplicitResponseMessage response = rp.Authenticate("openid://", requestMessage, certificate);
             OIDCIdToken idToken = response.GetIdToken();
 
             // then

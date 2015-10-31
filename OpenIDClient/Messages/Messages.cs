@@ -307,7 +307,7 @@
         public string Code { get; set; }
         public string RedirectUri { get; set; }
         public string State { get; set; }
-        public string Scope { get; set; }
+        public List<string> Scope { get; set; }
     }
 
     /// <summary>
@@ -348,6 +348,29 @@
             {
                 throw new OIDCException("Missing token_type required parameter.");
             }
+        }
+
+        /// <summary>
+        /// Method that returns the IDToken decoding the JWT.
+        /// </summary>
+        /// <param name="sigKey">The key used for checking signature.</param>
+        /// <param name="encKey">The key used for decrypting the message.</param>
+        /// <returns>The IdToken as an object.</returns>
+        public OIDCIdToken GetIdToken(RSACryptoServiceProvider sigKey = null, RSACryptoServiceProvider encKey = null)
+        {
+            string jsonToken = IdToken;
+
+            if (encKey != null)
+            {
+                jsonToken = JWT.Decode(jsonToken, encKey);
+            }
+
+            jsonToken = JWT.Decode(jsonToken, sigKey);
+            Dictionary<string, object> o = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonToken);
+            OIDCIdToken idToken = new OIDCIdToken();
+            idToken.DeserializeFromDictionary(o);
+
+            return idToken;
         }
     }
 

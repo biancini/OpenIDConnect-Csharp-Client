@@ -91,6 +91,7 @@
     <Compile Include="TestSuites\DynamicClientRegistrationTests.cs" />
     <Compile Include="Helpers\OIDCTests.cs" />
     <Compile Include="TestSuites\ClaimsRequestParameterTests.cs" />
+    <Compile Include="TestSuites\ClientAuthenticationTests.cs" />
     <Compile Include="TestSuites\RequestUriRequestParameterTests.cs" />
     <Compile Include="TestSuites\NonceRequestParameterTests.cs" />
     <Compile Include="TestSuites\ScopeRequestParameterTests.cs" />
