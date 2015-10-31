@@ -216,6 +216,9 @@
         public string X { get; set; }
         public string Kid { get; set; }
         public string Kty { get; set; }
+        private string InverseQ { get; set; }
+        private string DP { get; set; }
+        private string DQ { get; set; }
 
         /// <summary>
         /// Empty constructor creating an empty message.
@@ -256,14 +259,49 @@
                 throw new OIDCException("Requesting RSA on a key which is not RSA.");
             }
 
-            RSAParameters parameters = new RSAParameters
-            {
-                Exponent = Base64UrlEncoder.DecodeBytes(E),
-                Modulus = Base64UrlEncoder.DecodeBytes(N)
-            };
             RSACryptoServiceProvider key = new RSACryptoServiceProvider();
-            key.ImportParameters(parameters);
+            key.ImportParameters(GetParameters());
             return key;
+        }
+
+        /// <summary>
+        /// Method that retursn RSAParamenters for the current key.
+        /// </summary>
+        /// <returns>The RSAParamenters.</returns>
+        public RSAParameters GetParameters()
+        {
+            RSAParameters par = new RSAParameters();
+            par.Exponent = Base64UrlEncoder.DecodeBytes(E);
+            par.Modulus = Base64UrlEncoder.DecodeBytes(N);
+            par.D = Base64UrlEncoder.DecodeBytes(D);
+            par.Q = Base64UrlEncoder.DecodeBytes(Q);
+            if (P != null && InverseQ != null && DP != null && DQ != null)
+            {
+                par.P = Base64UrlEncoder.DecodeBytes(P);
+                par.InverseQ = Base64UrlEncoder.DecodeBytes(InverseQ);
+                par.DP = Base64UrlEncoder.DecodeBytes(DP);
+                par.DQ = Base64UrlEncoder.DecodeBytes(DQ);
+            }
+            return par;
+        }
+
+        /// <summary>
+        /// Method that sets parameters from RSAParamenter.
+        /// </summary>
+        /// <param name="par">The RSAParamenters to set</param>
+        public void SetParams(RSAParameters par)
+        {
+            E = Base64UrlEncoder.EncodeBytes(par.Exponent);
+            N = Base64UrlEncoder.EncodeBytes(par.Modulus);
+            D = Base64UrlEncoder.EncodeBytes(par.D);
+            Q = Base64UrlEncoder.EncodeBytes(par.Q);
+            if (par.P != null && par.InverseQ != null && par.DP != null && par.DQ != null)
+            {
+                P = Base64UrlEncoder.EncodeBytes(par.P);
+                InverseQ = Base64UrlEncoder.EncodeBytes(par.InverseQ);
+                DP = Base64UrlEncoder.EncodeBytes(par.DP);
+                DQ = Base64UrlEncoder.EncodeBytes(par.DQ);
+            }
         }
     }
 

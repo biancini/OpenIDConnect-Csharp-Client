@@ -20,9 +20,9 @@
         /// <param name="EncodingCert">Certificate to be used for encoding.</param>
         /// <param name="SigningCert">Certificate to be used for signing.</param>
         /// <returns>The JWKS object with the keys of the RP.</returns>
-        public static Dictionary<string, object> GetKeysJwks(X509Certificate2 EncodingCert, X509Certificate2 SigningCert)
+        public static Dictionary<string, object> GetKeysJwkDict(X509Certificate2 EncodingCert, X509Certificate2 SigningCert)
         {
-            return GetKeysJwks(new List<X509Certificate2>() { EncodingCert }, new List<X509Certificate2>() { SigningCert });
+            return GetKeysJwkDict(new List<X509Certificate2>() { EncodingCert }, new List<X509Certificate2>() { SigningCert });
         }
 
         /// <summary>
@@ -41,10 +41,7 @@
             byte[] key = certificate.GetPublicKey();
             OIDCKey curCert = new OIDCKey();
             curCert.Use = use;
-            curCert.N = Base64UrlEncoder.EncodeBytes(par.Modulus);
-            curCert.E = Base64UrlEncoder.EncodeBytes(par.Exponent);
-            curCert.D = Base64UrlEncoder.EncodeBytes(par.D);
-            curCert.Q = Base64UrlEncoder.EncodeBytes(par.Q);
+            curCert.SetParams(par);
             curCert.Kty = keyType;
             curCert.Kid = uniqueName;
             return curCert;
@@ -56,16 +53,48 @@
         /// <param name="EncodingCerts">List of certificates to be used for encoding.</param>
         /// <param name="SigningCerts">List of certificates to be used for signing.</param>
         /// <returns>The JWKS object with the keys of the RP.</returns>
-        public static Dictionary<string, object> GetKeysJwks(List<X509Certificate2> EncodingCerts, List<X509Certificate2> SigningCerts)
+        public static Dictionary<string, object> GetKeysJwkDict(List<X509Certificate2> EncodingCerts, List<X509Certificate2> SigningCerts)
         {
+            List<OIDCKey> oidcKeys = GetKeysJwkList(EncodingCerts, SigningCerts);
             List<Dictionary<string, object>> keys = new List<Dictionary<string, object>>();
+
+            foreach (OIDCKey curKey in oidcKeys)
+            {
+                keys.Add(curKey.SerializeToDictionary());
+            }
+
+            Dictionary<string, object> keysDict = new Dictionary<string, object>();
+            keysDict.Add("keys", keys);
+            return keysDict;
+        }
+
+        /// <summary>
+        /// Obtain a list of JWKS objects describing certificates used by this RP for signing and encoding.
+        /// </summary>
+        /// <param name="EncodingCert">Certificate to be used for encoding.</param>
+        /// <param name="SigningCert">Certificate to be used for signing.</param>
+        /// <returns>The JWKS object with the keys of the RP.</returns>
+        public static List<OIDCKey> GetKeysJwkList(X509Certificate2 EncodingCert, X509Certificate2 SigningCert)
+        {
+            return GetKeysJwkList(new List<X509Certificate2>() { EncodingCert }, new List<X509Certificate2>() { SigningCert });
+        }
+
+        /// <summary>
+        /// Obtain the JWKS object describing certificates used by this RP for signing and encoding.
+        /// </summary>
+        /// <param name="EncodingCerts">List of certificates to be used for encoding.</param>
+        /// <param name="SigningCerts">List of certificates to be used for signing.</param>
+        /// <returns>The JWKS object with the keys of the RP.</returns>
+        public static List<OIDCKey> GetKeysJwkList(List<X509Certificate2> EncodingCerts, List<X509Certificate2> SigningCerts)
+        {
+            List<OIDCKey> keys = new List<OIDCKey>();
 
             int countEnc = 1;
             foreach (X509Certificate2 certificate in EncodingCerts)
             {
                 OIDCKey curCert = GetOIDCKey(certificate, "RSA", "enc", "Encoding Certificate " + countEnc);
                 countEnc++;
-                keys.Add(curCert.SerializeToDictionary());
+                keys.Add(curCert);
             }
 
             int countSign = 1;
@@ -73,12 +102,10 @@
             {
                 OIDCKey curCert = GetOIDCKey(certificate, "RSA", "sig", "Signing Certificate " + countEnc);
                 countSign++;
-                keys.Add(curCert.SerializeToDictionary());
+                keys.Add(curCert);
             }
 
-            Dictionary<string, object> keysDict = new Dictionary<string, object>();
-            keysDict.Add("keys", keys);
-            return keysDict;
+            return keys;
         }
     }
 }

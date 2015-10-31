@@ -79,7 +79,7 @@
             requestClaims.Userinfo.Add("name", new OIDClaimData());
 
             requestMessage.Scope = new List<string>() { "openid", "profile", "email", "address", "phone" };
-            requestMessage.ResponseType = "id_token token";
+            requestMessage.ResponseType = new List<string>() { "id_token", "token" };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -135,7 +135,7 @@
             requestMessage.Scope = new List<string>() { "openid", "profile", "email", "address", "phone" };
             requestMessage.State = WebOperations.RandomString();
             requestMessage.Nonce = WebOperations.RandomString();
-            requestMessage.ResponseType = "id_token";
+            requestMessage.ResponseType = new List<string>() { "id_token" };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Validate();
 

@@ -58,7 +58,7 @@
             requestClaims.Userinfo.Add("name", new OIDClaimData());
 
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = "id_token token";
+            requestMessage.ResponseType = new List<string>() { "id_token", "token" };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -70,14 +70,7 @@
             rp.Authenticate(GetBaseUrl("/authorization"), requestMessage);
             semaphore.WaitOne();
             OIDCAuthImplicitResponseMessage response = rp.ParseAuthImplicitResponse(result, requestMessage.Scope, requestMessage.State);
-            RSACryptoServiceProvider rsa = providerMetadata.Keys.Find(
-                delegate(OIDCKey k)
-                {
-                    return k.Use == "sig" && k.Kty == "RSA";
-                }
-            ).getRSA();
-
-            OIDCIdToken idToken = response.GetIdToken(rsa);
+            OIDCIdToken idToken = response.GetIdToken(providerMetadata.Keys, clientInformation.ClientSecret);
 
             // then
             idToken.Validate();
@@ -106,7 +99,7 @@
             requestMessage.Scope = new List<string>() { "openid", "profile", "email", "address", "phone" };
             requestMessage.State = WebOperations.RandomString();
             requestMessage.Nonce = WebOperations.RandomString();
-            requestMessage.ResponseType = "id_token";
+            requestMessage.ResponseType = new List<string>() { "id_token" };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Validate();
 
@@ -144,7 +137,7 @@
             requestClaims.Userinfo.Add("name", new OIDClaimData());
 
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = "id_token token";
+            requestMessage.ResponseType = new List<string>() { "id_token", "token" };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -156,14 +149,7 @@
             rp.Authenticate(GetBaseUrl("/authorization"), requestMessage);
             semaphore.WaitOne();
             OIDCAuthImplicitResponseMessage response = rp.ParseAuthImplicitResponse(result, requestMessage.Scope, requestMessage.State);
-            RSACryptoServiceProvider rsa = providerMetadata.Keys.Find(
-                delegate(OIDCKey k)
-                {
-                    return k.Use == "sig" && k.Kty == "RSA";
-                }
-            ).getRSA();
-
-            OIDCIdToken idToken = response.GetIdToken(rsa);
+            OIDCIdToken idToken = response.GetIdToken(providerMetadata.Keys, clientInformation.ClientSecret);
 
             // then
             rp.ValidateIdToken(idToken, clientInformation, idToken.Iss, "wrong-nonce");

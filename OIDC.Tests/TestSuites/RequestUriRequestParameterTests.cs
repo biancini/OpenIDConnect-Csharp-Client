@@ -42,7 +42,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = "code";
+            requestMessage.ResponseType = new List<string>() { "code" };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.State = WebOperations.RandomString();
             requestMessage.Nonce = WebOperations.RandomString();
@@ -59,7 +59,7 @@
             requestObject.Aud = opBaseurl.ToString();
             requestObject.ClientId = clientInformation.ClientId;
             requestObject.Scope = new List<string>() { "openid" };
-            requestObject.ResponseType = "code";
+            requestObject.ResponseType = new List<string>() { "code" };
             requestObject.RedirectUri = clientInformation.RedirectUris[0];
             requestObject.State = state;
             requestObject.Nonce = nonce;

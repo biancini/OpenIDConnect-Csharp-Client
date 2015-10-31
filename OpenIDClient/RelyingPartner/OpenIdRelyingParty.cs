@@ -214,13 +214,9 @@
         public OIDCClientInformation RegisterClient(string RegistrationEndpoint, OIDCClientInformation clientMetadata, string TokenEndpointAuthMethod = "client_secret_basic")
         {
             // Make registration request
+            Dictionary<string, object> data = clientMetadata.SerializeToDictionary();
             OIDCClientRegistrationRequest registrationRequest = new OIDCClientRegistrationRequest();
-            registrationRequest.ApplicationType = clientMetadata.ApplicationType;
-            registrationRequest.RedirectUris = clientMetadata.RedirectUris;
-            registrationRequest.ResponseTypes = clientMetadata.ResponseTypes;
-            registrationRequest.JwksUri = clientMetadata.JwksUri;
-            registrationRequest.TokenEndpointAuthMethod = TokenEndpointAuthMethod;
-            registrationRequest.InitiateLoginUri = clientMetadata.InitiateLoginUri;
+            registrationRequest.DeserializeFromDictionary(data);
 
             // Check error and store client information from OP
             WebRequest request = WebRequest.Create(RegistrationEndpoint);

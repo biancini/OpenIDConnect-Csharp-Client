@@ -55,7 +55,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = "id_token token";
+            requestMessage.ResponseType = new List<string>() { "id_token token" };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -77,14 +77,7 @@
             response.Validate();
             Assert.NotNull(response.AccessToken);
 
-            RSACryptoServiceProvider rsa = providerMetadata.Keys.Find(
-                delegate(OIDCKey k)
-                {
-                    return k.Use == "sig" && k.Kty == "RSA";
-                }
-            ).getRSA();
-
-            OIDCIdToken idToken = response.GetIdToken(rsa);
+            OIDCIdToken idToken = response.GetIdToken(providerMetadata.Keys, clientInformation.ClientSecret);
             rp.ValidateIdToken(idToken, clientInformation, providerMetadata.Issuer, requestMessage.Nonce);
             Assert.IsNotNullOrEmpty(idToken.Name);
         }
@@ -111,7 +104,7 @@
             requestClaims.Userinfo.Add("name", new OIDClaimData());
 
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = "id_token token";
+            requestMessage.ResponseType = new List<string>() { "id_token", "token" };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();

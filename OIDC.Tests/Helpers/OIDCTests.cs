@@ -93,7 +93,7 @@
             X509Certificate2 signCert = new X509Certificate2("server.pfx", "", X509KeyStorageFlags.Exportable);
             X509Certificate2 encCert = new X509Certificate2("server.pfx", "", X509KeyStorageFlags.Exportable);
 
-            Dictionary<string, object> keysDict = KeyManager.GetKeysJwks(signCert, encCert);
+            Dictionary<string, object> keysDict = KeyManager.GetKeysJwkDict(signCert, encCert);
             
             string rstring = JsonSerializer.Serialize(keysDict);
             HttpWorker.WriteTextToResponse(context, rstring);

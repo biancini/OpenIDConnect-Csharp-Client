@@ -14,8 +14,17 @@
     /// <summary>
     /// Abstract class extended by all messages between RP e OP.
     /// </summary>
-    public class OIDClientSerializableMessage
+    public class OIDClientSerializableMessage : ICloneable
     {
+        /// <summary>
+        /// Clone method.
+        /// </summary>
+        /// <returns>A cloned version of the object.</returns>
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         /// <summary>
         /// Method that returns true or false if the type passed is one of the types supported
         /// in serialization and deserialization.
@@ -120,6 +129,9 @@
         public List<string> SectorIdentifierUri { get; set; }
         public string TokenEndpointAuthMethod { get; set; }
         public string JwksUri { get; set; }
+        public string IdTokenSignedResponseAlg { get; set; }
+        public string IdTokenEncryptedResponseAlg { get; set; }
+        public string IdTokenEncryptedResponseEnc { get; set; }
         public string UserInfoEncryptedResponseAlg { get; set; }
         public string UserInfoEncryptedResponseEnc { get; set; }
         public List<string> Contacts { get; set; }
@@ -138,7 +150,7 @@
         public string Iss { get; set; }
         public string Aud { get; set; }
         public List<string> Scope { get; set; }
-        public string ResponseType { get; set; }
+        public List<string> ResponseType { get; set; }
         public string ClientId { get; set; }
         public string RedirectUri { get; set; }
         public string State { get; set; }
@@ -266,18 +278,49 @@
         /// <summary>
         /// Method that returns the IDToken decoding the JWT.
         /// </summary>
-        /// <param name="sigKey">The key used for checking signature.</param>
-        /// <param name="encKey">The key used for decrypting the message.</param>
+        /// <param name="OPKeys">The OP keys.</param>
+        /// <param name="ClientSecret">The client secret (to be used as key).</param>
+        /// <param name="RPKeys">The RP keys.</param>
         /// <returns>The IdToken as an object.</returns>
-        public OIDCIdToken GetIdToken(RSACryptoServiceProvider sigKey = null, RSACryptoServiceProvider encKey = null)
+        public OIDCIdToken GetIdToken(List<OIDCKey> OPKeys = null, string ClientSecret = null, List<OIDCKey> RPKeys = null)
         {
             string jsonToken = IdToken;
+            Dictionary<string,object> headers = (Dictionary<string,object>) JWT.Headers(jsonToken);
 
-            if (encKey != null)
+            if (headers.ContainsKey("enc"))
             {
+                string kid = (headers.ContainsKey("kid")) ? headers["kid"] as string : null;
+                RSACryptoServiceProvider encKey = RPKeys.Find(
+                    delegate(OIDCKey k)
+                    {
+                        return k.Kid == kid;
+                    }
+                ).getRSA();
+
                 jsonToken = JWT.Decode(jsonToken, encKey);
+                headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
             }
 
+            string alg = (headers.ContainsKey("alg")) ? headers["alg"] as string : "none";
+            object sigKey = null;
+            if (alg != "none")
+            {
+                string kid = (headers.ContainsKey("kid")) ? headers["kid"] as string : null;
+                if (kid != null && OPKeys != null)
+                {
+                    sigKey = OPKeys.Find(
+                        delegate(OIDCKey k)
+                        {
+                            return k.Kid == kid;
+                        }
+                    ).getRSA();
+                }
+                else
+                {
+                    sigKey = Encoding.UTF8.GetBytes(ClientSecret);
+                }
+            }
+            
             jsonToken = JWT.Decode(jsonToken, sigKey);
             Dictionary<string, object> o = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonToken);
             OIDCIdToken idToken = new OIDCIdToken();
@@ -353,16 +396,47 @@
         /// <summary>
         /// Method that returns the IDToken decoding the JWT.
         /// </summary>
-        /// <param name="sigKey">The key used for checking signature.</param>
-        /// <param name="encKey">The key used for decrypting the message.</param>
+        /// <param name="OPKeys">The OP keys.</param>
+        /// <param name="ClientSecret">The client secret (to be used as key).</param>
+        /// <param name="RPKeys">The RP keys.</param>
         /// <returns>The IdToken as an object.</returns>
-        public OIDCIdToken GetIdToken(RSACryptoServiceProvider sigKey = null, RSACryptoServiceProvider encKey = null)
+        public OIDCIdToken GetIdToken(List<OIDCKey> OPKeys = null, string ClientSecret = null, List<OIDCKey> RPKeys = null)
         {
             string jsonToken = IdToken;
+            Dictionary<string, object> headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
 
-            if (encKey != null)
+            if (headers.ContainsKey("enc"))
             {
+                string kid = (headers.ContainsKey("kid")) ? headers["kid"] as string : null;
+                RSACryptoServiceProvider encKey = RPKeys.Find(
+                    delegate(OIDCKey k)
+                    {
+                        return k.Kid == kid;
+                    }
+                ).getRSA();
+
                 jsonToken = JWT.Decode(jsonToken, encKey);
+                headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
+            }
+
+            string alg = (headers.ContainsKey("alg")) ? headers["alg"] as string : "none";
+            object sigKey = null;
+            if (alg != "none")
+            {
+                string kid = (headers.ContainsKey("kid")) ? headers["kid"] as string : null;
+                if (kid != null && OPKeys != null)
+                {
+                    sigKey = OPKeys.Find(
+                        delegate(OIDCKey k)
+                        {
+                            return k.Kid == kid;
+                        }
+                    ).getRSA();
+                }
+                else
+                {
+                    sigKey = Encoding.UTF8.GetBytes(ClientSecret);
+                }
             }
 
             jsonToken = JWT.Decode(jsonToken, sigKey);
