@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Net;
     using System.Security.Cryptography;
+    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// Object describing the OP metadata.
@@ -64,10 +65,10 @@
             {
                 Keys = new List<OIDCKey>();
                 Dictionary<string, object> jwks = WebOperations.GetUrlContent(WebRequest.Create(JwksUri));
-                ArrayList keys = (ArrayList)jwks["keys"];
-                foreach (Dictionary<string, object> key in keys)
+                JArray keys = (JArray)jwks["keys"];
+                foreach (JToken key in keys)
                 {
-                    OIDCKey newKey = new OIDCKey(key);
+                    OIDCKey newKey = new OIDCKey(key.ToObject<Dictionary<string, object>>());
                     Keys.Add(newKey);
                 }
             }

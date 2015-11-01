@@ -10,6 +10,7 @@
     using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
     using OpenIDClient.Messages;
+    using Newtonsoft.Json.Linq;
     using Jose;
 
     /// <summary>
@@ -95,7 +96,7 @@
 
             WebRequest webRequest = WebRequest.Create(hostname + query);
             Dictionary<string, object> o = WebOperations.GetUrlContent(webRequest);
-            if (DateTime.Parse(o["expires"] as string) < DateTime.UtcNow - new TimeSpan(0, 10, 0))
+            if ((DateTime)o["expires"] < DateTime.UtcNow - new TimeSpan(0, 10, 0))
             {
                 throw new OIDCException("Claims expired on " + o["expires"]);
             }
@@ -106,12 +107,13 @@
             }
 
             string issuer = null;
-            ArrayList links = (ArrayList)o["links"];
-            foreach (Dictionary<string, object> link in links)
+            JArray links = (JArray)o["links"];
+            foreach (JObject link in links)
             {
-                if (link["rel"] as string == "http://openid.net/specs/connect/1.0/issuer")
+                Dictionary<string, object> dic = link.ToObject<Dictionary<string, object>>();
+                if (dic["rel"] as string == "http://openid.net/specs/connect/1.0/issuer")
                 {
-                    issuer = link["href"] as string;
+                    issuer = dic["href"] as string;
                 }
             }
 

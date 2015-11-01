@@ -5,6 +5,7 @@
     using System.Reflection;
     using System.Text.RegularExpressions;
     using OpenIDClient.Messages;
+    using Newtonsoft.Json.Linq;
 
     public class Deserializer
     {
@@ -86,25 +87,29 @@
                 else if (p.PropertyType == typeof(OIDCKey))
                 {
                     OIDCKey propertyValue = new OIDCKey();
-                    propertyValue.DeserializeFromDictionary((Dictionary<string, object>)data[propertyUnderscore]);
+                    JObject curObj = (JObject)data[propertyUnderscore];
+                    propertyValue.DeserializeFromDictionary(curObj.ToObject<Dictionary<string, object>>());
                     p.SetValue(obj, propertyValue);
                 }
                 else if (p.PropertyType == typeof(OIDClaims))
                 {
                     OIDClaims propertyValue = new OIDClaims();
-                    propertyValue.DeserializeFromDictionary((Dictionary<string, object>)data[propertyUnderscore]);
+                    JObject curObj = (JObject)data[propertyUnderscore];
+                    propertyValue.DeserializeFromDictionary(curObj.ToObject<Dictionary<string, object>>());
                     p.SetValue(obj, propertyValue);
                 }
                 else if (p.PropertyType == typeof(OIDClaimData))
                 {
                     OIDClaimData propertyValue = new OIDClaimData();
-                    propertyValue.DeserializeFromDictionary((Dictionary<string, object>)data[propertyUnderscore]);
+                    JObject curObj = (JObject)data[propertyUnderscore];
+                    propertyValue.DeserializeFromDictionary(curObj.ToObject<Dictionary<string, object>>());
                     p.SetValue(obj, propertyValue);
                 }
                 else if (p.PropertyType == typeof(OIDCAddress))
                 {
                     OIDCAddress propertyValue = new OIDCAddress();
-                    propertyValue.DeserializeFromDictionary((Dictionary<string, object>)data[propertyUnderscore]);
+                    JObject curObj = (JObject)data[propertyUnderscore];
+                    propertyValue.DeserializeFromDictionary(curObj.ToObject<Dictionary<string, object>>());
                     p.SetValue(obj, propertyValue);
                 }
             }

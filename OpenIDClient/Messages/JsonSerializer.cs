@@ -1,14 +1,13 @@
 ﻿namespace OpenIDClient
 {
-    using System.Web.Script.Serialization;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
 
     /// <summary>
     /// JSON Serializer using JavaScriptSerializer
     /// </summary>
     public static class JsonSerializer
     {
-        private static readonly JavaScriptSerializer serializer = new JavaScriptSerializer();
-
         /// <summary>
         /// Serialize an object to JSON string
         /// </summary>
@@ -16,7 +15,14 @@
         /// <returns>JSON string</returns>
         public static string Serialize(object obj)
         {
-            return serializer.Serialize(obj);
+            JsonConvert.DefaultSettings = (() =>
+            {
+                var settings = new JsonSerializerSettings();
+                settings.Converters.Add(new StringEnumConverter { CamelCaseText = true });
+                return settings;
+            });
+
+            return JsonConvert.SerializeObject(obj);
         }
 
         /// <summary>
@@ -27,7 +33,7 @@
         /// <returns>typed object</returns>
         public static T Deserialize<T>(string json)
         {
-            return serializer.Deserialize<T>(json);
+            return JsonConvert.DeserializeObject<T>(json);
         }
     }
 }
