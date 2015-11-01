@@ -2,13 +2,9 @@
 {
     using System;
     using System.Net;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Reflection;
     using System.Text;
-    using System.Text.RegularExpressions;
     using System.Security.Cryptography;
-    using System.Security.Cryptography.X509Certificates;
     using Jose;
 
     /// <summary>
@@ -229,7 +225,7 @@
     /// <summary>
     /// Message describing an authentication code response.
     /// </summary>
-    public class OIDCAuthCodeResponseMessage : OIDClientSerializableMessage
+    public class OIDCAuthCodeResponseMessage : OIDCResponseWithToken
     {
         public string Code { get; set; }
         public string State { get; set; }
@@ -250,12 +246,11 @@
     /// <summary>
     /// Message describing an authentication implicit response.
     /// </summary>
-    public class OIDCAuthImplicitResponseMessage : OIDClientSerializableMessage
+    public class OIDCAuthImplicitResponseMessage : OIDCResponseWithToken
     {
         public string AccessToken { get; set; }
         public long ExpiresIn { get; set; }
         public string TokenType { get; set; }
-        public string IdToken { get; set; }
         public List<string> Scope { get; set; }
         public string State { get; set; }
 
@@ -273,60 +268,6 @@
             {
                 throw new OIDCException("Missing state required parameter.");
             }
-        }
-
-        /// <summary>
-        /// Method that returns the IDToken decoding the JWT.
-        /// </summary>
-        /// <param name="OPKeys">The OP keys.</param>
-        /// <param name="ClientSecret">The client secret (to be used as key).</param>
-        /// <param name="RPKeys">The RP keys.</param>
-        /// <returns>The IdToken as an object.</returns>
-        public OIDCIdToken GetIdToken(List<OIDCKey> OPKeys = null, string ClientSecret = null, List<OIDCKey> RPKeys = null)
-        {
-            string jsonToken = IdToken;
-            Dictionary<string,object> headers = (Dictionary<string,object>) JWT.Headers(jsonToken);
-
-            if (headers.ContainsKey("enc"))
-            {
-                string kid = (headers.ContainsKey("kid")) ? headers["kid"] as string : null;
-                RSACryptoServiceProvider encKey = RPKeys.Find(
-                    delegate(OIDCKey k)
-                    {
-                        return k.Kid == kid;
-                    }
-                ).getRSA();
-
-                jsonToken = JWT.Decode(jsonToken, encKey);
-                headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
-            }
-
-            string alg = (headers.ContainsKey("alg")) ? headers["alg"] as string : "none";
-            object sigKey = null;
-            if (alg != "none")
-            {
-                string kid = (headers.ContainsKey("kid")) ? headers["kid"] as string : null;
-                if (kid != null && OPKeys != null)
-                {
-                    sigKey = OPKeys.Find(
-                        delegate(OIDCKey k)
-                        {
-                            return k.Kid == kid;
-                        }
-                    ).getRSA();
-                }
-                else
-                {
-                    sigKey = Encoding.UTF8.GetBytes(ClientSecret);
-                }
-            }
-            
-            jsonToken = JWT.Decode(jsonToken, sigKey);
-            Dictionary<string, object> o = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonToken);
-            OIDCIdToken idToken = new OIDCIdToken();
-            idToken.DeserializeFromDictionary(o);
-
-            return idToken;
         }
     }
 
@@ -354,43 +295,61 @@
     }
 
     /// <summary>
-    /// Message describing an the client secret JWT.
+    /// Class describing a message containint an ID Token.
     /// </summary>
-    public class OIDCClientSecretJWT : OIDClientSerializableMessage
+    public class OIDCResponseWithToken : OIDClientSerializableMessage
     {
-        public string Iss { get; set; }
-        public string Sub { get; set; }
-        public string Aud { get; set; }
-        public string Jti { get; set; }
-        public DateTime Exp { get; set; }
-        public DateTime Iat { get; set; }
-    }
-
-    /// <summary>
-    /// Message describing a token response.
-    /// </summary>
-    public class OIDCTokenResponseMessage : OIDClientSerializableMessage
-    {
-        public string AccessToken { get; set; }
-        public string TokenType { get; set; }
-        public string RefreshToken { get; set; }
-        public long ExpiresIn { get; set; }
         public string IdToken { get; set; }
 
         /// <summary>
-        /// <see cref="OIDClientSerializableMessage.Validate()"/>
+        /// Method that computes the expected c_hash or at_hash to be used for verifying the id token.
         /// </summary>
-        public override void Validate()
+        /// <param name="Code">The code or access token obtained from the authentication process.</param>
+        /// <param name="OPKeys">The keys used by the OP.</param>
+        /// <param name="ClientSecret">The secret key for the client.</param>
+        /// <returns>The expected c_hash value.</returns>
+        public string GetExpectedHash(string Code, List<OIDCKey> OPKeys = null, string ClientSecret = null)
         {
-            if (AccessToken == null)
-            {
-                throw new OIDCException("Missing access_token required parameter.");
-            }
+            string jsonToken = IdToken;
+            Dictionary<string, object> headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
+            string alg = (headers.ContainsKey("alg")) ? headers["alg"] as string : "none";
+            object sigKey = GetSignKey(headers, OPKeys, ClientSecret);
 
-            if (TokenType == null)
+            return Code.Substring(Code.Length/2, Code.Length/2);
+            //byte[] signedPayload = Signer.Sign(Code, alg, sigKey);
+            //signedPayload = Arrays.SecondHalf(signedPayload);
+            //return Convert.ToBase64String(signedPayload);
+        }
+
+        private object GetSignKey(Dictionary<string, object> headers, List<OIDCKey> OPKeys = null, string ClientSecret = null)
+        {
+            string alg = (headers.ContainsKey("alg")) ? headers["alg"] as string : "none";
+            object sigKey = null;
+            if (alg != "none")
             {
-                throw new OIDCException("Missing token_type required parameter.");
+                string kid = (headers.ContainsKey("kid")) ? headers["kid"] as string : null;
+                if (kid != null && OPKeys != null)
+                {
+                    if (OPKeys.Count == 1)
+                    {
+                        sigKey = OPKeys[0].getRSA();
+                    }
+                    else
+                    {
+                        sigKey = OPKeys.Find(
+                            delegate(OIDCKey k)
+                            {
+                                return k.Kid == kid;
+                            }
+                        ).getRSA();
+                    }
+                }
+                else
+                {
+                    sigKey = Encoding.UTF8.GetBytes(ClientSecret);
+                }
             }
+            return sigKey;
         }
 
         /// <summary>
@@ -408,43 +367,72 @@
             if (headers.ContainsKey("enc"))
             {
                 string kid = (headers.ContainsKey("kid")) ? headers["kid"] as string : null;
-                RSACryptoServiceProvider encKey = RPKeys.Find(
-                    delegate(OIDCKey k)
-                    {
-                        return k.Kid == kid;
-                    }
-                ).getRSA();
-
-                jsonToken = JWT.Decode(jsonToken, encKey);
-                headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
-            }
-
-            string alg = (headers.ContainsKey("alg")) ? headers["alg"] as string : "none";
-            object sigKey = null;
-            if (alg != "none")
-            {
-                string kid = (headers.ContainsKey("kid")) ? headers["kid"] as string : null;
-                if (kid != null && OPKeys != null)
+                RSACryptoServiceProvider encKey = null;
+                if (RPKeys.Count == 1)
                 {
-                    sigKey = OPKeys.Find(
+                    encKey = RPKeys[0].getRSA();
+                }
+                else
+                {
+                    encKey = RPKeys.Find(
                         delegate(OIDCKey k)
                         {
                             return k.Kid == kid;
                         }
                     ).getRSA();
                 }
-                else
-                {
-                    sigKey = Encoding.UTF8.GetBytes(ClientSecret);
-                }
+
+                jsonToken = JWT.Decode(jsonToken, encKey);
+                headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
             }
 
+            object sigKey = GetSignKey(headers, OPKeys, ClientSecret);
             jsonToken = JWT.Decode(jsonToken, sigKey);
             Dictionary<string, object> o = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonToken);
             OIDCIdToken idToken = new OIDCIdToken();
             idToken.DeserializeFromDictionary(o);
 
             return idToken;
+        }
+    }
+
+    /// <summary>
+    /// Message describing an the client secret JWT.
+    /// </summary>
+    public class OIDCClientSecretJWT : OIDClientSerializableMessage
+    {
+        public string Iss { get; set; }
+        public string Sub { get; set; }
+        public string Aud { get; set; }
+        public string Jti { get; set; }
+        public DateTime Exp { get; set; }
+        public DateTime Iat { get; set; }
+    }
+
+    /// <summary>
+    /// Message describing a token response.
+    /// </summary>
+    public class OIDCTokenResponseMessage : OIDCResponseWithToken
+    {
+        public string AccessToken { get; set; }
+        public string TokenType { get; set; }
+        public string RefreshToken { get; set; }
+        public long ExpiresIn { get; set; }
+        
+        /// <summary>
+        /// <see cref="OIDClientSerializableMessage.Validate()"/>
+        /// </summary>
+        public override void Validate()
+        {
+            if (AccessToken == null)
+            {
+                throw new OIDCException("Missing access_token required parameter.");
+            }
+
+            if (TokenType == null)
+            {
+                throw new OIDCException("Missing token_type required parameter.");
+            }
         }
     }
 
@@ -500,6 +488,7 @@
         public string Acr { get; set; }
         public List<string> Amr { get; set; }
         public string Azp { get; set; }
+        public string CHash { get; set; }
         public string AtHash { get; set; }
         public OIDCKey SubJkw { get; set; }
         public string Name { get; set; }
@@ -521,6 +510,38 @@
         public bool PhoneNumberVerified { get; set; }
         public OIDCAddress Address { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        /// <summary>
+        /// Method that validates the ID Token.
+        /// </summary>
+        /// <param name="ExpectedIss">Expected value for issuer.</param>
+        /// <param name="ExpectedAud">Expected value for audience.</param>
+        /// <param name="ExpectedCHash">Expected value for c_hash (optional).</param>
+        /// <param name="ExpectedAtHash">Expected value for at_hash (optional).</param>
+        public void Validate(string ExpectedIss, string ExpectedAud, string ExpectedCHash = null, string ExpectedAtHash = null)
+        {
+            Validate();
+
+            if (Iss != ExpectedIss)
+            {
+                throw new OIDCException("Wrong issuer in id token.");
+            }
+
+            if (!Aud.Contains(ExpectedAud))
+            {
+                throw new OIDCException("Wrong audience for the released id token.");
+            }
+
+            if (ExpectedCHash != null && CHash != ExpectedCHash)
+            {
+                throw new OIDCException("Wrong c_hash for the released id token.");
+            }
+
+            if (ExpectedAtHash != null && AtHash != ExpectedAtHash)
+            {
+                throw new OIDCException("Wrong at_hash for the released id token.");
+            }
+        }
 
         /// <summary>
         /// <see cref="OIDClientSerializableMessage.Validate()"/>
@@ -555,7 +576,7 @@
                 throw new OIDCException("Missing exp required parameter.");
             }
 
-            if (Iat == null)
+            if (Iat == DateTime.MinValue)
             {
                 throw new OIDCException("Missing iat required parameter.");
             }

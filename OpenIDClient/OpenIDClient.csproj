@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\Base64UrlEncoder.cs" />
+    <Compile Include="Helpers\Signer.cs" />
     <Compile Include="Helpers\WebOperations.cs" />
     <Compile Include="Messages\JsonSerializer.cs" />
     <Compile Include="Helpers\KeyManager.cs" />
