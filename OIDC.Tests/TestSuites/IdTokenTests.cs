@@ -29,9 +29,9 @@
                 myBaseUrl + "code_flow_callback",
                 myBaseUrl + "id_token_flow_callback"
             };
-            clientMetadata.ResponseTypes = new List<string>() {
-                "code",
-                "id_token"
+            clientMetadata.ResponseTypes = new List<ResponseType>() {
+                ResponseType.Code,
+                ResponseType.IdToken
             };
 
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
@@ -58,7 +58,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "code" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -120,7 +120,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "code" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -177,7 +177,7 @@
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
             clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string>() { "code" };
+            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
             clientMetadata.IdTokenEncryptedResponseAlg = "RSA1_5";
             clientMetadata.IdTokenEncryptedResponseEnc = "A128CBC-HS256";
             clientMetadata.JwksUri = myBaseUrl + "my_public_keys.jwks";
@@ -186,7 +186,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "code" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -238,14 +238,14 @@
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
             clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string>() { "code" };
+            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
             clientMetadata.IdTokenSignedResponseAlg = "none";
             OIDCClientInformation clientInformation = rp.RegisterClient(registrationEndopoint, clientMetadata);
 
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "code" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -296,7 +296,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "code", "id_token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code, ResponseType.IdToken };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -337,7 +337,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "token", "id_token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Token, ResponseType.IdToken };
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -376,7 +376,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "token", "id_token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Token, ResponseType.IdToken };
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -416,7 +416,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "token", "id_token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Token, ResponseType.IdToken };
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -455,7 +455,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "token", "id_token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Token, ResponseType.IdToken };
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -508,7 +508,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "token", "id_token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Token, ResponseType.IdToken };
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -547,7 +547,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "token", "id_token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Token, ResponseType.IdToken };
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -586,7 +586,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "token", "id_token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Token, ResponseType.IdToken };
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -629,7 +629,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "token", "id_token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Token, ResponseType.IdToken };
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();

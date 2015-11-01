@@ -31,7 +31,7 @@
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
             clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string>() { "code" };
+            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
@@ -59,7 +59,7 @@
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
             clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string>() { "code" };
+            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
@@ -88,7 +88,7 @@
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
             clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string>() { "code" };
+            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
             clientMetadata.JwksUri = myBaseUrl + "my_public_keys.jwks";
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
@@ -118,7 +118,7 @@
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
             clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string>() { "code" };
+            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
             clientMetadata.JwksUri = myBaseUrl + "my_public_keys.jwks";
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 

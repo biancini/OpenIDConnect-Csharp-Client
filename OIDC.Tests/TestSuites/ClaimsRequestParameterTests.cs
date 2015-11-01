@@ -26,7 +26,7 @@
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
             clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "id_token_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string>() { "id_token" };
+            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.IdToken };
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
@@ -55,7 +55,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "id_token token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken, ResponseType.Token };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -104,7 +104,7 @@
             requestClaims.Userinfo.Add("name", new OIDClaimData());
 
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "id_token", "token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken, ResponseType.Token };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();

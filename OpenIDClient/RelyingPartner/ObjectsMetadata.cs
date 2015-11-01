@@ -6,6 +6,17 @@
     using System.Net;
     using System.Security.Cryptography;
     using Newtonsoft.Json.Linq;
+    using System.Runtime.Serialization;
+
+    public enum ResponseType
+    {
+        [EnumMember(Value = "code")]
+        Code,
+        [EnumMember(Value = "id_token")]
+        IdToken,
+        [EnumMember(Value = "token")]
+        Token
+    }
 
     /// <summary>
     /// Object describing the OP metadata.
@@ -18,7 +29,7 @@
         public string UserinfoEndpoint { get; set; }
         public string RegistrationEndpoint { get; set; }
         public string TokenEndpoint { get; set; }
-        public List<string> ResponseTypesSupported { get; set; }
+        public List<ResponseType> ResponseTypesSupported { get; set; }
         public List<string> IdTokenEncryptionAlgValuesSupported { get; set; }
         public List<string> ClaimTypesSupported { get; set; }
         public List<string> AcrValuesSupported { get; set; }
@@ -81,7 +92,7 @@
     public class OIDCClientInformation : Messages.OIDClientSerializableMessage
     {
         public List<string> RedirectUris { get; set; }
-        public List<string> ResponseTypes { get; set; }
+        public List<ResponseType> ResponseTypes { get; set; }
         public List<string> GrantTypes { get; set; }
         public string ApplicationType { get; set; }
         public List<string> Contacts { get; set; }
@@ -164,12 +175,11 @@
 
             if (ResponseTypes != null && GrantTypes != null)
             {
-                foreach (string responseType in ResponseTypes)
+                foreach (ResponseType responseType in ResponseTypes)
                 {
-                    if ((responseType == "code" && !GrantTypes.Contains("authorization_code")) ||
-                        (responseType == "id_token" && !GrantTypes.Contains("implicit")) ||
-                        (responseType == "token" && !GrantTypes.Contains("implicit")) ||
-                        (responseType == "id_token" && !GrantTypes.Contains("implicit")))
+                    if ((responseType == ResponseType.Code && !GrantTypes.Contains("authorization_code")) ||
+                        (responseType == ResponseType.IdToken && !GrantTypes.Contains("implicit")) ||
+                        (responseType == ResponseType.Token && !GrantTypes.Contains("implicit")))
                     {
                         throw new OIDCException("The response_types do not match grant_types.");
                     }

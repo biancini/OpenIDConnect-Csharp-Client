@@ -23,12 +23,8 @@
 
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
-            clientMetadata.RedirectUris = new List<string>() {
-                myBaseUrl + "code_flow_callback"
-            };
-            clientMetadata.ResponseTypes = new List<string>() {
-                "code"
-            };
+            clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
+            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
             clientMetadata.InitiateLoginUri = myBaseUrl + "initiated_login";
 
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
@@ -46,7 +42,7 @@
         /// An authentication response.
         /// </summary>
         [TestCase]
-        public void Should_Spporto_Third_Party_Initiated_Login()
+        public void Should_Spport_Third_Party_Initiated_Login()
         {
             rpid = "rp-support_3rd_party_init_login";
 
@@ -58,7 +54,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>{ "openid" };
-            requestMessage.ResponseType = new List<string>() { "code" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Validate();
             request = requestMessage.SerializeToQueryString();

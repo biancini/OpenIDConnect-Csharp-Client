@@ -26,9 +26,9 @@
                 myBaseUrl + "code_flow_callback",
                 myBaseUrl + "id_token_flow_callback"
             };
-            clientMetadata.ResponseTypes = new List<string>() {
-                "code",
-                "id_token"
+            clientMetadata.ResponseTypes = new List<ResponseType>() {
+                ResponseType.Code,
+                ResponseType.IdToken
             };
 
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
@@ -52,7 +52,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "code" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Validate();
 
@@ -84,7 +84,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "id_token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken };
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -105,7 +105,8 @@
         /// Can make request using response_type 'id_token token'
         /// 
         /// Description:
-        /// Make an authentication request using the Implicit Flow, specifying the response_type as 'id_token token'
+        /// Make an authentication request using the Implicit Flow, specifying the response_type as
+        /// 'id_token token'
         /// Expected result:	
         /// An authentication response containing an ID Token and an Access Token.
         /// </summary>
@@ -118,7 +119,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "id_token", "token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken, ResponseType.Token };
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -140,7 +141,8 @@
         /// Can make request using response_type='id_token token' and response_mode='form_post'
         /// 
         /// Description:	
-        /// Make an authentication request with the response_type set to 'id_token token' and the response mode set to form_post.
+        /// Make an authentication request with the response_type set to 'id_token token' and the
+        /// response mode set to form_post.
         /// Expected result:	
         /// HTML form post response processed, resulting in query encoded parameters.
         /// </summary>
@@ -153,7 +155,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "id_token", "token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken, ResponseType.Token };
             requestMessage.ResponseMode = "form_post";
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Nonce = WebOperations.RandomString();
@@ -209,7 +211,7 @@
             requestMessage.Scope = new List<string>() { "openid" };
             requestMessage.State = WebOperations.RandomString();
             requestMessage.Nonce = WebOperations.RandomString();
-            requestMessage.ResponseType = new List<string>() { "id_token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken };
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Validate();
 

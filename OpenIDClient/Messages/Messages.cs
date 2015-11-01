@@ -6,6 +6,7 @@
     using System.Text;
     using System.Security.Cryptography;
     using Jose;
+    using OpenIDClient.Messages;
 
     /// <summary>
     /// Abstract class extended by all messages between RP e OP.
@@ -41,7 +42,8 @@
                 typeof(OIDCKey),
                 typeof(OIDClaims),
                 typeof(OIDClaimData),
-                typeof(OIDCAddress)
+                typeof(OIDCAddress),
+                typeof(ResponseType)
             };
 
             if (t.IsGenericType)
@@ -132,7 +134,7 @@
         public string UserInfoEncryptedResponseEnc { get; set; }
         public List<string> Contacts { get; set; }
         public List<string> RequestUris { get; set; }
-        public List<string> ResponseTypes { get; set; }
+        public List<ResponseType> ResponseTypes { get; set; }
         public string InitiateLoginUri { get; set; }
 
         private WebRequest PostRequest { get; set; }
@@ -146,7 +148,7 @@
         public string Iss { get; set; }
         public string Aud { get; set; }
         public List<string> Scope { get; set; }
-        public List<string> ResponseType { get; set; }
+        public List<ResponseType> ResponseType { get; set; }
         public string ClientId { get; set; }
         public string RedirectUri { get; set; }
         public string State { get; set; }
@@ -388,7 +390,7 @@
 
             object sigKey = GetSignKey(headers, OPKeys, ClientSecret);
             jsonToken = JWT.Decode(jsonToken, sigKey);
-            Dictionary<string, object> o = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonToken);
+            Dictionary<string, object> o = OIDCJsonSerializer.Deserialize<Dictionary<string, object>>(jsonToken);
             OIDCIdToken idToken = new OIDCIdToken();
             idToken.DeserializeFromDictionary(o);
 

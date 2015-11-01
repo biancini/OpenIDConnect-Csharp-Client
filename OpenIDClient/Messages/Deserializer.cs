@@ -6,6 +6,7 @@
     using System.Text.RegularExpressions;
     using OpenIDClient.Messages;
     using Newtonsoft.Json.Linq;
+    using System.Runtime.Serialization;
 
     public class Deserializer
     {
@@ -40,6 +41,28 @@
                     string propertyValue = (string)data[propertyUnderscore];
                     p.SetValue(obj, propertyValue);
                 }
+                else if (p.PropertyType == typeof(ResponseType))
+                {
+                    if (data[propertyUnderscore].GetType() == typeof(ResponseType))
+                    {
+                        p.SetValue(obj, (ResponseType)data[propertyUnderscore]);
+                    }
+                    else
+                    {
+                        switch (data[propertyUnderscore].ToString())
+                        {
+                            case "code":
+                                p.SetValue(obj, ResponseType.Code);
+                                break;
+                            case "token":
+                                p.SetValue(obj, ResponseType.Token);
+                                break;
+                            case "id_token":
+                                p.SetValue(obj, ResponseType.Token);
+                                break;
+                        }
+                    }
+                }
                 else if (p.PropertyType == typeof(List<string>))
                 {
                     List<string> propertyValue = new List<string>();
@@ -53,6 +76,51 @@
                         foreach (string val in arrayData)
                         {
                             propertyValue.Add(val);
+                        }
+                    }
+
+                    p.SetValue(obj, propertyValue);
+                }
+                else if (p.PropertyType == typeof(List<ResponseType>))
+                {
+                    List<ResponseType> propertyValue = new List<ResponseType>();
+                    if (data[propertyUnderscore].GetType() == typeof(ResponseType))
+                    {
+                        propertyValue.Add((ResponseType)data[propertyUnderscore]);
+                    }
+                    else if (data[propertyUnderscore].GetType() == typeof(string))
+                    {
+                        switch (data[propertyUnderscore].ToString())
+                        {
+                            case "code":
+                                propertyValue.Add(ResponseType.Code);
+                                break;
+                            case "token":
+                                propertyValue.Add(ResponseType.Token);
+                                break;
+                            case "id_token":
+                                propertyValue.Add(ResponseType.Token);
+                                break;
+                        }
+                    }
+                    else if (data[propertyUnderscore].GetType() == typeof(List<ResponseType>))
+                    {
+                        List<ResponseType> arrayData = (List<ResponseType>) data[propertyUnderscore];
+                        foreach (ResponseType val in arrayData)
+                        {
+                            propertyValue.Add(val);
+                        }
+                    }
+                    else
+                    {
+                        JArray arrayData = (JArray)data[propertyUnderscore];
+                        foreach (JValue val in arrayData)
+                        {
+                            if (!new List<string> { "code", "token", "id_token" }.Contains(val.ToString()))
+                            {
+                                continue;
+                            }
+                            propertyValue.Add(val.ToObject<ResponseType>());
                         }
                     }
 

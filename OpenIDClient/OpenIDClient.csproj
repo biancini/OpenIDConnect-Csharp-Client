@@ -42,6 +42,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -53,7 +54,7 @@
     <Compile Include="Helpers\Base64UrlEncoder.cs" />
     <Compile Include="Helpers\Signer.cs" />
     <Compile Include="Helpers\WebOperations.cs" />
-    <Compile Include="Messages\JsonSerializer.cs" />
+    <Compile Include="Messages\OIDCJsonSerializer.cs" />
     <Compile Include="Helpers\KeyManager.cs" />
     <Compile Include="Messages\Messages.cs" />
     <Compile Include="RelyingPartner\ObjectsMetadata.cs" />

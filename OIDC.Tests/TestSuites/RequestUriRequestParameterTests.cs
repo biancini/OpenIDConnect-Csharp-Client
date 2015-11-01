@@ -29,7 +29,7 @@
             clientMetadata.ApplicationType = "web";
             clientMetadata.RequestUris = new List<string>() { myBaseUrl + "request.jwt" };
             clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string>() { "code" };
+            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
             clientMetadata.JwksUri = myBaseUrl + "my_public_keys.jwks";
 
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
@@ -42,7 +42,7 @@
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "code" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.State = WebOperations.RandomString();
             requestMessage.Nonce = WebOperations.RandomString();
@@ -59,7 +59,7 @@
             requestObject.Aud = opBaseurl.ToString();
             requestObject.ClientId = clientInformation.ClientId;
             requestObject.Scope = new List<string>() { "openid" };
-            requestObject.ResponseType = new List<string>() { "code" };
+            requestObject.ResponseType = new List<ResponseType>() { ResponseType.Code };
             requestObject.RedirectUri = clientInformation.RedirectUris[0];
             requestObject.State = state;
             requestObject.Nonce = nonce;

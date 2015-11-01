@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Reflection;
     using System.Text.RegularExpressions;
+    using System.Runtime.Serialization;
     using OpenIDClient.Messages;
 
     class Serializer
@@ -20,8 +21,23 @@
             {
                 return value;
             }
-            else if (propertyType.IsGenericType && propertyType == typeof(List<>))
+            else if (propertyType == typeof(ResponseType))
             {
+                string enumval = ((ResponseType)value).ToString();
+                FieldInfo fi = typeof(ResponseType).GetField(enumval);
+                EnumMemberAttribute[] attributes = (EnumMemberAttribute[])fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
+                return (attributes.Length > 0) ? attributes[0].Value : enumval;
+            }
+            else if (propertyType.IsGenericType && propertyType.Name.StartsWith("List") || propertyType == typeof(List<>))
+            {
+                if (value.GetType() == typeof(ResponseType))
+                {
+                    string enumval = ((ResponseType)value).ToString();
+                    FieldInfo fi = typeof(ResponseType).GetField(enumval);
+                    EnumMemberAttribute[] attributes = (EnumMemberAttribute[])fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
+                    return (attributes.Length > 0) ? attributes[0].Value : enumval;
+                }
+
                 return value;
             }
             else if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
@@ -61,12 +77,12 @@
 
         public static string SerializeToJsonString(object obj)
         {
-            return JsonSerializer.Serialize(obj);
+            return OIDCJsonSerializer.Serialize(obj);
         }
 
         public static string SerializeToJsonString(Dictionary<string, object> obj)
         {
-            return JsonSerializer.Serialize(obj);
+            return OIDCJsonSerializer.Serialize(obj);
         }
 
         public static Dictionary<string, object> SerializeToDictionary(OIDClientSerializableMessage obj)
@@ -114,10 +130,20 @@
                     if (entry.Value.GetType().GetGenericTypeDefinition() == typeof(List<>))
                     {
                         value = "";
-                        foreach (string val in dValue)
+                        foreach (object val in dValue)
                         {
                             value += (value == "") ? "" : " ";
-                            value += val;
+                            if (val.GetType() == typeof(ResponseType))
+                            {
+                                string enumval = ((ResponseType)val).ToString();
+                                FieldInfo fi = typeof(ResponseType).GetField(enumval);
+                                EnumMemberAttribute[] attributes = (EnumMemberAttribute[])fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
+                                value += (attributes.Length > 0) ? attributes[0].Value : enumval;
+                            }
+                            else
+                            {
+                                value += val.ToString();
+                            }
                         }
                     }
                     else if (entry.Value.GetType().GetGenericTypeDefinition() == typeof(Dictionary<,>))
@@ -125,7 +151,7 @@
                         value = "{ ";
                         foreach (string val in dValue.Keys)
                         {
-                            value += "\"" + val + "\": " +  SerializeToJsonString(dValue[val]) + ",";
+                            value += "\"" + val + "\": " + SerializeToJsonString(dValue[val]) + ",";
                         }
                         value = value.TrimEnd(',');
                         value += " }";

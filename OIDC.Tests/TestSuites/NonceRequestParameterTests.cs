@@ -26,7 +26,7 @@
             OIDCClientInformation clientMetadata = new OIDCClientInformation();
             clientMetadata.ApplicationType = "web";
             clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "id_token_flow_callback" };
-            clientMetadata.ResponseTypes = new List<string>() { "id_token" };
+            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.IdToken };
 
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
             clientInformation = rp.RegisterClient(registrationEndopoint, clientMetadata);
@@ -58,7 +58,7 @@
             requestClaims.Userinfo.Add("name", new OIDClaimData());
 
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "id_token", "token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken, ResponseType.Token };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();
@@ -99,7 +99,7 @@
             requestMessage.Scope = new List<string>() { "openid", "profile", "email", "address", "phone" };
             requestMessage.State = WebOperations.RandomString();
             requestMessage.Nonce = WebOperations.RandomString();
-            requestMessage.ResponseType = new List<string>() { "id_token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Validate();
 
@@ -137,7 +137,7 @@
             requestClaims.Userinfo.Add("name", new OIDClaimData());
 
             requestMessage.Scope = new List<string>() { "openid" };
-            requestMessage.ResponseType = new List<string>() { "id_token", "token" };
+            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken, ResponseType.Token };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.State = WebOperations.RandomString();

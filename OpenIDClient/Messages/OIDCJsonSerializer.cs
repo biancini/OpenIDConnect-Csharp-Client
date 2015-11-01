@@ -6,7 +6,7 @@
     /// <summary>
     /// JSON Serializer using JavaScriptSerializer
     /// </summary>
-    public static class JsonSerializer
+    public static class OIDCJsonSerializer
     {
         /// <summary>
         /// Serialize an object to JSON string

@@ -41,7 +41,7 @@
             string returnedText = new StreamReader(content).ReadToEnd();
             if (returnJson)
             {
-                return JsonSerializer.Deserialize<Dictionary<string, object>>(returnedText);
+                return OIDCJsonSerializer.Deserialize<Dictionary<string, object>>(returnedText);
             }
             else
             {
@@ -89,7 +89,7 @@
             HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
 
             StreamReader rdr = new StreamReader(response.GetResponseStream());
-            return JsonSerializer.Deserialize<Dictionary<string, object>>(rdr.ReadToEnd());
+            return OIDCJsonSerializer.Deserialize<Dictionary<string, object>>(rdr.ReadToEnd());
         }
     }
 }
