@@ -314,13 +314,12 @@
         {
             string jsonToken = IdToken;
             Dictionary<string, object> headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
-            string alg = (headers.ContainsKey("alg")) ? headers["alg"] as string : "none";
-            object sigKey = GetSignKey(headers, OPKeys, ClientSecret);
-
-            return Code.Substring(Code.Length/2, Code.Length/2);
+            //string alg = (headers.ContainsKey("alg")) ? headers["alg"] as string : "none";
+            //object sigKey = GetSignKey(headers, OPKeys, ClientSecret);
             //byte[] signedPayload = Signer.Sign(Code, alg, sigKey);
             //signedPayload = Arrays.SecondHalf(signedPayload);
             //return Convert.ToBase64String(signedPayload);
+            return Code.Substring(Code.Length / 2, Code.Length / 2);
         }
 
         private object GetSignKey(Dictionary<string, object> headers, List<OIDCKey> OPKeys = null, string ClientSecret = null)

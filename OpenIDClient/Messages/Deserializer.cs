@@ -152,30 +152,9 @@
                     int propertyValue = int.Parse(string.Empty + data[propertyUnderscore]);
                     p.SetValue(obj, propertyValue);
                 }
-                else if (p.PropertyType == typeof(OIDCKey))
+                else if (typeof(OIDClientSerializableMessage).IsAssignableFrom(p.PropertyType))
                 {
-                    OIDCKey propertyValue = new OIDCKey();
-                    JObject curObj = (JObject)data[propertyUnderscore];
-                    propertyValue.DeserializeFromDictionary(curObj.ToObject<Dictionary<string, object>>());
-                    p.SetValue(obj, propertyValue);
-                }
-                else if (p.PropertyType == typeof(OIDClaims))
-                {
-                    OIDClaims propertyValue = new OIDClaims();
-                    JObject curObj = (JObject)data[propertyUnderscore];
-                    propertyValue.DeserializeFromDictionary(curObj.ToObject<Dictionary<string, object>>());
-                    p.SetValue(obj, propertyValue);
-                }
-                else if (p.PropertyType == typeof(OIDClaimData))
-                {
-                    OIDClaimData propertyValue = new OIDClaimData();
-                    JObject curObj = (JObject)data[propertyUnderscore];
-                    propertyValue.DeserializeFromDictionary(curObj.ToObject<Dictionary<string, object>>());
-                    p.SetValue(obj, propertyValue);
-                }
-                else if (p.PropertyType == typeof(OIDCAddress))
-                {
-                    OIDCAddress propertyValue = new OIDCAddress();
+                    OIDClientSerializableMessage propertyValue = (OIDClientSerializableMessage) Activator.CreateInstance(p.PropertyType);
                     JObject curObj = (JObject)data[propertyUnderscore];
                     propertyValue.DeserializeFromDictionary(curObj.ToObject<Dictionary<string, object>>());
                     p.SetValue(obj, propertyValue);
