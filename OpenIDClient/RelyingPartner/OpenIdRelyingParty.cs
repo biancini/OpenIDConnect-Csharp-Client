@@ -55,19 +55,19 @@
             idToken.Iat = DateTime.MaxValue;
             idToken.SubJkw = KeyManager.GetOIDCKey(certificate, "RSA", "AQAB", "sig");
 
-            if (requestMessage.Scope.Contains("profile"))
+            if (requestMessage.Scope.Contains(MessageScope.Profile))
             {
                 idToken.GivenName = "Myself";
                 idToken.FamilyName = "User";
                 idToken.Name = idToken.GivenName + " " + idToken.FamilyName;
             }
 
-            if (requestMessage.Scope.Contains("email"))
+            if (requestMessage.Scope.Contains(MessageScope.Email))
             {
                 idToken.Email = "me@self-issued.me";
             }
 
-            if (requestMessage.Scope.Contains("address"))
+            if (requestMessage.Scope.Contains(MessageScope.Address))
             {
                 idToken.Address = new OIDCAddress();
                 idToken.Address.Country = "Italy";
@@ -76,7 +76,7 @@
                 idToken.Address.Locality = "Milano";
             }
 
-            if (requestMessage.Scope.Contains("phone"))
+            if (requestMessage.Scope.Contains(MessageScope.Phone))
             {
                 idToken.PhoneNumber = "0";
             }
@@ -253,7 +253,7 @@
         /// <param name="scope">(optional) Eventual scope used for the call to be used for verification.</param>
         /// <param name="state">(optional) Eventual state used for the call to be used for verification.</param>
         /// <returns>A validated message containing answer frop OP.</returns>
-        public OIDCAuthCodeResponseMessage ParseAuthCodeResponse(string queryString, List<string> scope = null, string state = null)
+        public OIDCAuthCodeResponseMessage ParseAuthCodeResponse(string queryString, List<MessageScope> scope = null, string state = null)
         {
             OIDCAuthCodeResponseMessage responseMessage = new OIDCAuthCodeResponseMessage();
             try
@@ -288,7 +288,7 @@
         /// <param name="scope">(optional) Eventual scope used for the call to be used for verification.</param>
         /// <param name="state">(optional) Eventual state used for the call to be used for verification.</param>
         /// <returns>A validated message containing answer frop OP.</returns>
-        public OIDCAuthImplicitResponseMessage ParseAuthImplicitResponse(string queryString, List<string> scope = null, string state = null)
+        public OIDCAuthImplicitResponseMessage ParseAuthImplicitResponse(string queryString, List<MessageScope> scope = null, string state = null)
         {
             OIDCAuthImplicitResponseMessage responseMessage = new OIDCAuthImplicitResponseMessage();
             try

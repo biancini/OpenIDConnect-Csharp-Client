@@ -18,6 +18,20 @@
         Token
     }
 
+    public enum MessageScope
+    {
+        [EnumMember(Value = "openid")]
+        Openid,
+        [EnumMember(Value = "profile")]
+        Profile,
+        [EnumMember(Value = "email")]
+        Email,
+        [EnumMember(Value = "address")]
+        Address,
+        [EnumMember(Value = "phone")]
+        Phone
+    }
+
     /// <summary>
     /// Object describing the OP metadata.
     /// </summary>

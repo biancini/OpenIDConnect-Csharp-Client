@@ -23,40 +23,6 @@
         }
 
         /// <summary>
-        /// Method that returns true or false if the type passed is one of the types supported
-        /// in serialization and deserialization.
-        /// </summary>
-        /// <param name="t">The type to be checked to verify serializability</param>
-        /// <returns>True or false, true if the type can be serialized</returns>
-        public static bool IsSupportedType(Type t)
-        {
-            List<Type> supportedTypes = new List<Type>()
-            {
-                typeof(string),
-                typeof(List<>),
-                typeof(Dictionary<, >),
-                typeof(DateTime),
-                typeof(long),
-                typeof(int),
-                typeof(bool),
-                typeof(OIDCKey),
-                typeof(OIDClaims),
-                typeof(OIDClaimData),
-                typeof(OIDCAddress),
-                typeof(ResponseType)
-            };
-
-            if (t.IsGenericType)
-            {
-                return supportedTypes.Contains(t.GetGenericTypeDefinition());
-            }
-            else
-            {
-                return supportedTypes.Contains(t);
-            }
-        }
-
-        /// <summary>
         /// Method used to validate the message according to the rules specified in the
         /// protocol specification.
         /// </summary>
@@ -147,7 +113,7 @@
     {
         public string Iss { get; set; }
         public string Aud { get; set; }
-        public List<string> Scope { get; set; }
+        public List<MessageScope> Scope { get; set; }
         public List<ResponseType> ResponseType { get; set; }
         public string ClientId { get; set; }
         public string RedirectUri { get; set; }
@@ -181,7 +147,7 @@
                 throw new OIDCException("Missing scope required parameter");
             }
 
-            if (!Scope.Contains("openid"))
+            if (!Scope.Contains(MessageScope.Openid))
             {
                 throw new OIDCException("Missing required openid scope");
             }
@@ -231,7 +197,7 @@
     {
         public string Code { get; set; }
         public string State { get; set; }
-        public List<string> Scope { get; set; }
+        public List<MessageScope> Scope { get; set; }
 
         /// <summary>
         /// <see cref="OIDClientSerializableMessage.Validate()"/>
@@ -253,7 +219,7 @@
         public string AccessToken { get; set; }
         public long ExpiresIn { get; set; }
         public string TokenType { get; set; }
-        public List<string> Scope { get; set; }
+        public List<MessageScope> Scope { get; set; }
         public string State { get; set; }
 
         /// <summary>
@@ -293,7 +259,7 @@
         public string Code { get; set; }
         public string RedirectUri { get; set; }
         public string State { get; set; }
-        public List<string> Scope { get; set; }
+        public List<MessageScope> Scope { get; set; }
     }
 
     /// <summary>
@@ -442,7 +408,7 @@
     /// </summary>
     public class OIDCUserInfoRequestMessage : OIDCAuthenticatedMessage
     {
-        public List<string> Scope { get; set; }
+        public List<MessageScope> Scope { get; set; }
         public string State { get; set; }
         public OIDClaims Claims { get; set; }
     }

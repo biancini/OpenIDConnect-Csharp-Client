@@ -54,7 +54,7 @@
 
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = new List<string>() { "openid" };
+            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid };
             requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken, ResponseType.Token };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
@@ -103,7 +103,7 @@
             requestClaims.Userinfo = new Dictionary<string, OIDClaimData>();
             requestClaims.Userinfo.Add("name", new OIDClaimData());
 
-            requestMessage.Scope = new List<string>() { "openid" };
+            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid };
             requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken, ResponseType.Token };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();

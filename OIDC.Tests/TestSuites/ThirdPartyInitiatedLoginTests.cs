@@ -53,7 +53,7 @@
 
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = new List<string>{ "openid" };
+            requestMessage.Scope = new List<MessageScope>{ MessageScope.Openid };
             requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Validate();

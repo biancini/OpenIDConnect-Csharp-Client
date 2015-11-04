@@ -47,7 +47,7 @@
 
             // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
-            requestMessage.Scope = new List<string>() { "wrong_scope" };
+            requestMessage.Scope = new List<MessageScope>() { MessageScope.Phone };
             
             // when
             requestMessage.Validate();
@@ -78,7 +78,7 @@
             requestClaims.Userinfo = new Dictionary<string, OIDClaimData>();
             requestClaims.Userinfo.Add("name", new OIDClaimData());
 
-            requestMessage.Scope = new List<string>() { "openid", "profile", "email", "address", "phone" };
+            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid, MessageScope.Profile, MessageScope.Email, MessageScope.Address, MessageScope.Phone };
             requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken, ResponseType.Token };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Nonce = WebOperations.RandomString();
@@ -132,7 +132,7 @@
             // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.RedirectUris[0];
-            requestMessage.Scope = new List<string>() { "openid", "profile", "email", "address", "phone" };
+            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid, MessageScope.Profile, MessageScope.Email, MessageScope.Address, MessageScope.Phone };
             requestMessage.State = WebOperations.RandomString();
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken };

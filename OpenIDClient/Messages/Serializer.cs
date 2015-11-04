@@ -15,6 +15,7 @@
             { typeof(bool), (Func<object, object>) ParsePlainObject },
             { typeof(int), (Func<object, object>) ParsePlainObject },
             { typeof(ResponseType), (Func<object, object>) ParseResponseType },
+            { typeof(MessageScope), (Func<object, object>) ParseMessageScope },
             { typeof(List<>), (Func<object, object>) ParseList },
             { typeof(Dictionary<,>), (Func<object, object>) ParseDictionary },
             { typeof(DateTime), (Func<object, object>) ParseDateTime },
@@ -67,6 +68,14 @@
         {
             string enumval = ((ResponseType)value).ToString();
             FieldInfo fi = typeof(ResponseType).GetField(enumval);
+            EnumMemberAttribute[] attributes = (EnumMemberAttribute[])fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
+            return (attributes.Length > 0) ? attributes[0].Value : enumval;
+        }
+
+        private static object ParseMessageScope(object value)
+        {
+            string enumval = ((MessageScope)value).ToString();
+            FieldInfo fi = typeof(MessageScope).GetField(enumval);
             EnumMemberAttribute[] attributes = (EnumMemberAttribute[])fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
             return (attributes.Length > 0) ? attributes[0].Value : enumval;
         }
@@ -177,6 +186,13 @@
                             {
                                 string enumval = ((ResponseType)val).ToString();
                                 FieldInfo fi = typeof(ResponseType).GetField(enumval);
+                                EnumMemberAttribute[] attributes = (EnumMemberAttribute[])fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
+                                value += (attributes.Length > 0) ? attributes[0].Value : enumval;
+                            }
+                            else if (val.GetType() == typeof(MessageScope))
+                            {
+                                string enumval = ((MessageScope)val).ToString();
+                                FieldInfo fi = typeof(MessageScope).GetField(enumval);
                                 EnumMemberAttribute[] attributes = (EnumMemberAttribute[])fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
                                 value += (attributes.Length > 0) ? attributes[0].Value : enumval;
                             }

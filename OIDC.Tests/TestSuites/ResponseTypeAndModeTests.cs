@@ -51,7 +51,7 @@
             // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = new List<string>() { "openid" };
+            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid };
             requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
             requestMessage.RedirectUri = clientInformation.RedirectUris[0];
             requestMessage.Validate();
@@ -83,7 +83,7 @@
             // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = new List<string>() { "openid" };
+            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid };
             requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken };
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Nonce = WebOperations.RandomString();
@@ -118,7 +118,7 @@
             // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = new List<string>() { "openid" };
+            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid };
             requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken, ResponseType.Token };
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
             requestMessage.Nonce = WebOperations.RandomString();
@@ -154,7 +154,7 @@
             // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = new List<string>() { "openid" };
+            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid };
             requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken, ResponseType.Token };
             requestMessage.ResponseMode = "form_post";
             requestMessage.RedirectUri = clientInformation.RedirectUris[1];
@@ -208,7 +208,7 @@
             // given
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = clientInformation.RedirectUris[1];
-            requestMessage.Scope = new List<string>() { "openid" };
+            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid };
             requestMessage.State = WebOperations.RandomString();
             requestMessage.Nonce = WebOperations.RandomString();
             requestMessage.ResponseType = new List<ResponseType>() { ResponseType.IdToken };

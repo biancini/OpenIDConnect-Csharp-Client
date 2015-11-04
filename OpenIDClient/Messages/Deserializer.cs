@@ -16,8 +16,10 @@
             { typeof(bool), (Action<OIDClientSerializableMessage, PropertyInfo, object>)  ParseBool },
             { typeof(int), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseInteger },
             { typeof(ResponseType), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseResponseType },
+            { typeof(MessageScope), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseMessageScope },
             { typeof(List<string>), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseListString },
             { typeof(List<ResponseType>), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseListResponseType },
+            { typeof(List<MessageScope>), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseListMessageScope },
             { typeof(Dictionary<string, object>), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseDictionaryStringObject },
             { typeof(DateTime), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseDateTime },
             { typeof(OIDCClientRegistrationRequest), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseOIDCMessage },
@@ -65,6 +67,35 @@
                         break;
                     case "id_token":
                         p.SetValue(obj, ResponseType.Token);
+                        break;
+                }
+            }
+        }
+
+        private static void ParseMessageScope(OIDClientSerializableMessage obj, PropertyInfo p, object value)
+        {
+            if (value.GetType() == typeof(MessageScope))
+            {
+                p.SetValue(obj, (MessageScope)value);
+            }
+            else
+            {
+                switch (value.ToString())
+                {
+                    case "openid":
+                        p.SetValue(obj, MessageScope.Openid);
+                        break;
+                    case  "profile":
+                        p.SetValue(obj, MessageScope.Profile);
+                        break;
+                    case  "email":
+                        p.SetValue(obj, MessageScope.Email);
+                        break;
+                    case  "address":
+                        p.SetValue(obj, MessageScope.Address);
+                        break;
+                    case "phone":
+                        p.SetValue(obj, MessageScope.Phone);
                         break;
                 }
             }
@@ -129,6 +160,58 @@
                         continue;
                     }
                     propertyValue.Add(val.ToObject<ResponseType>());
+                }
+            }
+
+            p.SetValue(obj, propertyValue);
+        }
+
+        private static void ParseListMessageScope(OIDClientSerializableMessage obj, PropertyInfo p, object value)
+        {
+            List<MessageScope> propertyValue = new List<MessageScope>();
+            if (value.GetType() == typeof(MessageScope))
+            {
+                propertyValue.Add((MessageScope)value);
+            }
+            else if (value.GetType() == typeof(string))
+            {
+                switch (value.ToString())
+                {
+                    case "openid":
+                        propertyValue.Add(MessageScope.Openid);
+                        break;
+                    case "profile":
+                        propertyValue.Add(MessageScope.Profile);
+                        break;
+                    case "email":
+                        propertyValue.Add(MessageScope.Email);
+                        break;
+                    case "address":
+                        propertyValue.Add(MessageScope.Address);
+                        break;
+                    case "phone":
+                        propertyValue.Add(MessageScope.Phone);
+                        break;
+                }
+            }
+            else if (value.GetType() == typeof(List<MessageScope>))
+            {
+                List<MessageScope> arrayData = (List<MessageScope>)value;
+                foreach (MessageScope val in arrayData)
+                {
+                    propertyValue.Add(val);
+                }
+            }
+            else
+            {
+                JArray arrayData = (JArray)value;
+                foreach (JValue val in arrayData)
+                {
+                    if (!new List<string> { "openid", "profile", "email", "address", "phone" }.Contains(val.ToString()))
+                    {
+                        continue;
+                    }
+                    propertyValue.Add(val.ToObject<MessageScope>());
                 }
             }
 
