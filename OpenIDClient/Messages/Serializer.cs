@@ -7,66 +7,108 @@
     using System.Runtime.Serialization;
     using OpenIDClient.Messages;
 
-    class Serializer
+    public static class Serializer
     {
+        private static Dictionary<Type, Delegate> ParsersPerType = new Dictionary<Type, Delegate>()
+        {
+            { typeof(string), (Func<object, object>) ParsePlainObject },
+            { typeof(bool), (Func<object, object>) ParsePlainObject },
+            { typeof(int), (Func<object, object>) ParsePlainObject },
+            { typeof(ResponseType), (Func<object, object>) ParseResponseType },
+            { typeof(List<>), (Func<object, object>) ParseList },
+            { typeof(Dictionary<,>), (Func<object, object>) ParseDictionary },
+            { typeof(DateTime), (Func<object, object>) ParseDateTime },
+            { typeof(OIDCClientRegistrationRequest), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCAuthorizationRequestMessage), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCThirdPartyLoginRequest), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCAuthCodeResponseMessage), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCAuthImplicitResponseMessage), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCTokenRequestMessage), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCResponseWithToken), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCClientSecretJWT), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCTokenResponseMessage), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCUserInfoRequestMessage), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCUserInfoResponseMessage), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCIdToken), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDClaimData), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDClaims), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCResponseError), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCProviderMetadata), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCClientInformation), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCKey), (Func<object, object>) ParseOIDCMessage },
+            { typeof(OIDCAddress), (Func<object, object>) ParseOIDCMessage }
+        };
+
+        private static Type GetType(Type propertyType)
+        {
+            if (propertyType.IsGenericType)
+            {
+                if (propertyType.Name.StartsWith("List"))
+                {
+                    return typeof(List<>);
+                }
+                return propertyType.GetGenericTypeDefinition();
+            }
+            return propertyType;
+        }
+
         private static long DateTimeToSecondsUtc(DateTime dateValue)
         {
             DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
             return (long)(dateValue - epoch).TotalSeconds;
         }
 
-        private static object ParsePropertyType(Type propertyType, object value)
+        private static object ParsePlainObject(object value)
         {
-            if (propertyType == typeof(string) || propertyType == typeof(bool) || propertyType == typeof(int))
-            {
-                return value;
-            }
-            else if (propertyType == typeof(ResponseType))
-            {
-                string enumval = ((ResponseType)value).ToString();
-                FieldInfo fi = typeof(ResponseType).GetField(enumval);
-                EnumMemberAttribute[] attributes = (EnumMemberAttribute[])fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
-                return (attributes.Length > 0) ? attributes[0].Value : enumval;
-            }
-            else if (propertyType.IsGenericType && propertyType.Name.StartsWith("List") || propertyType == typeof(List<>))
-            {
-                if (value.GetType() == typeof(ResponseType))
-                {
-                    string enumval = ((ResponseType)value).ToString();
-                    FieldInfo fi = typeof(ResponseType).GetField(enumval);
-                    EnumMemberAttribute[] attributes = (EnumMemberAttribute[])fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
-                    return (attributes.Length > 0) ? attributes[0].Value : enumval;
-                }
+            return value;
+        }
 
-                return value;
-            }
-            else if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+        private static object ParseResponseType(object value)
+        {
+            string enumval = ((ResponseType)value).ToString();
+            FieldInfo fi = typeof(ResponseType).GetField(enumval);
+            EnumMemberAttribute[] attributes = (EnumMemberAttribute[])fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
+            return (attributes.Length > 0) ? attributes[0].Value : enumval;
+        }
+
+        private static object ParseList(object value)
+        {
+            Type objType = GetType(value.GetType());
+            if (ParsersPerType.ContainsKey(objType) && objType != typeof(List<>))
             {
-                Dictionary<string, object> propertyValue = new Dictionary<string, object>();
-                dynamic dValue = value;
-                foreach (string val in dValue.Keys)
-                {
-                    object arrValue = dValue[val];
-                    propertyValue.Add(val, ParsePropertyType(arrValue.GetType(), arrValue));
-                }
-                return propertyValue;
-            }
-            else if (propertyType == typeof(DateTime))
-            {
-                long propertyValue = 0;
-                if ((DateTime)value != DateTime.MaxValue)
-                {
-                    propertyValue = DateTimeToSecondsUtc((DateTime)value);
-                }
-                return propertyValue;
-            }
-            else if (typeof(OIDClientSerializableMessage).IsAssignableFrom(propertyType))
-            {
-                OIDClientSerializableMessage propertyValue = (OIDClientSerializableMessage)value;
-                return propertyValue.SerializeToDictionary();
+                Delegate d = ParsersPerType[objType];
+                return d.DynamicInvoke(value);
             }
 
             return value;
+        }
+
+        private static object ParseDictionary(object value)
+        {
+            Dictionary<string, object> propertyValue = new Dictionary<string, object>();
+            dynamic dValue = value;
+            foreach (string val in dValue.Keys)
+            {
+                object arrValue = dValue[val];
+                propertyValue.Add(val, SerializeToDictionary(arrValue));
+            }
+            return propertyValue;
+        }
+
+        private static object ParseDateTime(object value)
+        {
+            long propertyValue = 0;
+            if ((DateTime)value != DateTime.MaxValue)
+            {
+                propertyValue = DateTimeToSecondsUtc((DateTime)value);
+            }
+            return propertyValue;
+        }
+
+        private static object ParseOIDCMessage(object value)
+        {
+            OIDClientSerializableMessage propertyValue = (OIDClientSerializableMessage)value;
+            return propertyValue.SerializeToDictionary();
         }
 
         public static string SerializeToJsonString(OIDClientSerializableMessage obj)
@@ -85,27 +127,25 @@
             return OIDCJsonSerializer.Serialize(obj);
         }
 
-        public static Dictionary<string, object> SerializeToDictionary(OIDClientSerializableMessage obj)
+        public static Dictionary<string, object> SerializeToDictionary(object obj)
         {
             PropertyInfo[] properties = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
             Dictionary<string, object> data = new Dictionary<string, object>();
             foreach (PropertyInfo p in properties)
             {
-                if (!OIDClientSerializableMessage.IsSupportedType(p.PropertyType))
-                {
-                    continue;
-                }
-
                 string propertyCamel = p.Name;
                 string propertyUnderscore = Regex.Replace(propertyCamel, "(?<=.)([A-Z])", "_$0", RegexOptions.Compiled).ToLower();
+                object propertyValue = p.GetValue(obj, null);
+                Type propertyType = GetType(p.PropertyType);
 
-                if (p.GetValue(obj, null) == null)
+                if (propertyValue == null || !ParsersPerType.ContainsKey(propertyType))
                 {
                     continue;
                 }
 
-                data.Add(propertyUnderscore, ParsePropertyType(p.PropertyType, p.GetValue(obj, null)));
+                Delegate d = ParsersPerType[propertyType];
+                data.Add(propertyUnderscore, d.DynamicInvoke(propertyValue));
             }
 
             return data;
@@ -113,7 +153,7 @@
 
         public static string SerializeToQueryString(OIDClientSerializableMessage obj)
         {
-            string uri = "";
+            string queryString = "";
             Dictionary<string, object> data = SerializeToDictionary(obj);
             foreach (KeyValuePair<string, object> entry in data)
             {
@@ -127,7 +167,7 @@
                 {
                     dynamic dValue = entry.Value;
 
-                    if (entry.Value.GetType().GetGenericTypeDefinition() == typeof(List<>))
+                    if (GetType(entry.Value.GetType()) == typeof(List<>))
                     {
                         value = "";
                         foreach (object val in dValue)
@@ -146,7 +186,7 @@
                             }
                         }
                     }
-                    else if (entry.Value.GetType().GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                    else if (GetType(entry.Value.GetType()) == typeof(Dictionary<,>))
                     {
                         value = "{ ";
                         foreach (string val in dValue.Keys)
@@ -158,10 +198,10 @@
                     }
                 }
 
-                uri += entry.Key + "=" + Uri.EscapeDataString(value) + "&";
+                queryString += entry.Key + "=" + Uri.EscapeDataString(value) + "&";
             }
 
-            return uri.TrimEnd('&');
+            return queryString.TrimEnd('&');
         }
     }
 }
