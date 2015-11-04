@@ -355,7 +355,7 @@
 
             object sigKey = GetSignKey(headers, OPKeys, ClientSecret);
             jsonToken = JWT.Decode(jsonToken, sigKey);
-            Dictionary<string, object> o = OIDCJsonSerializer.Deserialize<Dictionary<string, object>>(jsonToken);
+            Dictionary<string, object> o = Deserializer.DeserializeFromJson<Dictionary<string, object>>(jsonToken);
             OIDCIdToken idToken = new OIDCIdToken();
             idToken.DeserializeFromDictionary(o);
 

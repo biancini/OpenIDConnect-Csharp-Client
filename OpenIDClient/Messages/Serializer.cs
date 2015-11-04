@@ -6,6 +6,8 @@
     using System.Text.RegularExpressions;
     using System.Runtime.Serialization;
     using OpenIDClient.Messages;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
 
     public static class Serializer
     {
@@ -128,12 +130,12 @@
 
         public static string SerializeToJsonString(object obj)
         {
-            return OIDCJsonSerializer.Serialize(obj);
+            return SerializeToJson(obj);
         }
 
         public static string SerializeToJsonString(Dictionary<string, object> obj)
         {
-            return OIDCJsonSerializer.Serialize(obj);
+            return SerializeToJson(obj);
         }
 
         public static Dictionary<string, object> SerializeToDictionary(object obj)
@@ -218,6 +220,23 @@
             }
 
             return queryString.TrimEnd('&');
+        }
+
+        /// <summary>
+        /// Serialize an object to JSON string
+        /// </summary>
+        /// <param name="obj">object</param>
+        /// <returns>JSON string</returns>
+        public static string SerializeToJson(object obj)
+        {
+            JsonConvert.DefaultSettings = (() =>
+            {
+                var settings = new JsonSerializerSettings();
+                settings.Converters.Add(new StringEnumConverter { CamelCaseText = true });
+                return settings;
+            });
+
+            return JsonConvert.SerializeObject(obj);
         }
     }
 }

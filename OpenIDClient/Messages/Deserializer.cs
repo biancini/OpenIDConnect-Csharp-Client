@@ -7,6 +7,7 @@
     using OpenIDClient.Messages;
     using Newtonsoft.Json.Linq;
     using System.Runtime.Serialization;
+    using Newtonsoft.Json;
 
     public class Deserializer
     {
@@ -302,6 +303,17 @@
         {
             DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
             return epoch.AddSeconds(dateValue);
+        }
+
+        /// <summary>
+        /// Deserialize a JSON string to typed object.
+        /// </summary>
+        /// <typeparam name="T">type of object</typeparam>
+        /// <param name="json">JSON string</param>
+        /// <returns>typed object</returns>
+        public static T DeserializeFromJson<T>(string json)
+        {
+            return JsonConvert.DeserializeObject<T>(json);
         }
     }
 }

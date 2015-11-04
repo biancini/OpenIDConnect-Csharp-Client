@@ -95,7 +95,7 @@
 
             Dictionary<string, object> keysDict = KeyManager.GetKeysJwkDict(signCert, encCert);
 
-            string rstring = OIDCJsonSerializer.Serialize(keysDict);
+            string rstring = Serializer.SerializeToJson(keysDict);
             HttpWorker.WriteTextToResponse(context, rstring);
         }
 
