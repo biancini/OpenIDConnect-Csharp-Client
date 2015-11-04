@@ -69,6 +69,8 @@
                     case "id_token":
                         p.SetValue(obj, ResponseType.Token);
                         break;
+                    default:
+                        break;
                 }
             }
         }
@@ -97,6 +99,8 @@
                         break;
                     case "phone":
                         p.SetValue(obj, MessageScope.Phone);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -140,6 +144,8 @@
                         break;
                     case "id_token":
                         propertyValue.Add(ResponseType.Token);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -193,14 +199,8 @@
                     case "phone":
                         propertyValue.Add(MessageScope.Phone);
                         break;
-                }
-            }
-            else if (value.GetType() == typeof(List<MessageScope>))
-            {
-                List<MessageScope> arrayData = (List<MessageScope>)value;
-                foreach (MessageScope val in arrayData)
-                {
-                    propertyValue.Add(val);
+                    default:
+                        break;
                 }
             }
             else

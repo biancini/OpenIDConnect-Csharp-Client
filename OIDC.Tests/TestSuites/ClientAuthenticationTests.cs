@@ -220,7 +220,7 @@
                 {
                     return k.Use == "enc" && k.Kty == "RSA";
                 }
-            ).getRSA();
+            ).GetRSA();
 
             // when
             clientInformation.TokenEndpointAuthMethod = "private_key_jwt";

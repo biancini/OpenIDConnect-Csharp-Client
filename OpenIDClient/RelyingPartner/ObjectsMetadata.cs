@@ -277,7 +277,7 @@
         /// Get the RSA crypting key.
         /// </summary>
         /// <returns>The RSA key</returns>
-        public RSACryptoServiceProvider getRSA()
+        public RSACryptoServiceProvider GetRSA()
         {
             if (Kty != "RSA")
             {

@@ -279,7 +279,7 @@
         public string GetExpectedHash(string Code, List<OIDCKey> OPKeys = null, string ClientSecret = null)
         {
             string jsonToken = IdToken;
-            Dictionary<string, object> headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
+            ///Dictionary<string, object> headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
             //string alg = (headers.ContainsKey("alg")) ? headers["alg"] as string : "none";
             //object sigKey = GetSignKey(headers, OPKeys, ClientSecret);
             //byte[] signedPayload = Signer.Sign(Code, alg, sigKey);
@@ -299,7 +299,7 @@
                 {
                     if (OPKeys.Count == 1)
                     {
-                        sigKey = OPKeys[0].getRSA();
+                        sigKey = OPKeys[0].GetRSA();
                     }
                     else
                     {
@@ -308,7 +308,7 @@
                             {
                                 return k.Kid == kid;
                             }
-                        ).getRSA();
+                        ).GetRSA();
                     }
                 }
                 else
@@ -337,7 +337,7 @@
                 RSACryptoServiceProvider encKey = null;
                 if (RPKeys.Count == 1)
                 {
-                    encKey = RPKeys[0].getRSA();
+                    encKey = RPKeys[0].GetRSA();
                 }
                 else
                 {
@@ -346,7 +346,7 @@
                         {
                             return k.Kid == kid;
                         }
-                    ).getRSA();
+                    ).GetRSA();
                 }
 
                 jsonToken = JWT.Decode(jsonToken, encKey);

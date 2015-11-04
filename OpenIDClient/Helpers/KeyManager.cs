@@ -38,7 +38,6 @@
             RSACryptoServiceProvider rsa = certificate.PrivateKey as RSACryptoServiceProvider;
             RSAParameters par = rsa.ExportParameters(true);
 
-            byte[] key = certificate.GetPublicKey();
             OIDCKey curCert = new OIDCKey();
             curCert.Use = use;
             curCert.SetParams(par);

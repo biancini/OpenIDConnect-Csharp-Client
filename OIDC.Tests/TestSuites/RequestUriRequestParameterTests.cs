@@ -88,7 +88,7 @@
                 {
                     return k.Use == "enc" && k.Kty == "RSA";
                 }
-            ).getRSA();
+            ).GetRSA();
 
             return encKey;
         }
