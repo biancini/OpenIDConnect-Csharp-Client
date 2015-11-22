@@ -7,8 +7,8 @@
     using System.Security.Cryptography.X509Certificates;
     using System.Threading;
     using Griffin.WebServer;
-    using SimpleWebServer;    
     using NUnit.Framework;
+    using OIDC.Tests.Helpers;
     using OpenIDClient;
     using OpenIDClient.Messages;
 
@@ -22,7 +22,7 @@
         protected static string errtype = "_";
         protected static string claims = "normal";
 
-        protected static WebServer ws = null;
+        protected static SimpleWebServer ws = null;
         protected static Semaphore semaphore = new Semaphore(0, 1);
         
         protected static string result = "";
@@ -63,7 +63,7 @@
             if (ws == null)
             {
                 X509Certificate2 certificate = new X509Certificate2("certificate.crt", "");
-                ws = new WebServer(myBaseUrl.ToString(), certificate);
+                ws = new SimpleWebServer(myBaseUrl.ToString(), certificate);
                 ws.addUrlAction("/my_public_keys.jwks", RespondWithJwks);
                 ws.addUrlAction("/id_token_flow_callback", IdTokenFlowCallback);
                 ws.addUrlAction("/code_flow_callback", CodeFlowCallback);

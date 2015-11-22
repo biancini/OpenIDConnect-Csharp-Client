@@ -1,4 +1,4 @@
-﻿namespace SimpleWebServer
+﻿namespace OIDC.Tests.Helpers
 {
     using System;
     using System.Collections.Generic;
@@ -8,14 +8,14 @@
     using Griffin.WebServer;
     using Griffin.WebServer.Modules;
 
-    public class WebServer
+    public class SimpleWebServer
     {
         int port;
         private HttpServer _listener;
         private HttpWorker _worker;
         private X509Certificate2 certificate;
 
-        public WebServer(string prefixes, X509Certificate2 certificate = null)
+        public SimpleWebServer(string prefixes, X509Certificate2 certificate = null)
         {            
             Uri uri = new Uri(prefixes);
             this.port = uri.Port;

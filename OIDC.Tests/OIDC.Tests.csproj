@@ -88,6 +88,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Helpers\SimpleWebServer.cs" />
     <Compile Include="TestSuites\IdTokenTests.cs" />
     <Compile Include="TestSuites\DynamicClientRegistrationTests.cs" />
     <Compile Include="Helpers\OIDCTests.cs" />
@@ -100,7 +101,6 @@
     <Compile Include="TestSuites\ResponseTypeAndModeTests.cs" />
     <Compile Include="TestSuites\DiscoveryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Helpers\SimpleWebServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
