@@ -108,7 +108,7 @@
 
             string issuer = null;
             JArray links = (JArray)o["links"];
-            foreach (JObject link in links)
+            foreach (JToken link in links)
             {
                 Dictionary<string, object> dic = link.ToObject<Dictionary<string, object>>();
                 if (dic["rel"] as string == "http://openid.net/specs/connect/1.0/issuer")

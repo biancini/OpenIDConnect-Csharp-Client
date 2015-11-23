@@ -5,7 +5,7 @@
 
     public class OIDCWebRequest : WebRequest
     {
-        private Uri uri;
+        private readonly Uri uri;
 
         public OIDCWebRequest(Uri uri)
         {
