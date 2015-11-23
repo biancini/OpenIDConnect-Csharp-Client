@@ -143,7 +143,7 @@
                         propertyValue.Add(ResponseType.Token);
                         break;
                     case "id_token":
-                        propertyValue.Add(ResponseType.Token);
+                        propertyValue.Add(ResponseType.IdToken);
                         break;
                     default:
                         break;
@@ -162,11 +162,20 @@
                 JArray arrayData = (JArray)value;
                 foreach (JValue val in arrayData)
                 {
-                    if (!new List<string> { "code", "token", "id_token" }.Contains(val.ToString()))
+                    switch (val.ToString())
                     {
-                        continue;
+                        case "code":
+                            propertyValue.Add(ResponseType.Code);
+                            break;
+                        case "token":
+                            propertyValue.Add(ResponseType.Token);
+                            break;
+                        case "id_token":
+                            propertyValue.Add(ResponseType.IdToken);
+                            break;
+                        default:
+                            break;
                     }
-                    propertyValue.Add(val.ToObject<ResponseType>());
                 }
             }
 

@@ -97,6 +97,7 @@
             string userid = "https://" + opBaseurl.Host + ":" + opBaseurl.Port + "/" + rpid;
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
             string issuer = rp.ObtainIssuerFromURL(userid, opBaseurl.ToString());
+            issuer = issuer.Replace("localhost", "wrong.hostname");
 
             // when
             rp.ObtainProviderInformation(hostname, issuer);
