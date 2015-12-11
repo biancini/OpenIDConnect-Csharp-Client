@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenIDClient", "OpenIDClient\OpenIDClient.csproj", "{C754E4AD-BE64-4E69-B412-A3034A5FC95A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OIDC.Tests", "OIDC.Tests\OIDC.Tests.csproj", "{E71D1FC0-DCB8-418E-82D1-17C300EA2CC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApplication", "SampleApplication\SampleApplication.csproj", "{A8933B89-1052-43EF-A884-07860375F3FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenIDClient.HttpModule", "OpenIDClient.HttpModule\OpenIDClient.HttpModule.csproj", "{86A588E8-2E2D-4394-9545-24D8EA939CF2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +25,19 @@ Global
 		{E71D1FC0-DCB8-418E-82D1-17C300EA2CC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E71D1FC0-DCB8-418E-82D1-17C300EA2CC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E71D1FC0-DCB8-418E-82D1-17C300EA2CC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8933B89-1052-43EF-A884-07860375F3FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8933B89-1052-43EF-A884-07860375F3FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8933B89-1052-43EF-A884-07860375F3FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8933B89-1052-43EF-A884-07860375F3FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86A588E8-2E2D-4394-9545-24D8EA939CF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86A588E8-2E2D-4394-9545-24D8EA939CF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86A588E8-2E2D-4394-9545-24D8EA939CF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86A588E8-2E2D-4394-9545-24D8EA939CF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8;packages\EnterpriseLibrary.TransientFaultHandling.Data.6.0.1304.1\lib\NET45
 	EndGlobalSection
 EndGlobal

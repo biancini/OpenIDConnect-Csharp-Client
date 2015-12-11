@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "Home";
+}
+
+<h1>Sample OpenID Authentication Application</h1>
+<p>
+    This is a sample MVC application for OpenID authentication.
+</p>
+
+@if (!User.Identity.IsAuthenticated)
+{
+    <p>
+        You are currently not signed in.
+    </p>
+    <p>
+        @foreach (var rp in OpenIDClient.HttpModule.Configuration.OpenIDConfigurationSection.Current.OpenIDProviders)
+        {
+            var entityId = rp.EntityId;
+            var authorizationEndpoint = rp.AuthorizationEndpoint;
+            <br />
+            <a href="@Url.Content("~/OpenID/Authenticate?rp=" + HttpUtility.UrlEncode(entityId))">Sign in</a>@: - @entityId - @authorizationEndpoint
+        }
+    </p>
+}
+else
+{
+    <p>
+        You are signed in. <a href="@Url.Action("SignOut")">Sign out</a>.
+    </p>
+    <table>
+        <thead>
+            <tr>
+                <th>Claim Type</th>
+                <th>Claim Value</th>
+                <th>Issuer</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in System.Security.Claims.ClaimsPrincipal.Current.Claims)
+            {
+                <tr>
+                    <td>@c.Type</td>
+                    <td>@c.Value</td>
+                    <td>@c.Issuer</td>
+                </tr>                
+            }
+        </tbody>
+    </table>
+}
+
+<p>
+<!--a href="@Url.Content("~/OpenID/")">Service Provider Metadata.</a-->
+</p>
