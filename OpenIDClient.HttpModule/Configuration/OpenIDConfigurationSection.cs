@@ -82,5 +82,18 @@ namespace OpenIDClient.HttpModule.Configuration
                 return (OpenIDProviderCollection)base[openidProviders];
             }
         }
+
+        private IdentityConfiguration systemIdentityModelIdentityConfiguration = new IdentityConfiguration(true);
+
+        /// <summary>
+        /// The System.IdentityModel configuration to use.
+        /// </summary>
+        public IdentityConfiguration SystemIdentityModelIdentityConfiguration
+        {
+            get
+            {
+                return systemIdentityModelIdentityConfiguration;
+            }
+        }
     }
 }

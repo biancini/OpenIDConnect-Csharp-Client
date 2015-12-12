@@ -1,6 +1,7 @@
 ﻿namespace OpenIDClient.HttpModule.Configuration
 {
     using System;
+    using System.IdentityModel.Configuration;
 
     /// <summary>
     /// Options for the service provider's behaviour; i.e. everything except
@@ -35,6 +36,19 @@
                 }
 
                 modulePath = value;
+            }
+        }
+
+        private IdentityConfiguration systemIdentityModelIdentityConfiguration = new IdentityConfiguration(false);
+
+        /// <summary>
+        /// The System.IdentityModel configuration to use.
+        /// </summary>
+        public IdentityConfiguration SystemIdentityModelIdentityConfiguration
+        {
+            get
+            {
+                return systemIdentityModelIdentityConfiguration;
             }
         }
     }
