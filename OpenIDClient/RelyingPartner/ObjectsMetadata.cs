@@ -35,6 +35,7 @@
     /// <summary>
     /// Object describing the OP metadata.
     /// </summary>
+    [CLSCompliant(true)]
     public class OIDCProviderMetadata : Messages.OIDClientSerializableMessage
     {
         public string Issuer { get; set; }
@@ -103,6 +104,7 @@
     /// <summary>
     /// Object describing the RP client information.
     /// </summary>
+    [CLSCompliant(true)]
     public class OIDCClientInformation : Messages.OIDClientSerializableMessage
     {
         public List<string> RedirectUris { get; set; }
@@ -228,6 +230,7 @@
     /// <summary>
     /// Object describing a security key in JWK format.
     /// </summary>
+    [CLSCompliant(true)]
     public class OIDCKey : Messages.OIDClientSerializableMessage
     {
         public string Use { get; set; }
@@ -333,6 +336,7 @@
     /// <summary>
     /// Class representing a user address to be expressed in claims.
     /// </summary>
+    [CLSCompliant(true)]
     public class OIDCAddress : Messages.OIDClientSerializableMessage
     {
         public string Country { get; set; }

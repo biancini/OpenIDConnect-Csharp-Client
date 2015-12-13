@@ -42,7 +42,8 @@ namespace OpenIDClient.HttpModule.Configuration
 
             foreach(var opEntry in this)
             {
-                options.OpenIDProviders[opEntry.EntityId] = opEntry;
+                var op = new OpenIDProviderData(opEntry, options.RPOptions);
+                options.OpenIDProviders[opEntry.EntityId] = op;
             }
         }
 

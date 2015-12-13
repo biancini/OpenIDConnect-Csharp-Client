@@ -11,14 +11,14 @@ namespace OpenIDClient.HttpModule.WebSso
         /// <summary>
         /// Resolve the urls for AuthServices from an http request and options.
         /// </summary>
-        /// <param name="request">Request to get application root url from.</param>
         /// <param name="spOptions">SP Options to get module path from.</param>
+        /// <param name="request">Request to get application root url from.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2208:InstantiateArgumentExceptionsCorrectly"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "sp")]
-        public OpenIDUrls(HttpRequestData request, IRPOptions rpOptions)
+        public OpenIDUrls(IRPOptions rpOptions, Uri baseUrl)
         {
-            if (request == null)
+            if (baseUrl == null)
             {
-                throw new ArgumentNullException(nameof(request));
+                throw new ArgumentNullException(nameof(baseUrl));
             }
 
             if (rpOptions == null)
@@ -26,17 +26,18 @@ namespace OpenIDClient.HttpModule.WebSso
                 throw new ArgumentNullException(nameof(rpOptions));
             }
 
-            Init(request.ApplicationUrl, rpOptions.ModulePath);
+            Init(rpOptions, baseUrl);
         }
 
-        void Init(Uri applicationUrl, string modulePath)
+        void Init(IRPOptions rpOptions, Uri baseUrl)
         {
+            string modulePath = rpOptions.ModulePath;
             if (!modulePath.StartsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 throw new ArgumentException("modulePath should start with /.");
             }
 
-            ApplicationBase = new Uri(applicationUrl.AbsoluteUri);
+            ApplicationBase = baseUrl;
             var authServicesRoot = ApplicationBase.ToString().TrimEnd('/') + modulePath + "/";
 
             AuthenticateCommand = new Uri(authServicesRoot + CommandFactory.AuthenticateCommandName);

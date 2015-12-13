@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Metadata;
 using System.Linq;
 
 namespace OpenIDClient.HttpModule.Configuration
@@ -18,8 +17,8 @@ namespace OpenIDClient.HttpModule.Configuration
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification="It works like dictionary, even though it doesn't implement the full interface.")]
     public class OpenIDProviderDictionary
     {
-        private Dictionary<string, OpenIDProviderElement> dictionary =
-            new Dictionary<string, OpenIDProviderElement>();
+        private Dictionary<string, OpenIDProviderData> dictionary =
+            new Dictionary<string, OpenIDProviderData>();
 
         /// <summary>
         /// Gets an idp from the entity id.
@@ -27,7 +26,7 @@ namespace OpenIDClient.HttpModule.Configuration
         /// <param name="entityId">entity Id to look up.</param>
         /// <returns>IdentityProvider</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1043:UseIntegralOrStringArgumentForIndexers")]
-        public OpenIDProviderElement this[string entityId]
+        public OpenIDProviderData this[string entityId]
         {
             get
             {
@@ -44,8 +43,7 @@ namespace OpenIDClient.HttpModule.Configuration
                     }
                     catch (KeyNotFoundException e)
                     {
-                        throw new KeyNotFoundException(
-                            "No OP with entity id \"" + entityId + "\" found.", e);
+                        throw new KeyNotFoundException("No OP with entity id \"" + entityId + "\" found.", e);
                     }
                 }
             }
@@ -62,7 +60,7 @@ namespace OpenIDClient.HttpModule.Configuration
         /// Add an OpenID provider to the collection..
         /// </summary>
         /// <param name="op">OpenID provider to add.</param>
-        public void Add(OpenIDProviderElement op)
+        public void Add(OpenIDProviderData op)
         {
             if(op == null)
             {
@@ -78,7 +76,7 @@ namespace OpenIDClient.HttpModule.Configuration
         /// <summary>
         /// The default identity provider; i.e. the first registered of the currently known.
         /// </summary>
-        public OpenIDProviderElement Default
+        public OpenIDProviderData Default
         {
             get
             {
@@ -87,7 +85,7 @@ namespace OpenIDClient.HttpModule.Configuration
         }
 
         // Used by tests.
-        internal OpenIDProviderElement this[int i]
+        internal OpenIDProviderData this[int i]
         {
             get
             {
@@ -104,7 +102,7 @@ namespace OpenIDClient.HttpModule.Configuration
         /// <param name="opEntityId">Entity id to search for.</param>
         /// <param name="op">The op, if found.</param>
         /// <returns>True if an idp with the given entity id was found.</returns>
-        public bool TryGetValue(string opEntityId, out OpenIDProviderElement op)
+        public bool TryGetValue(string opEntityId, out OpenIDProviderData op)
         {
             lock (dictionary)
             {

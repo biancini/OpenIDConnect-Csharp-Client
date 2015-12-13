@@ -23,13 +23,12 @@
                 throw new ArgumentNullException(nameof(options));
             }
 
-            var urls = new OpenIDUrls(request, options.RPOptions);
-
-            string rpEntityId = request.QueryString["rp"].FirstOrDefault();
-            OpenIDProviderElement rp = options.OpenIDProviders[rpEntityId];
+            string rpEntityId = request.QueryString["rp"].FirstOrDefault().Replace('+', ' ');
+            OpenIDProviderData providerData = options.OpenIDProviders[rpEntityId];
+            var urls = new OpenIDUrls(options.RPOptions, request.ApplicationUrl);
             
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
-            requestMessage.ClientId = rp.ClientId;
+            requestMessage.ClientId = providerData.ClientInformation.ClientId;
             requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid };
             requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
             requestMessage.RedirectUri = urls.CodeCallbackCommand.ToString();
@@ -45,7 +44,7 @@
             return new CommandResult()
             {
                 HttpStatusCode = HttpStatusCode.SeeOther,
-                Location = new Uri(rp.AuthorizationEndpoint + "?" + requestMessage.SerializeToQueryString())
+                Location = new Uri(providerData.ProviderMatadata.AuthorizationEndpoint + "?" + requestMessage.SerializeToQueryString())
             };
         }
     }

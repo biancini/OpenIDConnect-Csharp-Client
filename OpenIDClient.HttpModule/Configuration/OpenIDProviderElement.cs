@@ -1,7 +1,8 @@
-﻿using System.Configuration;
-
-namespace OpenIDClient.HttpModule.Configuration
+﻿namespace OpenIDClient.HttpModule.Configuration
 {
+    using System.Configuration;
+    using System.Collections.Generic;
+
     /// <summary>
     /// Config element for the identity provider element.
     /// </summary>
@@ -44,7 +45,7 @@ namespace OpenIDClient.HttpModule.Configuration
         /// <summary>
         /// The requested authentication context for the authentication request.
         /// </summary>
-        [ConfigurationProperty(selfRegistration, IsRequired = true)]
+        [ConfigurationProperty(selfRegistration, IsRequired = true, DefaultValue = true)]
         public bool SelfRegistration
         {
             get
@@ -79,11 +80,45 @@ namespace OpenIDClient.HttpModule.Configuration
             }
         }
 
+        const string opIssuer = "opIssuer";
+        /// <summary>
+        /// The Issuer to be used to retrieve OP properties.
+        /// </summary>
+        [ConfigurationProperty(opIssuer, IsRequired = false)]
+        public string OPIssuer
+        {
+            get
+            {
+                return (string)base[opIssuer];
+            }
+            internal set
+            {
+                base[opIssuer] = value;
+            }
+        }
+
+        const string registrationEndpoint = "registrationEndpoint";
+        /// <summary>
+        /// The Issuer to be used to retrieve OP properties.
+        /// </summary>
+        [ConfigurationProperty(registrationEndpoint, IsRequired = false)]
+        public string RegistrationEndpoint
+        {
+            get
+            {
+                return (string)base[registrationEndpoint];
+            }
+            internal set
+            {
+                base[registrationEndpoint] = value;
+            }
+        }
+
         const string authorizationEndpoint = "authorizationEndpoint";
         /// <summary>
         /// AuthorizationEndpoint as presented by the OP. Used as key to configuration.
         /// </summary>
-        [ConfigurationProperty(authorizationEndpoint, IsRequired = true)]
+        [ConfigurationProperty(authorizationEndpoint, IsRequired = false)]
         public string AuthorizationEndpoint
         {
             get
@@ -100,7 +135,7 @@ namespace OpenIDClient.HttpModule.Configuration
         /// <summary>
         /// AuthorizationEndpoint as presented by the OP. Used as key to configuration.
         /// </summary>
-        [ConfigurationProperty(tokenEndpoint, IsRequired = true)]
+        [ConfigurationProperty(tokenEndpoint, IsRequired = false)]
         public string TokenEndpoint
         {
             get
@@ -117,7 +152,7 @@ namespace OpenIDClient.HttpModule.Configuration
         /// <summary>
         /// AuthorizationEndpoint as presented by the OP. Used as key to configuration.
         /// </summary>
-        [ConfigurationProperty(userinfoEndpoint, IsRequired = true)]
+        [ConfigurationProperty(userinfoEndpoint, IsRequired = false)]
         public string UserinfoEndpoint
         {
             get
@@ -127,6 +162,23 @@ namespace OpenIDClient.HttpModule.Configuration
             internal set
             {
                 base[userinfoEndpoint] = value;
+            }
+        }
+
+        public string Description
+        {
+            get
+            {
+                string descr = "";
+                if (SelfRegistration)
+                {
+                    descr = "client self registered";
+                }
+                else
+                {
+                    descr = "client NOT self registered";
+                }
+                return descr;
             }
         }
     }

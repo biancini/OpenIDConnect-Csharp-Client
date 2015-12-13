@@ -58,6 +58,20 @@ namespace OpenIDClient.HttpModule.Configuration
             }
         }
 
+        const string baseUrls = "baseUrls";
+        /// <summary>
+        /// Application root relative path for AuthServices endpoints. The 
+        /// default is "AuthServices".
+        /// </summary>
+        [ConfigurationProperty(baseUrls, IsRequired = false)]
+        public string BaseUrls
+        {
+            get
+            {
+                return (string)base[baseUrls];
+            }
+        }
+
         /// <summary>
         /// Current config as read from app/web.config.
         /// </summary>

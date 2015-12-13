@@ -24,7 +24,8 @@
             {
                 throw new ArgumentNullException(nameof(options));
             }
-            var urls = new OpenIDUrls(request, options.RPOptions);
+
+            var urls = new OpenIDUrls(options.RPOptions, request.ApplicationUrl);
 
             OIDCAuthCodeResponseMessage authResponse = GetAuthResponse(request, session);
             OIDCTokenResponseMessage tokenResponse = GetToken(authResponse, options, session, urls.CodeCallbackCommand.ToString());
@@ -52,12 +53,14 @@
 
         private OIDCTokenResponseMessage GetToken(OIDCAuthCodeResponseMessage authResponse, IOptions options, HttpSessionState session, string redirectUri)
         {
+            OpenIDProviderData providerData = options.OpenIDProviders[session["op"] as string];
+
             OIDCTokenRequestMessage tokenRequestMessage = new OIDCTokenRequestMessage();
             tokenRequestMessage.Scope = authResponse.Scope;
             tokenRequestMessage.State = authResponse.State;
             tokenRequestMessage.Code = authResponse.Code;
-            tokenRequestMessage.ClientId = options.OpenIDProviders[session["op"] as string].ClientId;
-            tokenRequestMessage.ClientSecret = options.OpenIDProviders[session["op"] as string].ClientSecret;
+            tokenRequestMessage.ClientId = providerData.ClientInformation.ClientId;
+            tokenRequestMessage.ClientSecret = providerData.ClientInformation.ClientSecret;
             tokenRequestMessage.RedirectUri = redirectUri;
             tokenRequestMessage.GrantType = "authorization_code";
 
@@ -66,11 +69,12 @@
                 ClientId = tokenRequestMessage.ClientId,
                 ClientSecret = tokenRequestMessage.ClientSecret,
             };
-            return rp.SubmitTokenRequest(options.OpenIDProviders[session["op"] as string].TokenEndpoint, tokenRequestMessage, clientInformation);
+            return rp.SubmitTokenRequest(providerData.ProviderMatadata.TokenEndpoint, tokenRequestMessage, clientInformation);
         }
 
         private OIDCUserInfoResponseMessage GetUserInfo(OIDCAuthCodeResponseMessage authResponse, IOptions options, HttpSessionState session, string accessToken)
         {
+            OpenIDProviderData providerData = options.OpenIDProviders[session["op"] as string];
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             OIDClaims requestClaims = new OIDClaims();
@@ -86,13 +90,14 @@
             userInfoRequestMessage.State = authResponse.State;
             userInfoRequestMessage.Claims = requestClaims;
 
-            var urlInfoUrl = options.OpenIDProviders[session["op"] as string].UserinfoEndpoint;
+            var urlInfoUrl = providerData.ProviderMatadata.UserinfoEndpoint;
             return rp.GetUserInfo(urlInfoUrl, userInfoRequestMessage, accessToken);
         }
 
         private ClaimsPrincipal GetPrincipal(OIDCUserInfoResponseMessage userInfoResponse, IOptions options, HttpSessionState session)
         {
-            string issuer = options.OpenIDProviders[session["op"] as string].EntityId;
+            OpenIDProviderData providerData = options.OpenIDProviders[session["op"] as string];
+            string issuer = providerData.ProviderMatadata.Issuer;
 
             List<Claim> c = new List<Claim>();
             if (userInfoResponse.Name != null) c.Add(new Claim(ClaimTypes.Name, userInfoResponse.Name, ClaimValueTypes.String, issuer));

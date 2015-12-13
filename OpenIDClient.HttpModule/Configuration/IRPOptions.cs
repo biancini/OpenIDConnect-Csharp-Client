@@ -1,5 +1,7 @@
 ﻿namespace OpenIDClient.HttpModule.Configuration
 {
+    using System;
+    using System.Collections.Generic;
     using System.IdentityModel.Configuration;
 
     /// <summary>
@@ -13,6 +15,8 @@
         /// default should be "/AuthServices".
         /// </summary>
         string ModulePath { get; }
+
+        string BaseUrls { get; }
 
         /// <summary>
         /// The System.IdentityModel configuration to use.

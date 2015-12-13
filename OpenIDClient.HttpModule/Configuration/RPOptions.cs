@@ -1,6 +1,7 @@
 ﻿namespace OpenIDClient.HttpModule.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using System.IdentityModel.Configuration;
 
     /// <summary>
@@ -36,6 +37,24 @@
                 }
 
                 modulePath = value;
+            }
+        }
+
+        private string baseUrls;
+
+        /// <summary>
+        /// Application root relative path for AuthServices endpoints. The
+        /// default is "/OpenID".
+        /// </summary>
+        public string BaseUrls
+        {
+            get
+            {
+                return baseUrls;
+            }
+            set
+            {
+                baseUrls = value;
             }
         }
 

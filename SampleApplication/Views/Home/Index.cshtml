@@ -16,9 +16,9 @@
         @foreach (var rp in OpenIDClient.HttpModule.Configuration.OpenIDConfigurationSection.Current.OpenIDProviders)
         {
             var entityId = rp.EntityId;
-            var authorizationEndpoint = rp.AuthorizationEndpoint;
+            var description = rp.Description;
             <br />
-            <a href="@Url.Content("~/OpenID/Authenticate?rp=" + HttpUtility.UrlEncode(entityId))">Sign in</a>@: - @entityId - @authorizationEndpoint
+            <a href="@Url.Content("~/OpenID/Authenticate?rp=" + HttpUtility.UrlEncode(entityId))">Sign in</a>@: - @entityId - @description
         }
     </p>
 }
