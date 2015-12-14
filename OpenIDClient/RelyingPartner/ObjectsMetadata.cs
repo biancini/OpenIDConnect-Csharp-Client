@@ -301,8 +301,8 @@
             RSAParameters par = new RSAParameters();
             par.Exponent = Base64UrlEncoder.DecodeBytes(E);
             par.Modulus = Base64UrlEncoder.DecodeBytes(N);
-            par.D = Base64UrlEncoder.DecodeBytes(D);
-            par.Q = Base64UrlEncoder.DecodeBytes(Q);
+            if (D != null) par.D = Base64UrlEncoder.DecodeBytes(D);
+            if (Q != null) par.Q = Base64UrlEncoder.DecodeBytes(Q);
             if (P != null && InverseQ != null && DP != null && DQ != null)
             {
                 par.P = Base64UrlEncoder.DecodeBytes(P);

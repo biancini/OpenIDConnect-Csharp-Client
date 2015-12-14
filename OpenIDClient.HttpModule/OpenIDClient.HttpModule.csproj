@@ -56,6 +56,7 @@
     <Compile Include="CommandResultHttpExtension.cs" />
     <Compile Include="Configuration\IRPOptions.cs" />
     <Compile Include="Configuration\OpenIDProviderCollection.cs" />
+    <Compile Include="Configuration\OpenIDProviderDataFactory.cs" />
     <Compile Include="Configuration\OpenIDProviderData.cs" />
     <Compile Include="Configuration\OpenIDProviderElement.cs" />
     <Compile Include="Configuration\OpenIDProviderDictionary.cs" />

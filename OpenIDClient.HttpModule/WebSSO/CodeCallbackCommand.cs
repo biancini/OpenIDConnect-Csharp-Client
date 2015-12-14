@@ -64,12 +64,10 @@
             tokenRequestMessage.RedirectUri = redirectUri;
             tokenRequestMessage.GrantType = "authorization_code";
 
-            OIDCClientInformation clientInformation = new OIDCClientInformation
-            {
-                ClientId = tokenRequestMessage.ClientId,
-                ClientSecret = tokenRequestMessage.ClientSecret,
-            };
-            return rp.SubmitTokenRequest(providerData.ProviderMatadata.TokenEndpoint, tokenRequestMessage, clientInformation);
+            OIDCTokenResponseMessage response = rp.SubmitTokenRequest(providerData.ProviderMatadata.TokenEndpoint, tokenRequestMessage, providerData.ClientInformation);
+            OIDCIdToken idToken = response.GetIdToken(providerData.ProviderMatadata.Keys, tokenRequestMessage.ClientSecret);
+            rp.ValidateIdToken(idToken, providerData.ClientInformation, providerData.ProviderMatadata.Issuer, null);
+            return response;
         }
 
         private OIDCUserInfoResponseMessage GetUserInfo(OIDCAuthCodeResponseMessage authResponse, IOptions options, HttpSessionState session, string accessToken)
