@@ -58,20 +58,6 @@ namespace OpenIDClient.HttpModule.Configuration
             }
         }
 
-        const string baseUrls = "baseUrls";
-        /// <summary>
-        /// Application root relative path for AuthServices endpoints. The 
-        /// default is "AuthServices".
-        /// </summary>
-        [ConfigurationProperty(baseUrls, IsRequired = false)]
-        public string BaseUrls
-        {
-            get
-            {
-                return (string)base[baseUrls];
-            }
-        }
-
         /// <summary>
         /// Current config as read from app/web.config.
         /// </summary>
@@ -109,5 +95,49 @@ namespace OpenIDClient.HttpModule.Configuration
                 return systemIdentityModelIdentityConfiguration;
             }
         }
+
+        /// <summary>
+        /// Certificate location for the certificate the Service Provider uses to sign assertions.
+        /// </summary>
+        [ConfigurationProperty("signCertificate")]
+        [ExcludeFromCodeCoverage]
+        public CertificateElement SignCertificateConfiguration
+        {
+            get
+            {
+                return (CertificateElement)base["signCertificate"];
+            }
+            internal set
+            {
+                base["signCertificate"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Certificate for service provider to use when signing assertions
+        /// </summary>
+        public X509Certificate2 SignCertificate { get; set; }
+
+        /// <summary>
+        /// Certificate location for the certificate the Service Provider uses to crypt assertions.
+        /// </summary>
+        [ConfigurationProperty("encCertificate")]
+        [ExcludeFromCodeCoverage]
+        public CertificateElement EncCertificateConfiguration
+        {
+            get
+            {
+                return (CertificateElement)base["encCertificate"];
+            }
+            internal set
+            {
+                base["encCertificate"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Certificate for service provider to use when crypting assertions
+        /// </summary>
+        public X509Certificate2 EncCertificate { get; set; }
     }
 }

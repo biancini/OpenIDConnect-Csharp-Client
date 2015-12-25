@@ -59,7 +59,10 @@
 
             foreach (OIDCKey curKey in oidcKeys)
             {
-                keys.Add(curKey.SerializeToDictionary());
+                if (curKey != null)
+                {
+                    keys.Add(curKey.SerializeToDictionary());
+                }
             }
 
             Dictionary<string, object> keysDict = new Dictionary<string, object>();
@@ -91,17 +94,23 @@
             int countEnc = 1;
             foreach (X509Certificate2 certificate in EncodingCerts)
             {
-                OIDCKey curCert = GetOIDCKey(certificate, "RSA", "enc", "Encoding Certificate " + countEnc);
-                countEnc++;
-                keys.Add(curCert);
+                if (certificate != null)
+                {
+                    OIDCKey curCert = GetOIDCKey(certificate, "RSA", "enc", "Encoding Certificate " + countEnc);
+                    countEnc++;
+                    keys.Add(curCert);
+                }
             }
 
             int countSign = 1;
             foreach (X509Certificate2 certificate in SigningCerts)
             {
-                OIDCKey curCert = GetOIDCKey(certificate, "RSA", "sig", "Signing Certificate " + countEnc);
-                countSign++;
-                keys.Add(curCert);
+                if (certificate != null)
+                {
+                    OIDCKey curCert = GetOIDCKey(certificate, "RSA", "sig", "Signing Certificate " + countEnc);
+                    countSign++;
+                    keys.Add(curCert);
+                }
             }
 
             return keys;

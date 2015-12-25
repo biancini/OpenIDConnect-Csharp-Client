@@ -20,11 +20,17 @@ namespace OpenIDClient.HttpModule.WebSso
         /// </summary>
         public const string CodeCallbackCommandName = "CodeCallback";
 
+        /// <summary>
+        /// The name of the JWKS Command.
+        /// </summary>
+        public const string JwksCallbackCommandName = "JwksCallback";
+
         private static readonly IDictionary<string, ICommand> commands =
             new Dictionary<string, ICommand>(StringComparer.OrdinalIgnoreCase) 
             { 
                 { AuthenticateCommandName, new AuthenticateCommand() },
                 { CodeCallbackCommandName, new CodeCallbackCommand() },
+                { JwksCallbackCommandName, new JwksCallbackCommand() },
             };
 
         /// <summary>

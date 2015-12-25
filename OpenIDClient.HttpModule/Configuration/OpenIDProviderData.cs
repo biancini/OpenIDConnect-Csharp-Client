@@ -16,24 +16,9 @@
 
         private void LoadClientInformation(OpenIDProviderElement opEntry, IRPOptions options)
         {
-            if (opEntry.SelfRegistration)
-            {
-                OpenIdRelyingParty rp = new OpenIdRelyingParty();
+            SelfRegistered = opEntry.SelfRegistration;
 
-                OIDCClientInformation clientMetadata = new OIDCClientInformation();
-                clientMetadata.ApplicationType = "web";
-                clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
-                clientMetadata.RedirectUris = new List<string>();
-
-                foreach (string curUrl in options.BaseUrls.Split(';'))
-                {
-                    OpenIDUrls urls = new OpenIDUrls(options, new Uri(curUrl));
-                    clientMetadata.RedirectUris.Add(urls.CodeCallbackCommand.ToString());
-                }
-
-                ClientInformation = rp.RegisterClient(ProviderMatadata.RegistrationEndpoint, clientMetadata);
-            }
-            else
+            if (!SelfRegistered)
             {
                 foreach (string value in new List<string>() { opEntry.ClientId, opEntry.ClientSecret })
                 {
@@ -48,6 +33,22 @@
                     ClientId = opEntry.ClientId,
                     ClientSecret = opEntry.ClientSecret,
                 };
+            }
+        }
+
+        public void RegisterClient(OpenIDUrls urls)
+        {
+            if (SelfRegistered && ClientInformation == null)
+            {
+                OIDCClientInformation clientMetadata = new OIDCClientInformation();
+                clientMetadata.ApplicationType = "web";
+                clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
+                clientMetadata.RedirectUris = new List<string>();
+                clientMetadata.RedirectUris.Add(urls.CodeCallbackCommand.ToString());
+                //clientMetadata.JwksUri = urls.JwksCallbackCommand.ToString();
+
+                OpenIdRelyingParty rp = new OpenIdRelyingParty();
+                ClientInformation = rp.RegisterClient(ProviderMatadata.RegistrationEndpoint, clientMetadata);
             }
         }
 
@@ -81,6 +82,8 @@
                 }
             }
         }
+
+        public bool SelfRegistered { get; private set; }
 
         public string EntityId { get; private set; }
 

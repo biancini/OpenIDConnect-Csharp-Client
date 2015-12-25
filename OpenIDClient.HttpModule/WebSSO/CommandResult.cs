@@ -1,9 +1,9 @@
-﻿using System;
-using System.Net;
-using System.Security.Claims;
-
-namespace OpenIDClient.HttpModule.WebSso
+﻿namespace OpenIDClient.HttpModule.WebSso
 {
+    using System;
+    using System.Net;
+    using System.Security.Claims;
+
     /// <summary>
     /// The results of a command.
     /// </summary>

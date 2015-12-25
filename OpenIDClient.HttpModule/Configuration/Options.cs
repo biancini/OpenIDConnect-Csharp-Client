@@ -16,6 +16,15 @@ namespace OpenIDClient.HttpModule.Configuration
             get
             {
                 var options = new Options(OpenIDConfigurationSection.Current);
+                if (OpenIDConfigurationSection.Current.SignCertificateConfiguration != null)
+                {
+                    options.rpOptions.SignCertificate = OpenIDConfigurationSection.Current.SignCertificateConfiguration.LoadCertificate();
+                }
+                if (OpenIDConfigurationSection.Current.EncCertificateConfiguration != null)
+                {
+                    options.rpOptions.EncCertificate = OpenIDConfigurationSection.Current.EncCertificateConfiguration.LoadCertificate();
+                }
+
                 OpenIDConfigurationSection.Current.OpenIDProviders.RegisterOpenIDProviders(options);
                 return options;
             }
@@ -24,7 +33,7 @@ namespace OpenIDClient.HttpModule.Configuration
         /// <summary>
         /// Creates an options object with the specified SPOptions.
         /// </summary>
-        /// <param name="spOptions"></param>
+        /// <param name="rpOptions"></param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "sp")]
         public Options(IRPOptions rpOptions)
         {

@@ -1,8 +1,8 @@
 ﻿namespace OpenIDClient.HttpModule.Configuration
 {
     using System;
-    using System.Collections.Generic;
     using System.IdentityModel.Configuration;
+    using System.Security.Cryptography.X509Certificates;
 
     /// <summary>
     /// Options for the service provider's behaviour; i.e. everything except
@@ -40,24 +40,6 @@
             }
         }
 
-        private string baseUrls;
-
-        /// <summary>
-        /// Application root relative path for AuthServices endpoints. The
-        /// default is "/OpenID".
-        /// </summary>
-        public string BaseUrls
-        {
-            get
-            {
-                return baseUrls;
-            }
-            set
-            {
-                baseUrls = value;
-            }
-        }
-
         private IdentityConfiguration systemIdentityModelIdentityConfiguration = new IdentityConfiguration(false);
 
         /// <summary>
@@ -70,5 +52,16 @@
                 return systemIdentityModelIdentityConfiguration;
             }
         }
+
+        /// <summary>
+        /// Certificate for service provider to use when signing assertions
+        /// </summary>
+        public X509Certificate2 SignCertificate { get; set; }
+
+
+        /// <summary>
+        /// Certificate for service provider to use when crypting assertions
+        /// </summary>
+        public X509Certificate2 EncCertificate { get; set; }
     }
 }
