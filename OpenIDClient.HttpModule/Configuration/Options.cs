@@ -16,6 +16,7 @@ namespace OpenIDClient.HttpModule.Configuration
             get
             {
                 var options = new Options(OpenIDConfigurationSection.Current);
+                options.rpOptions.CheckSslCertificate = OpenIDConfigurationSection.Current.CheckSslCertificate;
                 if (OpenIDConfigurationSection.Current.SignCertificateConfiguration != null)
                 {
                     options.rpOptions.SignCertificate = OpenIDConfigurationSection.Current.SignCertificateConfiguration.LoadCertificate();
@@ -25,6 +26,7 @@ namespace OpenIDClient.HttpModule.Configuration
                     options.rpOptions.EncCertificate = OpenIDConfigurationSection.Current.EncCertificateConfiguration.LoadCertificate();
                 }
 
+                WebOperations.checkCertificate = options.rpOptions.CheckSslCertificate;
                 OpenIDConfigurationSection.Current.OpenIDProviders.RegisterOpenIDProviders(options);
                 return options;
             }

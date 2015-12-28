@@ -1,8 +1,8 @@
-﻿using OpenIDClient.HttpModule.Configuration;
-using System;
-
-namespace OpenIDClient.HttpModule.WebSso
+﻿namespace OpenIDClient.HttpModule.WebSso
 {
+    using System;
+    using OpenIDClient.HttpModule.Configuration;
+
     /// <summary>
     /// The urls of AuthServices that are used in various messages.
     /// </summary>
@@ -43,6 +43,7 @@ namespace OpenIDClient.HttpModule.WebSso
             AuthenticateCommand = new Uri(authServicesRoot + CommandFactory.AuthenticateCommandName);
             CodeCallbackCommand = new Uri(authServicesRoot + CommandFactory.CodeCallbackCommandName);
             JwksCallbackCommand = new Uri(authServicesRoot + CommandFactory.JwksCallbackCommandName);
+            RequestCallCommand = new Uri(authServicesRoot + CommandFactory.RequestCallCommandName);
         }
 
         /// <summary>
@@ -64,5 +65,10 @@ namespace OpenIDClient.HttpModule.WebSso
         /// The full url of the JWKS callback command.
         /// </summary>
         public Uri JwksCallbackCommand { get; private set; }
+
+        /// <summary>
+        /// The full url of the Request call command.
+        /// </summary>
+        public Uri RequestCallCommand { get; private set; }
     }
 }

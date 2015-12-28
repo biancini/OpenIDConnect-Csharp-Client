@@ -1,15 +1,26 @@
 ﻿namespace OpenIDClient
 {
     using System;
-    using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Text;
     using System.Net;
-    using System.IO;
+    using System.Net.Security;
+    using System.Collections.Generic;
+    using System.Security.Cryptography.X509Certificates;
     using OpenIDClient.Messages;
 
     public static class WebOperations
     {
+        static RemoteCertificateValidationCallback oldValiadtionCallback;
+        public static bool checkCertificate = true;
+
+        static WebOperations()
+        {
+            oldValiadtionCallback = ServicePointManager.ServerCertificateValidationCallback;
+            ServicePointManager.ServerCertificateValidationCallback = ValidateSSL;
+        }
+
         /// <summary>
         /// Method generating a random string with numbers or letters.
         /// </summary>
@@ -31,7 +42,7 @@
         /// In case this should not happen, a dictionary with a single "body" key will be returned with the
         /// complete HTML text returned from HTTP call.</param>
         /// <returns>Json deserialization of the content returned from the call.</returns>
-        public static Dictionary<string, object> GetUrlContent(WebRequest webRequest, bool returnJson = true)
+        public static Dictionary<string, object> GetUrlContent(WebRequest webRequest, bool returnJson = true, bool checkCertificate = true)
         {
             Stream content = webRequest.GetResponse().GetResponseStream();
             string returnedText = new StreamReader(content).ReadToEnd();
@@ -86,6 +97,11 @@
 
             StreamReader rdr = new StreamReader(response.GetResponseStream());
             return Deserializer.DeserializeFromJson<Dictionary<string, object>>(rdr.ReadToEnd());
+        }
+
+        private static bool ValidateSSL(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+        {
+            return !checkCertificate || oldValiadtionCallback(sender, certificate, chain, errors);
         }
     }
 }

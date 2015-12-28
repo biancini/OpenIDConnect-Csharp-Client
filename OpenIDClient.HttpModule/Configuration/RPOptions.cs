@@ -54,6 +54,11 @@
         }
 
         /// <summary>
+        /// Flag indicating whether to check SSL certificate or not
+        /// </summary>
+        public bool CheckSslCertificate { get; set; }
+
+        /// <summary>
         /// Certificate for service provider to use when signing assertions
         /// </summary>
         public X509Certificate2 SignCertificate { get; set; }

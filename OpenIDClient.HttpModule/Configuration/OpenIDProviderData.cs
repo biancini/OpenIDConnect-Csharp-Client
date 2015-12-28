@@ -36,16 +36,20 @@
             }
         }
 
-        public void RegisterClient(OpenIDUrls urls)
+        public void RegisterClient(IRPOptions rpOptions, OpenIDUrls urls)
         {
             if (SelfRegistered && ClientInformation == null)
             {
                 OIDCClientInformation clientMetadata = new OIDCClientInformation();
                 clientMetadata.ApplicationType = "web";
                 clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
-                clientMetadata.RedirectUris = new List<string>();
-                clientMetadata.RedirectUris.Add(urls.CodeCallbackCommand.ToString());
-                //clientMetadata.JwksUri = urls.JwksCallbackCommand.ToString();
+                clientMetadata.RedirectUris = new List<string>() { urls.CodeCallbackCommand.ToString() };
+
+                if (rpOptions.SignCertificate != null || rpOptions.SignCertificate != null)
+                {
+                    clientMetadata.RequestUris = new List<string>() { urls.RequestCallCommand.ToString() };
+                    clientMetadata.JwksUri = urls.JwksCallbackCommand.ToString();
+                }
 
                 OpenIdRelyingParty rp = new OpenIdRelyingParty();
                 ClientInformation = rp.RegisterClient(ProviderMatadata.RegistrationEndpoint, clientMetadata);

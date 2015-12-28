@@ -97,6 +97,28 @@ namespace OpenIDClient.HttpModule.Configuration
         }
 
         /// <summary>
+        /// Flag indicating wether to check SSL certificate or not
+        /// </summary>
+        [ConfigurationProperty("checkSslCertificate")]
+        [ExcludeFromCodeCoverage]
+        public bool CheckSslCertificateConfiguration
+        {
+            get
+            {
+                return (bool)base["checkSslCertificate"];
+            }
+            internal set
+            {
+                base["checkSslCertificate"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Flag indicating wether to check SSL certificate or not
+        /// </summary>
+        public bool CheckSslCertificate { get; set; }
+
+        /// <summary>
         /// Certificate location for the certificate the Service Provider uses to sign assertions.
         /// </summary>
         [ConfigurationProperty("signCertificate")]

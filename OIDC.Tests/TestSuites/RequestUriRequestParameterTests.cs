@@ -1,8 +1,6 @@
 ﻿namespace OIDC.Tests
 {
-    using System;
     using System.Net;
-    using HtmlAgilityPack;
     using System.Collections.Generic;
     using NUnit.Framework;
     using System.Security.Cryptography;

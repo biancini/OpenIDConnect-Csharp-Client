@@ -29,5 +29,10 @@
         /// Certificate for service provider to use when crypting assertions
         /// </summary>
         X509Certificate2 EncCertificate { get; set; }
+
+        /// <summary>
+        /// Flag indicating whether to check SSL certificate or not.
+        /// </summary>
+        bool CheckSslCertificate { get; set; }
     }
 }

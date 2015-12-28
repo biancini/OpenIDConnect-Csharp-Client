@@ -27,7 +27,7 @@
             string rpEntityId = request.QueryString["rp"].FirstOrDefault().Replace('+', ' ');
             var providerData = options.OpenIDProviders[rpEntityId];
             var urls = new OpenIDUrls(options.RPOptions, request.ApplicationUrl);
-            providerData.RegisterClient(urls);
+            providerData.RegisterClient(options.RPOptions, urls);
 
             OIDCAuthorizationRequestMessage requestMessage = generateRequestMessage(providerData, urls);
             string requestObject = null;
