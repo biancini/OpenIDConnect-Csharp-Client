@@ -5,11 +5,12 @@ This project contains a full implementation of an OpenID Connect Relying Party w
 
 A Sample application has also been developed to test integration of this authentication mechanism into MVC .NET apps.
 The main configuration steps done within this sample app are the following:
+
 1. add the in ``configSessions`` this line:
-```
+   ```
 <section name="openid.authServices" type="OpenIDClient.HttpModule.Configuration.OpenIDConfigurationSection, OpenIDClient.HttpModule" />
-```
-2. add a specific configuration section to describe the configuration for the RP.
+   ```
+1. add a specific configuration section to describe the configuration for the RP.
    The parameters that can be specified are the following:
    - flag indicating whether to check SSL certificates or not
    - certificate to be used for signing messages for the OP (optional)
