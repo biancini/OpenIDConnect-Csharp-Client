@@ -16,12 +16,13 @@ The main configuration steps done within this sample app are the following:
    - certificate to be used for signing messages for the OP (optional)
    - certificate to be used for encryption messages for the OP (optional)
    - list of OPs, with the following attributes:
-     . an identifier (string name of the OP)
-	 . flag indicating whether the OP supports dynamic client registration
-	 . client id and secret, in case the OP does not support dynamic client registration
-	 . OP issuer
-	 . flag indicating if signature of messages must be enabled for this OP
-	 . flag indicating if encryption of messages must be enabled for this OP
+     - an identifier (string name of the OP)
+	 - flag indicating whether the OP supports dynamic client registration
+	 - client id and secret, in case the OP does not support dynamic client registration
+	 - OP issuer
+	 - flag indicating if signature of messages must be enabled for this OP
+	 - flag indicating if encryption of messages must be enabled for this OP
+	 
   An example of configuration is the one present in the ``Web.config``, here below:
   ```
 <openid.authServices checkSslCertificate="false">
