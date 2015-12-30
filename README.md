@@ -23,7 +23,7 @@ The main configuration steps done within this sample app are the following:
 	 . flag indicating if signature of messages must be enabled for this OP
 	 . flag indicating if encryption of messages must be enabled for this OP
   An example of configuration is the one present in the ``Web.config``, here below:
-```
+  ```
 <openid.authServices checkSslCertificate="false">
     <signCertificate fileName="~/App_Data/OpenID.AuthServices.RP.Sign.pfx" />
     <encCertificate fileName="~/App_Data/OpenID.AuthServices.RP.Enc.pfx" />
