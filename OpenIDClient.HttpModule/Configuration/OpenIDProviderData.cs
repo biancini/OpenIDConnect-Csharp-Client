@@ -45,10 +45,10 @@
                 clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
                 clientMetadata.RedirectUris = new List<string>() { urls.CodeCallbackCommand.ToString() };
 
-                if (rpOptions.SignCertificate != null || rpOptions.SignCertificate != null)
+                if ((Sign && rpOptions.SignCertificate != null) || (Encrypt && rpOptions.EncCertificate != null))
                 {
-                    clientMetadata.RequestUris = new List<string>() { urls.RequestCallCommand.ToString() };
-                    clientMetadata.JwksUri = urls.JwksCallbackCommand.ToString();
+                    Dictionary<string, object> keysDict = KeyManager.GetKeysJwkDict(rpOptions.EncCertificate, rpOptions.SignCertificate);
+                    clientMetadata.Jwks = Serializer.SerializeToJson(keysDict);
                 }
 
                 OpenIdRelyingParty rp = new OpenIdRelyingParty();
@@ -58,6 +58,9 @@
 
         private void LoadOPInformation(OpenIDProviderElement opEntry)
         {
+            Sign = opEntry.Sign;
+            Encrypt = opEntry.Encrypt;
+
             if (!String.IsNullOrEmpty(opEntry.OPIssuer))
             {
                 OpenIdRelyingParty rp = new OpenIdRelyingParty();
@@ -90,6 +93,10 @@
         public bool SelfRegistered { get; private set; }
 
         public string EntityId { get; private set; }
+
+        public bool Sign { get; private set; }
+
+        public bool Encrypt { get; private set; }
 
         public OIDCClientInformation ClientInformation { get; private set; }
 

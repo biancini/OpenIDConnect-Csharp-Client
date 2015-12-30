@@ -165,6 +165,40 @@
             }
         }
 
+        const string sign = "sign";
+        /// <summary>
+        /// Flag to indicate if messages need to be signed.
+        /// </summary>
+        [ConfigurationProperty(sign, IsRequired = false, DefaultValue = false)]
+        public bool Sign
+        {
+            get
+            {
+                return (bool)base[sign];
+            }
+            internal set
+            {
+                base[sign] = value;
+            }
+        }
+
+        const string encrypt = "encrypt";
+        /// <summary>
+        /// Flag to indicate if messages need to be signed.
+        /// </summary>
+        [ConfigurationProperty(encrypt, IsRequired = false, DefaultValue = false)]
+        public bool Encrypt
+        {
+            get
+            {
+                return (bool)base[encrypt];
+            }
+            internal set
+            {
+                base[encrypt] = value;
+            }
+        }
+
         public string Description
         {
             get

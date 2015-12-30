@@ -136,6 +136,7 @@
         public string LoginHint { get; set; }
         public string AcrValues { get; set; }
         public OIDClaims Claims { get; set; }
+        public string Request { get; set; }
 
         /// <summary>
         /// <see cref="OIDClientSerializableMessage.Validate()"/>

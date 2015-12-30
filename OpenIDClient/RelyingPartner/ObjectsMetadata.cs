@@ -122,6 +122,7 @@
         public string PolicyUri { get; set; }
         public string TosUri { get; set; }
         public string JwksUri { get; set; }
+        public string Jwks { get; set; }
         public string SectorIdentifierUri { get; set; }
         public string SubjectType { get; set; }
         public string IdTokenSignedResponseAlg { get; set; }

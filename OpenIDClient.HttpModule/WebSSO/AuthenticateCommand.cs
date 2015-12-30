@@ -6,6 +6,8 @@
     using System.Web;
     using System.Web.SessionState;
     using System.Collections.Generic;
+    using System.Security.Cryptography;
+    using System.Security.Cryptography.X509Certificates;
     using Jose;
     using OpenIDClient.Messages;
     using OpenIDClient.HttpModule.Configuration;
@@ -32,14 +34,14 @@
             OIDCAuthorizationRequestMessage requestMessage = generateRequestMessage(providerData, urls);
             string requestObject = null;
 
-            if (options.RPOptions.SignCertificate != null)
+            if (providerData.Sign && options.RPOptions.SignCertificate != null)
             {
                 OIDCAuthorizationRequestMessage rObject = generateRequestObject(providerData, urls, requestMessage.State, requestMessage.Nonce);
-                //requestMessage.RequestUri = urls.RequestCommand;
-                requestObject = JWT.Encode(rObject.SerializeToJsonString(), options.RPOptions.SignCertificate, JwsAlgorithm.RS256);
+                requestObject = JWT.Encode(rObject.SerializeToJsonString(), getCertificateKey(options.RPOptions.SignCertificate), JwsAlgorithm.RS256);
+                requestMessage.Request = requestObject;
             }
 
-            if (options.RPOptions.EncCertificate != null)
+            if (providerData.Encrypt && options.RPOptions.EncCertificate != null)
             {
                 if (requestObject == null)
                 {
@@ -47,8 +49,8 @@
                     requestObject = rObject.SerializeToJsonString();
                 }
 
-                //requestMessage.RequestUri = urls.RequestCommand;
-                requestObject = JWT.Encode(requestObject, options.RPOptions.EncCertificate, JweAlgorithm.RSA1_5, JweEncryption.A128CBC_HS256);
+                requestObject = JWT.Encode(requestObject, getCertificateKey(options.RPOptions.EncCertificate), JweAlgorithm.RSA1_5, JweEncryption.A128CBC_HS256);
+                requestMessage.Request = requestObject;
             }
 
             session.Add("op", rpEntityId);
@@ -60,6 +62,18 @@
                 HttpStatusCode = HttpStatusCode.SeeOther,
                 Location = new Uri(providerData.ProviderMatadata.AuthorizationEndpoint + "?" + requestMessage.SerializeToQueryString())
             };
+        }
+
+        private RSACryptoServiceProvider getCertificateKey(X509Certificate2 certificate)
+        {
+            RSACryptoServiceProvider key = certificate.PrivateKey as RSACryptoServiceProvider;
+
+            byte[] privateKeyBlob = key.ExportCspBlob(true);
+            CspParameters cp = new CspParameters(24);
+            key = new RSACryptoServiceProvider(cp);
+            key.ImportCspBlob(privateKeyBlob);
+
+            return key;
         }
 
         private OIDCAuthorizationRequestMessage generateRequestMessage(OpenIDProviderData providerData, OpenIDUrls urls)
