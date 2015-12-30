@@ -32,6 +32,7 @@
                 {
                     ClientId = opEntry.ClientId,
                     ClientSecret = opEntry.ClientSecret,
+                    TokenEndpointAuthMethod = "client_secret_basic"
                 };
             }
         }
@@ -44,6 +45,7 @@
                 clientMetadata.ApplicationType = "web";
                 clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
                 clientMetadata.RedirectUris = new List<string>() { urls.CodeCallbackCommand.ToString() };
+                clientMetadata.TokenEndpointAuthMethod = "client_secret_basic";
 
                 if ((Sign && rpOptions.SignCertificate != null) || (Encrypt && rpOptions.EncCertificate != null))
                 {
