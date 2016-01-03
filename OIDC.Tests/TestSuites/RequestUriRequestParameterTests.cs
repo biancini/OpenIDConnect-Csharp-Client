@@ -1,6 +1,5 @@
 ﻿namespace OIDC.Tests
 {
-    using System.Net;
     using System.Collections.Generic;
     using NUnit.Framework;
     using System.Security.Cryptography;
@@ -112,11 +111,10 @@
 
             request = JWT.Encode(requestObject.SerializeToJsonString(), encKey, JweAlgorithm.RSA1_5, JweEncryption.A128CBC_HS256);
 
-            string login_url = GetBaseUrl("/authorization") + "?" + requestMessage.SerializeToQueryString();
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
-            
+
             // when
-            WebOperations.GetUrlContent(WebRequest.Create(login_url));
+            rp.Authenticate(GetBaseUrl("/authorization"), requestMessage);
             semaphore.WaitOne();
             OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope);
 
@@ -143,11 +141,10 @@
 
             request = JWT.Encode(requestObject.SerializeToJsonString(), null, JwsAlgorithm.none);
 
-            string login_url = GetBaseUrl("/authorization") + "?" + requestMessage.SerializeToQueryString();
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            WebOperations.GetUrlContent(WebRequest.Create(login_url));
+            rp.Authenticate(GetBaseUrl("/authorization"), requestMessage);
             semaphore.WaitOne();
             OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope);
 
@@ -175,11 +172,10 @@
 
             request = JWT.Encode(requestObject.SerializeToJsonString(), signKey, JwsAlgorithm.RS256);
 
-            string login_url = GetBaseUrl("/authorization") + "?" + requestMessage.SerializeToQueryString();
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            WebOperations.GetUrlContent(WebRequest.Create(login_url));
+            rp.Authenticate(GetBaseUrl("/authorization"), requestMessage);
             semaphore.WaitOne();
             OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope);
 
@@ -212,11 +208,10 @@
             request = JWT.Encode(requestObject.SerializeToJsonString(), signKey, JwsAlgorithm.RS256);
             request = JWT.Encode(request, encKey, JweAlgorithm.RSA1_5, JweEncryption.A128CBC_HS256);
 
-            string login_url = GetBaseUrl("/authorization") + "?" + requestMessage.SerializeToQueryString();
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
 
             // when
-            WebOperations.GetUrlContent(WebRequest.Create(login_url));
+            rp.Authenticate(GetBaseUrl("/authorization"), requestMessage);
             semaphore.WaitOne();
             OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope);
 

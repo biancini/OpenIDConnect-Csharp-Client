@@ -91,11 +91,16 @@
 
         private static void RespondWithJwks(IHttpContext context)
         {
-            X509Certificate2 signCert = new X509Certificate2("server.pfx", "", X509KeyStorageFlags.Exportable);
-            X509Certificate2 encCert = new X509Certificate2("server.pfx", "", X509KeyStorageFlags.Exportable);
+            List<X509Certificate2> signCerts = new List<X509Certificate2>() {
+                new X509Certificate2("server.pfx", "", X509KeyStorageFlags.Exportable),
+                new X509Certificate2("server2.pfx", "", X509KeyStorageFlags.Exportable)
+            };
+            List<X509Certificate2> encCerts = new List<X509Certificate2>() {
+                new X509Certificate2("server.pfx", "", X509KeyStorageFlags.Exportable),
+                new X509Certificate2("server2.pfx", "", X509KeyStorageFlags.Exportable)
+            };
 
-            Dictionary<string, object> keysDict = KeyManager.GetKeysJwkDict(signCert, encCert);
-
+            Dictionary<string, object> keysDict = KeyManager.GetKeysJwkDict(signCerts, encCerts);
             string rstring = Serializer.SerializeToJson(keysDict);
             HttpWorker.WriteTextToResponse(context, rstring);
         }

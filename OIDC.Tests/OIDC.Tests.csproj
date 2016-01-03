@@ -89,6 +89,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Helpers\SimpleWebServer.cs" />
+    <Compile Include="TestSuites\KeyRotationTests.cs" />
     <Compile Include="TestSuites\IdTokenTests.cs" />
     <Compile Include="TestSuites\DynamicClientRegistrationTests.cs" />
     <Compile Include="Helpers\OIDCTests.cs" />
@@ -109,6 +110,9 @@
     </None>
     <None Include="packages.config" />
     <None Include="server.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="server2.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
