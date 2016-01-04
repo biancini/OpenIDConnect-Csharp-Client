@@ -42,6 +42,7 @@
         /// An ID Token containing the requested claim.
         /// </summary>
         [TestCase]
+        [Category("ClaimsRequestParameterTests")]
         public void Should_Request_And_Use_Claims_Id_Token()
         {
             rpid = "rp-response_type-id_token+token";
@@ -91,6 +92,7 @@
         /// A UserInfo Response containing the requested claim.
         /// </summary>
         [TestCase]
+        [Category("ClaimsRequestParameterTests")]
         public void Should_Request_And_Use_Claims_Userinfo()
         {
             rpid = "rp-claims_request-userinfo_claims";

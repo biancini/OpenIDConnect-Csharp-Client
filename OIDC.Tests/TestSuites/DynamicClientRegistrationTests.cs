@@ -22,6 +22,7 @@
         /// Get a Client Registration Response.
         /// </summary>
         [TestCase]
+        [Category("DynamicClientRegistrationTests")]
         public void Should_Client_Be_Able_To_Register()
         {
             rpid = "rp-registration-dynamic";
@@ -50,6 +51,7 @@
         /// Get a Client Registration Response.
         /// </summary>
         [TestCase]
+        [Category("DynamicClientRegistrationTests")]
         public void Should_Registration_Request_Has_RedirectUris()
         {
             rpid = "rp-registration-redirect_uris";
@@ -79,6 +81,7 @@
         /// Get a Client Registration Response.
         /// </summary>
         [TestCase]
+        [Category("DynamicClientRegistrationTests")]
         public void Should_Keys_Be_Published_As_JWK()
         {
             rpid = "rp-registration-well_formed_jwk";
@@ -108,6 +111,7 @@
         /// No endpoints not supporting HTTPS.
         /// </summary>
         [TestCase]
+        [Category("DynamicClientRegistrationTests")]
         [ExpectedException(typeof(OIDCException), ExpectedMessage = "Some of the URIs for the client is not on https")]
         public void Should_Client_Only_Use_Https_Endpoints()
         {

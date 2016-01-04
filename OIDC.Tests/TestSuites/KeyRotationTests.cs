@@ -115,6 +115,7 @@
         /// if the 'kid' claim in the JOSE header is unknown.
         /// </summary>
         [TestCase]
+        [Category("KeyRotationTests")]
         public void Should_Support_Provider_Sign_Key_Rotation()
         {
             rpid = "rp-key_rotation-op_sign_key";
@@ -147,6 +148,7 @@
         /// using the rotated signing key.
         /// </summary>
         [TestCase]
+        [Category("KeyRotationTests")]
         public void Should_Support_Signing_Key_Rotation()
         {
             rpid = "rp-key_rotation-rp_sign_key";
@@ -191,6 +193,7 @@
         /// encrypted using rotated encryption keys.
         /// </summary>
         [TestCase]
+        [Category("KeyRotationTests")]
         public void Should_Support_Provider_Crypt_Key_Rotation()
         {
             rpid = "rp-key_rotation-op_enc_key";
@@ -237,6 +240,7 @@
         /// can be decrypted using the rotated key.
         /// </summary>
         [TestCase]
+        [Category("KeyRotationTests")]
         public void Should_Support_Encryption_Key_Rotation()
         {
             rpid = "rp-key_rotation-rp_enc_key";

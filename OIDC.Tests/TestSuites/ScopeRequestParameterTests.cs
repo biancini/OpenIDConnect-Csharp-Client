@@ -40,6 +40,7 @@
         /// An authentication response.
         /// </summary>
         [TestCase]
+        [Category("ScopeRequestParameterTests")]
         [ExpectedException(typeof(OIDCException), ExpectedMessage = "Missing required openid scope")]
         public void Should_OpenId_Missing_Scope_Throw_Exception()
         {
@@ -66,6 +67,7 @@
         /// requested claims.
         /// </summary>
         [TestCase]
+        [Category("ScopeRequestParameterTests")]
         public void Should_Authenticate_With_Claims_In_Scope_Basic()
         {
             rpid = "rp-scope-userinfo_claims";
@@ -124,6 +126,7 @@
         /// requested claims.
         /// </summary>
         [TestCase]
+        [Category("ScopeRequestParameterTests")]
         public void Should_Authenticate_With_Claims_In_Scope_Self_Issued()
         {
             rpid = "rp-scope-userinfo_claims";

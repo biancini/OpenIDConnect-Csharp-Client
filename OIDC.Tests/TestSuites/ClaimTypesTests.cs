@@ -82,6 +82,7 @@
         /// Understand the aggregated claims in the UserInfo Response.
         /// </summary>
         [TestCase]
+        [Category("ClaimTypesTests")]
         public void Should_Use_Aggregate_Claims()
         {
             rpid = "rp-claims-aggregated";
@@ -114,6 +115,7 @@
         /// Understand the distributed claims in the UserInfo Response.
         /// </summary>
         [TestCase]
+        [Category("ClaimTypesTests")]
         public void Should_Use_Distributed_Claims()
         {
             rpid = "rp-claims-distributed";

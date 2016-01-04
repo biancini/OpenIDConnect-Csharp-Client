@@ -42,6 +42,7 @@
         /// An authentication response.
         /// </summary>
         [TestCase]
+        [Category("ThirdPartyInitiatedLoginTests")]
         public void Should_Spport_Third_Party_Initiated_Login()
         {
             rpid = "rp-support_3rd_party_init_login";

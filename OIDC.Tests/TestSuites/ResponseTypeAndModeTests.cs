@@ -44,6 +44,7 @@
         /// An authentication response containing an authorization code.
         /// </summary>
         [TestCase]
+        [Category("ResponseTypeAndModeTests")]
         public void Should_Authenticate_With_Code_Response_Type()
         {
             rpid = "rp-response_type-code";
@@ -76,6 +77,7 @@
         /// An authentication response containing an ID Token.
         /// </summary>
         [TestCase]
+        [Category("ResponseTypeAndModeTests")]
         public void Should_Authenticate_With_IdToken_Response_Type()
         {
             rpid = "rp-response_type-id_token";
@@ -111,6 +113,7 @@
         /// An authentication response containing an ID Token and an Access Token.
         /// </summary>
         [TestCase]
+        [Category("ResponseTypeAndModeTests")]
         public void Should_Authenticate_With_IdToken_Token_Response_Type()
         {
             rpid = "rp-response_type-id_token+token";
@@ -147,6 +150,7 @@
         /// HTML form post response processed, resulting in query encoded parameters.
         /// </summary>
         [TestCase]
+        [Category("ResponseTypeAndModeTests")]
         public void Should_Authenticate_With_IdToken_Token_Response_Type_Post()
         {
             rpid = "rp-response_mode-form_post";
@@ -200,6 +204,7 @@
         /// An authentication response containing an self-issued ID Token.
         /// </summary>
         [TestCase]
+        [Category("ResponseTypeAndModeTests")]
         public void Should_Authenticate_With_Self_Issued_Provider()
         {
             rpid = "rp-response_type-self_issued";

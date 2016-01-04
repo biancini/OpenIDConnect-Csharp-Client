@@ -43,6 +43,7 @@
         /// implicit flow.
         /// </summary>
         [TestCase]
+        [Category("NonceRequestParameterTests")]
         public void Should_Nonce_Be_Present_In_Implicit()
         {
             rpid = "rp-nonce-unless_code_flow";
@@ -86,6 +87,7 @@
         /// implicit flow.
         /// </summary>
         [TestCase]
+        [Category("NonceRequestParameterTests")]
         public void Should_Nonce_Be_Present_In_Self_Issued()
         {
             rpid = "rp-nonce-unless_code_flow";
@@ -121,6 +123,7 @@
         /// Identity that the 'nonce' value in the ID Token is invalid and reject the ID Token.
         /// </summary>
         [TestCase]
+        [Category("NonceRequestParameterTests")]
         [ExpectedException(typeof(OIDCException), ExpectedMessage = "Wrong nonce value in token.")]
         public void Should_Reject_Id_Token_With_Wrong_Nonce()
         {

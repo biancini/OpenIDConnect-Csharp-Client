@@ -48,6 +48,7 @@
         /// Identify the invalid signature and reject the ID Token after doing ID Token validation.
         /// </summary>
         [TestCase]
+        [Category("IdTokenTests")]
         [ExpectedException(typeof(IntegrityException))]
         public void Should_Reject_Id_Token_With_Invalid_Signature_RS256()
         {
@@ -110,6 +111,7 @@
         /// Identify the invalid signature and reject the ID Token after doing ID Token validation.
         /// </summary>
         [TestCase]
+        [Category("IdTokenTests")]
         [ExpectedException(typeof(IntegrityException))]
         public void Should_Reject_Id_Token_With_Invalid_Signature_HS256()
         {
@@ -164,6 +166,7 @@
         /// Accept the ID Token after doing ID Token validation.
         /// </summary>
         [TestCase]
+        [Category("IdTokenTests")]
         public void Should_Request_And_Use_Signed_And_Encrypted_Id_Token()
         {
             rpid = "rp-id_token-sig+enc";
@@ -227,6 +230,7 @@
         /// Accept the ID Token after doing ID Token validation.
         /// </summary>
         [TestCase]
+        [Category("IdTokenTests")]
         public void Should_Request_And_Use_Unsigned_Id_Token()
         {
             rpid = "rp-id_token-sig_none";
@@ -285,6 +289,7 @@
         /// Code Validation.
         /// </summary>
         [TestCase]
+        [Category("IdTokenTests")]
         [ExpectedException(typeof(OIDCException), ExpectedMessage = "Wrong c_hash for the released id token.")]
         public void Should_Reject_Id_Token_With_Incorrect_C_Hash()
         {
@@ -326,6 +331,7 @@
         /// Identify the incorrect 'at_hash' value and reject the ID Token after doing Access Token validation.
         /// </summary>
         [TestCase]
+        [Category("IdTokenTests")]
         [ExpectedException(typeof(OIDCException), ExpectedMessage = "Wrong at_hash for the released id token.")]
         public void Should_Reject_Id_Token_With_Incorrect_At_Hash()
         {
@@ -365,6 +371,7 @@
         /// Identify the incorrect 'iss' value and reject the ID Token after doing ID Token validation.
         /// </summary>
         [TestCase]
+        [Category("IdTokenTests")]
         [ExpectedException(typeof(OIDCException), ExpectedMessage = "Wrong issuer in id token.")]
         public void Should_Reject_Id_Token_With_Wrong_Iss()
         {
@@ -405,6 +412,7 @@
         /// Identify the missing 'iat' value and reject the ID Token after doing ID Token validation.
         /// </summary>
         [TestCase]
+        [Category("IdTokenTests")]
         [ExpectedException(typeof(OIDCException), ExpectedMessage = "Missing iat required parameter.")]
         public void Should_Reject_Id_Token_With_Wrong_Iat()
         {
@@ -444,6 +452,7 @@
         /// Identify the invalid signature and reject the ID Token after doing ID Token validation.
         /// </summary>
         [TestCase]
+        [Category("IdTokenTests")]
         [ExpectedException(typeof(IntegrityException))]
         public void Should_Reject_Id_Token_With_Invalid_ES256_Signature()
         {
@@ -497,6 +506,7 @@
         /// the ID Token after doing ID Token validation.
         /// </summary>
         [TestCase]
+        [Category("IdTokenTests")]
         [ExpectedException(typeof(OIDCException), ExpectedMessage = "Wrong audience for the released id token.")]
         public void Should_Reject_Id_Token_With_Wrong_Aud()
         {
@@ -536,6 +546,7 @@
         /// Identify the missing 'sub' value and reject the ID Token.
         /// </summary>
         [TestCase]
+        [Category("IdTokenTests")]
         [ExpectedException(typeof(OIDCException), ExpectedMessage = "Missing sub required parameter.")]
         public void Should_Reject_Id_Token_Without_Sub()
         {
@@ -576,6 +587,7 @@
         /// the ID Token after doing ID Token validation.
         /// </summary>
         [TestCase]
+        [Category("IdTokenTests")]
         public void Should_Accept_Id_Token_Without_Kid_If_Just_One_JWK()
         {
             rpid = "rp-id_token-kid_absent_single_jwks";
@@ -618,6 +630,7 @@
         /// it can not be determined which key to use to verify the signature.
         /// </summary>
         [TestCase]
+        [Category("IdTokenTests")]
         [ExpectedException(typeof(ArgumentException))]
         public void Should_Reject_Id_Token_Without_Kid_If_Multiple_JWK()
         {

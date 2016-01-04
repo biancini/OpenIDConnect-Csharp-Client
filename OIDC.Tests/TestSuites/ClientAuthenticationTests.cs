@@ -43,6 +43,7 @@
         /// A Token Response, containing an ID token.
         /// </summary>
         [TestCase]
+        [Category("ClientAuthenticationTests")]
         public void Should_Authenticate_Client_With_Client_Secret_Basic()
         {
             rpid = "rp-token_endpoint-client_secret_basic";
@@ -91,6 +92,7 @@
         /// A Token Response, containing an ID token.
         /// </summary>
         [TestCase]
+        [Category("ClientAuthenticationTests")]
         public void Should_Authenticate_Client_With_Client_Secret_Jwt()
         {
             rpid = "rp-token_endpoint-client_secret_jwt";
@@ -139,6 +141,7 @@
         /// A Token Response, containing an ID token.
         /// </summary>
         [TestCase]
+        [Category("ClientAuthenticationTests")]
         public void Should_Authenticate_Client_With_Client_Secret_Post()
         {
             rpid = "rp-token_endpoint-client_secret_jwt";
@@ -187,6 +190,7 @@
         /// A Token Response, containing an ID token.
         /// </summary>
         [TestCase]
+        [Category("ClientAuthenticationTests")]
         public void Should_Authenticate_Client_With_Private_Key_Jwt()
         {
             rpid = "rp-token_endpoint-client_secret_jwt";

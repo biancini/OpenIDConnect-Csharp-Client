@@ -100,6 +100,7 @@
         /// An authentication response to the encrypted request passed using the request_uri request parameter.
         /// </summary>
         [TestCase]
+        [Category("RequestUriRequestParameterTests")]
         public void Should_Use_Request_Uri_Parameter_Encrypted()
         {
             rpid = "rp-request_uri-enc";
@@ -131,6 +132,7 @@
         /// An authentication response to the unsigned request passed using the request_uri request parameter.
         /// </summary>
         [TestCase]
+        [Category("RequestUriRequestParameterTests")]
         public void Should_Use_Request_Uri_Parameter_Unsigned()
         {
             rpid = "rp-request_uri-unsigned";
@@ -161,6 +163,7 @@
         /// An authentication response to the signed request passed using the request_uri request parameter.
         /// </summary>
         [TestCase]
+        [Category("RequestUriRequestParameterTests")]
         public void Should_Use_Request_Uri_Parameter_Signed()
         {
             rpid = "rp-request_uri-sig";
@@ -193,6 +196,7 @@
         /// An authentication response to the signed and encrypted request passed using the request_uri request parameter.
         /// </summary>
         [TestCase]
+        [Category("RequestUriRequestParameterTests")]
         public void Should_Use_Request_Uri_Parameter_Signed_And_Encrypted()
         {
             rpid = "rp-request_uri-sig+enc";

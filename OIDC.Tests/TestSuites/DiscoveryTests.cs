@@ -15,6 +15,7 @@
         /// An issuer location should be returned.
         /// </summary>
         [TestCase]
+        [Category("DiscoveryTests")]
         public void Should_Discover_OpenID_Providers_Using_URL_Syntax()
         {
             rpid = "rp-discovery-webfinger_url";
@@ -39,6 +40,7 @@
         /// An issuer location should be returned.
         /// </summary>
         [TestCase]
+        [Category("DiscoveryTests")]
         public void Should_Discover_OpenID_Providers_Using_URI_Syntax()
         {
             rpid = "rp-discovery-webfinger_acct";
@@ -63,6 +65,7 @@
         /// An issuer location should be returned.
         /// </summary>
         [TestCase]
+        [Category("DiscoveryTests")]
         public void Should_Discover_OpenID_Providers()
         {
             rpid = "rp-discovery";
@@ -87,6 +90,7 @@
         /// Identify that the issuers are not matching and reject the provider configuration.
         /// </summary>
         [TestCase]
+        [Category("DiscoveryTests")]
         [ExpectedException(typeof(OIDCException), ExpectedMessage="Wrong issuer, discarding configuration")]
         public void Should_Wrong_Discovered_Issuer_Be_Rejected()
         {
@@ -114,6 +118,7 @@
         /// Read and use the JSON object returned from the OpenID Connect Provider.
         /// </summary>
         [TestCase]
+        [Category("DiscoveryTests")]
         public void Should_Obtain_Provider_Information()
         {
             rpid = "rp-discovery-openid_configuration";
@@ -138,6 +143,7 @@
         /// Should be able to verify signed responses and/or encrypt requests using obtained keys.
         /// </summary>
         [TestCase]
+        [Category("DiscoveryTests")]
         public void Should_Obtain_Provider_Information_With_JWKS_Json()
         {
             rpid = "rp-discovery-jwks_uri_keys";
