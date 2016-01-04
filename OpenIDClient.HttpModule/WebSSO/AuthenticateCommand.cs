@@ -80,7 +80,7 @@
         {
             OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
             requestMessage.ClientId = providerData.ClientInformation.ClientId;
-            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid };
+            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid, MessageScope.Profile };
             requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
             requestMessage.RedirectUri = urls.CodeCallbackCommand.ToString();
             requestMessage.State = WebOperations.RandomString();
@@ -96,7 +96,7 @@
             requestObject.Iss = providerData.ClientInformation.ClientId;
             requestObject.Aud = providerData.ProviderMatadata.Issuer;
             requestObject.ClientId = providerData.ClientInformation.ClientId;
-            requestObject.Scope = new List<MessageScope>() { MessageScope.Openid };
+            requestObject.Scope = new List<MessageScope>() { MessageScope.Openid, MessageScope.Profile };
             requestObject.ResponseType = new List<ResponseType>() { ResponseType.Code };
             requestObject.RedirectUri = urls.CodeCallbackCommand.ToString();
             requestObject.State = state;

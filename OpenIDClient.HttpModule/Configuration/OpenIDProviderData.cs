@@ -49,8 +49,7 @@
 
                 if ((Sign && rpOptions.SignCertificate != null) || (Encrypt && rpOptions.EncCertificate != null))
                 {
-                    Dictionary<string, object> keysDict = KeyManager.GetKeysJwkDict(rpOptions.EncCertificate, rpOptions.SignCertificate);
-                    clientMetadata.Jwks = Serializer.SerializeToJson(keysDict);
+                    clientMetadata.JwksUri = urls.JwksCallbackCommand.ToString();
                 }
 
                 OpenIdRelyingParty rp = new OpenIdRelyingParty();

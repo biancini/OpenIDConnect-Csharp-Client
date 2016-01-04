@@ -23,6 +23,7 @@
             { typeof(List<string>), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseListString },
             { typeof(List<ResponseType>), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseListResponseType },
             { typeof(List<MessageScope>), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseListMessageScope },
+            { typeof(List<OIDCKey>), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseListOIDCKey },
             { typeof(Dictionary<string, object>), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseDictionaryStringObject },
             { typeof(DateTime), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseDateTime },
             { typeof(OIDCClientRegistrationRequest), (Action<OIDClientSerializableMessage, PropertyInfo, object>) ParseOIDCMessage },
@@ -224,6 +225,33 @@
                         continue;
                     }
                     propertyValue.Add(val.ToObject<MessageScope>());
+                }
+            }
+
+            p.SetValue(obj, propertyValue);
+        }
+
+        private static void ParseListOIDCKey(OIDClientSerializableMessage obj, PropertyInfo p, object value)
+        {
+            List<OIDCKey> propertyValue = new List<OIDCKey>();
+            if (value.GetType() == typeof(OIDCKey))
+            {
+                propertyValue.Add((OIDCKey)value);
+            }
+            else if (value.GetType() == typeof(List<OIDCKey>))
+            {
+                propertyValue = (List<OIDCKey>)value;
+            }
+            else if (value.GetType() == typeof(string))
+            {
+                ParseOIDCMessage(obj, p, value);
+            }
+            else
+            {
+                JArray arrayData = (JArray)value;
+                foreach (JValue val in arrayData)
+                {
+                    propertyValue.Add(val.ToObject<OIDCKey>());
                 }
             }
 

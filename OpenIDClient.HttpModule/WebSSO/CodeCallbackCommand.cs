@@ -46,7 +46,7 @@
 
         private OIDCAuthCodeResponseMessage GetAuthResponse(HttpRequestData request, HttpSessionState session)
         {
-            var scope = new List<MessageScope>() { MessageScope.Openid };
+            var scope = new List<MessageScope>() { MessageScope.Openid, MessageScope.Profile };
             var state = session["state"];
             return rp.ParseAuthCodeResponse(request.Url.Query, scope);
         }

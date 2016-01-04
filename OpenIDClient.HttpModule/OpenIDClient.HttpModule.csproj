@@ -76,6 +76,7 @@
     <Compile Include="Enumerator.cs" />
     <Compile Include="HttpRequestBaseExtensions.cs" />
     <Compile Include="Configuration\OpenIDConfigurationSection.cs" />
+    <Compile Include="WebSSO\JwksCallbackCommand.cs" />
     <Compile Include="WebSSO\CodeCallbackCommand.cs" />
     <Compile Include="WebSSO\OpenIDHttpHandler.cs" />
     <Compile Include="WebSSO\OpenIDUrls.cs" />

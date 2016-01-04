@@ -42,6 +42,7 @@
 
             AuthenticateCommand = new Uri(authServicesRoot + CommandFactory.AuthenticateCommandName);
             CodeCallbackCommand = new Uri(authServicesRoot + CommandFactory.CodeCallbackCommandName);
+            JwksCallbackCommand = new Uri(authServicesRoot + CommandFactory.JwksCallbackCommandName);
         }
 
         /// <summary>
@@ -58,5 +59,10 @@
         /// The full url of the code callback command.
         /// </summary>
         public Uri CodeCallbackCommand { get; private set; }
+
+        /// <summary>
+        /// The full url of the JWKS callback command.
+        /// </summary>
+        public Uri JwksCallbackCommand { get; private set; }
     }
 }
