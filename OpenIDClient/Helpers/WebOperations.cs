@@ -12,8 +12,9 @@
 
     public static class WebOperations
     {
-        static RemoteCertificateValidationCallback oldValiadtionCallback;
+        private static RemoteCertificateValidationCallback oldValiadtionCallback;
         public static bool checkCertificate = true;
+        private static CookieContainer cookies = new CookieContainer();
 
         static WebOperations()
         {
@@ -44,7 +45,10 @@
         /// <returns>Json deserialization of the content returned from the call.</returns>
         public static Dictionary<string, object> GetUrlContent(WebRequest webRequest, bool returnJson = true, bool checkCertificate = true)
         {
-            Stream content = webRequest.GetResponse().GetResponseStream();
+            ((HttpWebRequest)webRequest).CookieContainer = cookies;
+            HttpWebResponse resp = (HttpWebResponse)webRequest.GetResponse();
+            Stream content = resp.GetResponseStream();
+
             string returnedText = new StreamReader(content).ReadToEnd();
             if (returnJson)
             {
@@ -70,6 +74,7 @@
         /// <returns>Json deserialization of the content returned from the call.</returns>
         public static Dictionary<string, object> PostUrlContent(WebRequest webRequest, OIDClientSerializableMessage message, bool json = false)
         {
+            ((HttpWebRequest)webRequest).CookieContainer = cookies;
             webRequest.Method = "POST";
 
             string postData = "";

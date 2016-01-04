@@ -1,13 +1,11 @@
 ﻿namespace OIDC.Tests
 {
     using System.Net;
-    using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
     using System.Collections.Generic;
     using NUnit.Framework;
     using OpenIDClient;
     using OpenIDClient.Messages;
-    using Jose;
 
     [TestFixture]
     public class NonceRequestParameterTests : OIDCTests

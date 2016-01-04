@@ -1,13 +1,15 @@
 ﻿namespace OpenIDClient
 {
     using System;
+    using System.Net;
+    using System.Text;
     using System.Collections.Generic;
     using System.Reflection;
     using System.Text.RegularExpressions;
     using OpenIDClient.Messages;
     using Newtonsoft.Json.Linq;
-    using System.Runtime.Serialization;
     using Newtonsoft.Json;
+    using Jose;
 
     public class Deserializer
     {
@@ -264,6 +266,66 @@
             JObject curObj = (JObject)value;
             propertyValue.DeserializeFromDictionary(curObj.ToObject<Dictionary<string, object>>());
             p.SetValue(obj, propertyValue);
+        }
+
+        public static void ParseAggregatedClaims(OIDCUserInfoResponseMessage obj, Dictionary<string, object> data)
+        {
+            if (data.ContainsKey("_claim_names") && data["_claim_names"] != null)
+            {
+                Dictionary<string, object> claims = (data["_claim_names"] as JObject).ToObject<Dictionary<string, object>>();
+                foreach (KeyValuePair<string, object> kvp in claims)
+                {
+                    string name = kvp.Key;
+                    string path = kvp.Value.ToString();
+
+                    if (!data.ContainsKey("_claim_sources") || data["_claim_sources"] == null)
+                    {
+                        continue;
+                    }
+
+                    dynamic sources = data["_claim_sources"];
+                    foreach (JProperty s in sources)
+                    {
+                        if (s.Name != path)
+                        {
+                            continue;
+                        }
+
+                        dynamic vals = s.Value;
+                        foreach (JProperty v in sources)
+                        {
+                            Dictionary<string, object> values = null;
+                            Dictionary<string, object> val = (v.Value as JObject).ToObject<Dictionary<string, object>>();
+                            
+                            if (val.ContainsKey("JWT"))
+                            {
+                                string json = JWT.Decode(val["JWT"].ToString());
+                                values = DeserializeFromJson<Dictionary<string, object>>(json);
+                            }
+                            else if(val.ContainsKey("endpoint"))
+                            {
+                                WebRequest req = WebRequest.Create(val["endpoint"].ToString());
+                                if (val.ContainsKey("access_token"))
+                                {
+                                    req.Headers.Add("Authorization", "Bearer " + val["access_token"].ToString());
+                                }
+                                values = WebOperations.GetUrlContent(req);
+                            }
+
+                            if (!values.ContainsKey(name))
+                            {
+                                continue;
+                            }
+
+                            if (obj.CustomClaims == null)
+                            {
+                                obj.CustomClaims = new Dictionary<string, object>();
+                            }
+                            obj.CustomClaims[name] = values[name];
+                        }                       
+                    }
+                }
+            }
         }
 
         public static void DeserializeFromDictionary(OIDClientSerializableMessage obj, Dictionary<string, object> data)

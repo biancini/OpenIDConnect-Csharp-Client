@@ -2,11 +2,12 @@
 {
     using System;
     using System.Net;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Text;
     using System.Security.Cryptography;
     using Jose;
-    using OpenIDClient.Messages;
+    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// Abstract class extended by all messages between RP e OP.
@@ -36,7 +37,7 @@
         /// Method that deserializes message property values from a dynamic object as input.
         /// </summary>
         /// <param name="data">Dictionary object with the property values for the current message.</param>
-        public void DeserializeFromDictionary(Dictionary<string, object> data)
+        public virtual void DeserializeFromDictionary(Dictionary<string, object> data)
         {
             Deserializer.DeserializeFromDictionary(this, data);
             this.Validate();
@@ -439,6 +440,18 @@
         public bool PhoneNumberVerified { get; set; }
         public OIDCAddress Address { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public Dictionary<string, object> CustomClaims { get; set; }
+
+        /// <summary>
+        /// Method that deserializes message property values from a dynamic object as input.
+        /// </summary>
+        /// <param name="data">Dictionary object with the property values for the current message.</param>
+        public override void DeserializeFromDictionary(Dictionary<string, object> data)
+        {
+            Deserializer.DeserializeFromDictionary(this, data);
+            Deserializer.ParseAggregatedClaims(this, data);
+            this.Validate();
+        }
     }
 
     /// <summary>
