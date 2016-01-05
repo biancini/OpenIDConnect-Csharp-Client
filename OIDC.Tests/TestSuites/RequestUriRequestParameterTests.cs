@@ -11,27 +11,12 @@
     [TestFixture]
     public class RequestUriRequestParameterTests : OIDCTests
     {
-        OIDCClientInformation clientInformation;
-        OIDCProviderMetadata providerMetadata;
-
         [TestFixtureSetUp]
         public void SetupTests()
         {
             StartWebServer();
-
-            string hostname = GetBaseUrl("/");
-            string registrationEndopoint = GetBaseUrl("/registration");
-
-            OIDCClientInformation clientMetadata = new OIDCClientInformation();
-            clientMetadata.ApplicationType = "web";
-            clientMetadata.RequestUris = new List<string>() { myBaseUrl + "request.jwt" };
-            clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
-            clientMetadata.JwksUri = myBaseUrl + "my_public_keys.jwks";
-
-            OpenIdRelyingParty rp = new OpenIdRelyingParty();
-            clientInformation = rp.RegisterClient(registrationEndopoint, clientMetadata);
-            providerMetadata = rp.ObtainProviderInformation(hostname);
+            RegisterClient(ResponseType.Code, true, true);
+            GetProviderMetadata();
         }
 
         private OIDCAuthorizationRequestMessage generateRequestMessage()

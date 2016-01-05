@@ -1,36 +1,19 @@
 ﻿namespace OIDC.Tests
 {
-    using System.Net;
     using System.Security.Cryptography;
-    using System.Security.Cryptography.X509Certificates;
-    using System.Collections.Generic;
     using NUnit.Framework;
     using OpenIDClient;
     using OpenIDClient.Messages;
-    using Jose;
 
     [TestFixture]
     public class ClientAuthenticationTests : OIDCTests
     {
-        OIDCClientInformation clientInformation;
-        OIDCProviderMetadata providerMetadata;
-
-        [TestFixtureSetUp]
+       [TestFixtureSetUp]
         public void SetupTests()
         {
             StartWebServer();
-
-            string hostname = GetBaseUrl("/");
-            string registrationEndopoint = GetBaseUrl("/registration");
-
-            OIDCClientInformation clientMetadata = new OIDCClientInformation();
-            clientMetadata.ApplicationType = "web";
-            clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
-
-            OpenIdRelyingParty rp = new OpenIdRelyingParty();
-            clientInformation = rp.RegisterClient(registrationEndopoint, clientMetadata);
-            providerMetadata = rp.ObtainProviderInformation(hostname);
+            RegisterClient(ResponseType.Code);
+            GetProviderMetadata();
         }
 
         /// <summary>
@@ -49,20 +32,8 @@
             rpid = "rp-token_endpoint-client_secret_basic";
 
             // given
-            OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
-            requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid };
-            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
-            requestMessage.RedirectUri = clientInformation.RedirectUris[0];
-            requestMessage.Nonce = WebOperations.RandomString();
-            requestMessage.State = WebOperations.RandomString();
-            requestMessage.Validate();
+            OIDCAuthCodeResponseMessage response = (OIDCAuthCodeResponseMessage) GetAuthResponse(ResponseType.Code);
 
-            OpenIdRelyingParty rp = new OpenIdRelyingParty();
-
-            rp.Authenticate(GetBaseUrl("/authorization"), requestMessage);
-            semaphore.WaitOne();
-            OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope, requestMessage.State);
             OIDCTokenRequestMessage tokenRequestMessage = new OIDCTokenRequestMessage();
             tokenRequestMessage.Scope = response.Scope;
             tokenRequestMessage.State = response.State;
@@ -73,6 +44,7 @@
             tokenRequestMessage.RedirectUri = clientInformation.RedirectUris[0];
 
             // when
+            OpenIdRelyingParty rp = new OpenIdRelyingParty();
             clientInformation.TokenEndpointAuthMethod = "client_secret_basic";
             OIDCTokenResponseMessage tokenResponse = rp.SubmitTokenRequest(GetBaseUrl("/token"), tokenRequestMessage, clientInformation);
 
@@ -98,20 +70,8 @@
             rpid = "rp-token_endpoint-client_secret_jwt";
 
             // given
-            OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
-            requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid };
-            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
-            requestMessage.RedirectUri = clientInformation.RedirectUris[0];
-            requestMessage.Nonce = WebOperations.RandomString();
-            requestMessage.State = WebOperations.RandomString();
-            requestMessage.Validate();
+            OIDCAuthCodeResponseMessage response = (OIDCAuthCodeResponseMessage)GetAuthResponse(ResponseType.Code);
 
-            OpenIdRelyingParty rp = new OpenIdRelyingParty();
-
-            rp.Authenticate(GetBaseUrl("/authorization"), requestMessage);
-            semaphore.WaitOne();
-            OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope, requestMessage.State);
             OIDCTokenRequestMessage tokenRequestMessage = new OIDCTokenRequestMessage();
             tokenRequestMessage.Scope = response.Scope;
             tokenRequestMessage.State = response.State;
@@ -122,6 +82,7 @@
             tokenRequestMessage.RedirectUri = clientInformation.RedirectUris[0];
 
             // when
+            OpenIdRelyingParty rp = new OpenIdRelyingParty();
             clientInformation.TokenEndpointAuthMethod = "client_secret_jwt";
             OIDCTokenResponseMessage tokenResponse = rp.SubmitTokenRequest(GetBaseUrl("/token"), tokenRequestMessage, clientInformation);
 
@@ -147,20 +108,8 @@
             rpid = "rp-token_endpoint-client_secret_jwt";
 
             // given
-            OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
-            requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid };
-            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
-            requestMessage.RedirectUri = clientInformation.RedirectUris[0];
-            requestMessage.Nonce = WebOperations.RandomString();
-            requestMessage.State = WebOperations.RandomString();
-            requestMessage.Validate();
+            OIDCAuthCodeResponseMessage response = (OIDCAuthCodeResponseMessage)GetAuthResponse(ResponseType.Code);
 
-            OpenIdRelyingParty rp = new OpenIdRelyingParty();
-
-            rp.Authenticate(GetBaseUrl("/authorization"), requestMessage);
-            semaphore.WaitOne();
-            OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope, requestMessage.State);
             OIDCTokenRequestMessage tokenRequestMessage = new OIDCTokenRequestMessage();
             tokenRequestMessage.Scope = response.Scope;
             tokenRequestMessage.State = response.State;
@@ -171,6 +120,7 @@
             tokenRequestMessage.RedirectUri = clientInformation.RedirectUris[0];
 
             // when
+            OpenIdRelyingParty rp = new OpenIdRelyingParty();
             clientInformation.TokenEndpointAuthMethod = "client_secret_post";
             OIDCTokenResponseMessage tokenResponse = rp.SubmitTokenRequest(GetBaseUrl("/token"), tokenRequestMessage, clientInformation);
 
@@ -196,20 +146,8 @@
             rpid = "rp-token_endpoint-client_secret_jwt";
 
             // given
-            OIDCAuthorizationRequestMessage requestMessage = new OIDCAuthorizationRequestMessage();
-            requestMessage.ClientId = clientInformation.ClientId;
-            requestMessage.Scope = new List<MessageScope>() { MessageScope.Openid };
-            requestMessage.ResponseType = new List<ResponseType>() { ResponseType.Code };
-            requestMessage.RedirectUri = clientInformation.RedirectUris[0];
-            requestMessage.Nonce = WebOperations.RandomString();
-            requestMessage.State = WebOperations.RandomString();
-            requestMessage.Validate();
+            OIDCAuthCodeResponseMessage response = (OIDCAuthCodeResponseMessage)GetAuthResponse(ResponseType.Code);
 
-            OpenIdRelyingParty rp = new OpenIdRelyingParty();
-
-            rp.Authenticate(GetBaseUrl("/authorization"), requestMessage);
-            semaphore.WaitOne();
-            OIDCAuthCodeResponseMessage response = rp.ParseAuthCodeResponse(result, requestMessage.Scope, requestMessage.State);
             OIDCTokenRequestMessage tokenRequestMessage = new OIDCTokenRequestMessage();
             tokenRequestMessage.Scope = response.Scope;
             tokenRequestMessage.State = response.State;
@@ -227,6 +165,7 @@
             ).GetRSA();
 
             // when
+            OpenIdRelyingParty rp = new OpenIdRelyingParty();
             clientInformation.TokenEndpointAuthMethod = "private_key_jwt";
             OIDCTokenResponseMessage tokenResponse = rp.SubmitTokenRequest(GetBaseUrl("/token"), tokenRequestMessage, clientInformation, privateKey.ExportCspBlob(false));
 

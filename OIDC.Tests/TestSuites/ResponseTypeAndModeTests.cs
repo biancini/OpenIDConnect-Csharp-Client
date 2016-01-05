@@ -11,28 +11,11 @@
     [TestFixture]
     public class ResponseTypeAndModeTests : OIDCTests
     {
-        OIDCClientInformation clientInformation;
-
         [TestFixtureSetUp]
         public void SetupTests()
         {
             StartWebServer();
-
-            string registrationEndopoint = GetBaseUrl("/registration");
-
-            OIDCClientInformation clientMetadata = new OIDCClientInformation();
-            clientMetadata.ApplicationType = "web";
-            clientMetadata.RedirectUris = new List<string>() {
-                myBaseUrl + "code_flow_callback",
-                myBaseUrl + "id_token_flow_callback"
-            };
-            clientMetadata.ResponseTypes = new List<ResponseType>() {
-                ResponseType.Code,
-                ResponseType.IdToken
-            };
-
-            OpenIdRelyingParty rp = new OpenIdRelyingParty();
-            clientInformation = rp.RegisterClient(registrationEndopoint, clientMetadata);
+            RegisterClient(null);
         }
 
         /// <summary>

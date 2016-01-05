@@ -10,25 +10,12 @@
     [TestFixture]
     public class NonceRequestParameterTests : OIDCTests
     {
-        OIDCClientInformation clientInformation;
-        OIDCProviderMetadata providerMetadata;
-
         [TestFixtureSetUp]
         public void SetupTests()
         {
             StartWebServer();
-
-            string hostname = GetBaseUrl("/");
-            string registrationEndopoint = GetBaseUrl("/registration");
-
-            OIDCClientInformation clientMetadata = new OIDCClientInformation();
-            clientMetadata.ApplicationType = "web";
-            clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "id_token_flow_callback" };
-            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.IdToken };
-
-            OpenIdRelyingParty rp = new OpenIdRelyingParty();
-            clientInformation = rp.RegisterClient(registrationEndopoint, clientMetadata);
-            providerMetadata = rp.ObtainProviderInformation(hostname);
+            RegisterClient(ResponseType.IdToken);
+            GetProviderMetadata();
         }
 
         /// <summary>

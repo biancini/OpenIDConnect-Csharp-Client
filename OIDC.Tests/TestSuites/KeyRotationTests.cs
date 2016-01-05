@@ -13,32 +13,12 @@
     [TestFixture]
     public class KeyRotationTests : OIDCTests
     {
-        OIDCClientInformation clientInformation;
-        OIDCProviderMetadata providerMetadata;
-
-        [TestFixtureSetUp]
+       [TestFixtureSetUp]
         public void SetupTests()
         {
             StartWebServer();
-
-            string hostname = GetBaseUrl("/");
-            string registrationEndopoint = GetBaseUrl("/registration");
-
-            OIDCClientInformation clientMetadata = new OIDCClientInformation();
-            clientMetadata.ApplicationType = "web";
-            clientMetadata.RedirectUris = new List<string>() {
-                myBaseUrl + "code_flow_callback",
-                myBaseUrl + "id_token_flow_callback"
-            };
-            clientMetadata.ResponseTypes = new List<ResponseType>() {
-                ResponseType.Code,
-                ResponseType.IdToken
-            };
-            clientMetadata.JwksUri = myBaseUrl + "my_public_keys.jwks";
-
-            OpenIdRelyingParty rp = new OpenIdRelyingParty();
-            clientInformation = rp.RegisterClient(registrationEndopoint, clientMetadata);
-            providerMetadata = rp.ObtainProviderInformation(hostname);
+            RegisterClient(null, true);
+            GetProviderMetadata();
         }
 
         private OIDCAuthorizationRequestMessage generateRequestMessage(bool UseRequestUri = false, string state = null, string nonce = null)

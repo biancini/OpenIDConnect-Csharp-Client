@@ -10,26 +10,12 @@
     [TestFixture]
     public class ThirdPartyInitiatedLoginTests : OIDCTests
     {
-        OIDCClientInformation clientInformation;
-        OIDCProviderMetadata providerMetadata;
-
-        [TestFixtureSetUp]
+       [TestFixtureSetUp]
         public void SetupTests()
         {
             StartWebServer();
-
-            string hostname = GetBaseUrl("/");
-            string registrationEndopoint = GetBaseUrl("/registration");
-
-            OIDCClientInformation clientMetadata = new OIDCClientInformation();
-            clientMetadata.ApplicationType = "web";
-            clientMetadata.RedirectUris = new List<string>() { myBaseUrl + "code_flow_callback" };
-            clientMetadata.ResponseTypes = new List<ResponseType>() { ResponseType.Code };
-            clientMetadata.InitiateLoginUri = myBaseUrl + "initiated_login";
-
-            OpenIdRelyingParty rp = new OpenIdRelyingParty();
-            clientInformation = rp.RegisterClient(registrationEndopoint, clientMetadata);
-            providerMetadata = rp.ObtainProviderInformation(hostname);
+            RegisterClient(ResponseType.Code, false, false, true);
+            GetProviderMetadata();
         }
 
         /// <summary>
