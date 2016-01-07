@@ -79,6 +79,83 @@
         {
             return Serializer.SerializeToQueryString(this);
         }
+
+        public string CheckSignatureAndDecryptJWT(string jsonToken, List<OIDCKey> OPKeys = null, string ClientSecret = null, List<OIDCKey> RPKeys = null)
+        {
+            Dictionary<string, object> headers = null;
+            try {
+                headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
+            }
+            catch (Exception)
+            {
+                // No JWT in the message.
+                return jsonToken;
+            }
+
+            if (headers.ContainsKey("enc"))
+            {
+                string kid = (headers.ContainsKey("kid")) ? headers["kid"] as string : null;
+                RSACryptoServiceProvider encKey = null;
+                if (RPKeys.Count == 1)
+                {
+                    encKey = RPKeys[0].GetRSA();
+                }
+                else
+                {
+                    encKey = RPKeys.Find(
+                        delegate (OIDCKey k)
+                        {
+                            return k.Kid == kid;
+                        }
+                    ).GetRSA();
+                }
+
+                jsonToken = JWT.Decode(jsonToken, encKey);
+                try
+                {
+                    headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
+                }
+                catch (Exception)
+                {
+                    // No JWT in the message.
+                    return jsonToken;
+                }
+            }
+
+            object sigKey = GetSignKey(headers, OPKeys, ClientSecret);
+            return JWT.Decode(jsonToken, sigKey);
+        }
+
+        protected object GetSignKey(Dictionary<string, object> headers, List<OIDCKey> OPKeys = null, string ClientSecret = null)
+        {
+            string alg = (headers.ContainsKey("alg")) ? headers["alg"] as string : "none";
+            object sigKey = null;
+            if (alg != "none")
+            {
+                string kid = (headers.ContainsKey("kid")) ? headers["kid"] as string : null;
+                if (kid != null && OPKeys != null)
+                {
+                    if (OPKeys.Count == 1)
+                    {
+                        sigKey = OPKeys[0].GetRSA();
+                    }
+                    else
+                    {
+                        sigKey = OPKeys.Find(
+                            delegate (OIDCKey k)
+                            {
+                                return k.Kid == kid;
+                            }
+                        ).GetRSA();
+                    }
+                }
+                else
+                {
+                    sigKey = Encoding.UTF8.GetBytes(ClientSecret);
+                }
+            }
+            return sigKey;
+        }
     }
 
     /// <summary>
@@ -97,8 +174,9 @@
         public string IdTokenSignedResponseAlg { get; set; }
         public string IdTokenEncryptedResponseAlg { get; set; }
         public string IdTokenEncryptedResponseEnc { get; set; }
-        public string UserInfoEncryptedResponseAlg { get; set; }
-        public string UserInfoEncryptedResponseEnc { get; set; }
+        public string UserinfoSignedResponseAlg { get; set; }
+        public string UserinfoEncryptedResponseAlg { get; set; }
+        public string UserinfoEncryptedResponseEnc { get; set; }
         public List<string> Contacts { get; set; }
         public List<string> RequestUris { get; set; }
         public List<ResponseType> ResponseTypes { get; set; }
@@ -290,37 +368,6 @@
             return Code.Substring(Code.Length / 2, Code.Length / 2);
         }
 
-        private object GetSignKey(Dictionary<string, object> headers, List<OIDCKey> OPKeys = null, string ClientSecret = null)
-        {
-            string alg = (headers.ContainsKey("alg")) ? headers["alg"] as string : "none";
-            object sigKey = null;
-            if (alg != "none")
-            {
-                string kid = (headers.ContainsKey("kid")) ? headers["kid"] as string : null;
-                if (kid != null && OPKeys != null)
-                {
-                    if (OPKeys.Count == 1)
-                    {
-                        sigKey = OPKeys[0].GetRSA();
-                    }
-                    else
-                    {
-                        sigKey = OPKeys.Find(
-                            delegate(OIDCKey k)
-                            {
-                                return k.Kid == kid;
-                            }
-                        ).GetRSA();
-                    }
-                }
-                else
-                {
-                    sigKey = Encoding.UTF8.GetBytes(ClientSecret);
-                }
-            }
-            return sigKey;
-        }
-
         /// <summary>
         /// Method that returns the IDToken decoding the JWT.
         /// </summary>
@@ -330,33 +377,7 @@
         /// <returns>The IdToken as an object.</returns>
         public OIDCIdToken GetIdToken(List<OIDCKey> OPKeys = null, string ClientSecret = null, List<OIDCKey> RPKeys = null)
         {
-            string jsonToken = IdToken;
-            Dictionary<string, object> headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
-
-            if (headers.ContainsKey("enc"))
-            {
-                string kid = (headers.ContainsKey("kid")) ? headers["kid"] as string : null;
-                RSACryptoServiceProvider encKey = null;
-                if (RPKeys.Count == 1)
-                {
-                    encKey = RPKeys[0].GetRSA();
-                }
-                else
-                {
-                    encKey = RPKeys.Find(
-                        delegate(OIDCKey k)
-                        {
-                            return k.Kid == kid;
-                        }
-                    ).GetRSA();
-                }
-
-                jsonToken = JWT.Decode(jsonToken, encKey);
-                headers = (Dictionary<string, object>)JWT.Headers(jsonToken);
-            }
-
-            object sigKey = GetSignKey(headers, OPKeys, ClientSecret);
-            jsonToken = JWT.Decode(jsonToken, sigKey);
+            string jsonToken = CheckSignatureAndDecryptJWT(IdToken, OPKeys, ClientSecret, RPKeys);
             Dictionary<string, object> o = Deserializer.DeserializeFromJson<Dictionary<string, object>>(jsonToken);
             OIDCIdToken idToken = new OIDCIdToken();
             idToken.DeserializeFromDictionary(o);

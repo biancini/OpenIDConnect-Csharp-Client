@@ -6,6 +6,7 @@
     using System.Text;
     using System.Text.RegularExpressions;
     using System.Net;
+    using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
     using OpenIDClient.Messages;
     using Newtonsoft.Json.Linq;
@@ -220,7 +221,8 @@
 
             // Check error and store client information from OP
             WebRequest request = WebRequest.Create(RegistrationEndpoint);
-            Dictionary<string, object> returnedJson = WebOperations.PostUrlContent(request, registrationRequest, true);
+            string returnedString = WebOperations.PostUrlContent(request, registrationRequest, true);
+            Dictionary<string, object> returnedJson = Deserializer.DeserializeFromJson<Dictionary<string, object>>(returnedString);
             if (returnedJson.Keys.Contains("error"))
             {
                 OIDCResponseError error = new OIDCResponseError();
@@ -368,7 +370,8 @@
             OIDCAuthenticatedMessage message = tokenRequestMessage as OIDCAuthenticatedMessage;
             string grantType = clientInformation.TokenEndpointAuthMethod;
             AddClientAuthenticatedToRequest(ref request, ref message, grantType, clientInformation, privateKey);
-            Dictionary<string, object> returnedJson = WebOperations.PostUrlContent(request, message);
+            string returnedString = WebOperations.PostUrlContent(request, message);
+            Dictionary<string, object> returnedJson = Deserializer.DeserializeFromJson<Dictionary<string, object>>(returnedString);
 
             if (returnedJson.Keys.Contains("error"))
             {
@@ -389,11 +392,21 @@
         /// <param name="userInfoRequestMessage">The user info request message</param>
         /// <param name="accessToken">The access token obtain during authentication</param>
         /// <returns>The response message containing user information</returns>
-        public OIDCUserInfoResponseMessage GetUserInfo(string url, OIDCUserInfoRequestMessage userInfoRequestMessage, string accessToken)
+        public OIDCUserInfoResponseMessage GetUserInfo(string url, OIDCUserInfoRequestMessage userInfoRequestMessage, string accessToken, string idTokenSub = null, bool bearer = true, string ClientSecret = null, List<OIDCKey> RPKeys = null)
         {
-            WebRequest request = WebRequest.Create(url);
-            request.Headers.Add("Authorization", "Bearer " + accessToken);
-            Dictionary<string, object> returnedJson = WebOperations.PostUrlContent(request, userInfoRequestMessage);
+            WebRequest request;
+            if (bearer)
+            {
+                request = WebRequest.Create(url);
+                request.Headers.Add("Authorization", "Bearer " + accessToken);
+            }
+            else
+            {
+                request = WebRequest.Create(url + "?access_token=" + accessToken);
+            }
+            string returnedString = WebOperations.PostUrlContent(request, userInfoRequestMessage);
+            string jsonToken = userInfoRequestMessage.CheckSignatureAndDecryptJWT(returnedString, null, ClientSecret, RPKeys);
+            Dictionary<string, object> returnedJson = Deserializer.DeserializeFromJson<Dictionary<string, object>>(jsonToken);
 
             if (returnedJson.Keys.Contains("error"))
             {
@@ -404,6 +417,12 @@
 
             OIDCUserInfoResponseMessage userInfoResponse = new OIDCUserInfoResponseMessage();
             userInfoResponse.DeserializeFromDictionary(returnedJson);
+
+            if (idTokenSub != null && userInfoResponse.Sub != idTokenSub)
+            {
+                throw new OIDCException("Wrong sub in UserInfo, it does not match idToken's.");
+            }
+
             return userInfoResponse;
         }
 

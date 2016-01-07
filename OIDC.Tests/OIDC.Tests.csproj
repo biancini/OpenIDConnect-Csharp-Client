@@ -89,6 +89,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Helpers\SimpleWebServer.cs" />
+    <Compile Include="TestSuites\UserInfoEndpointTests.cs" />
     <Compile Include="TestSuites\ClaimTypesTests.cs" />
     <Compile Include="TestSuites\KeyRotationTests.cs" />
     <Compile Include="TestSuites\IdTokenTests.cs" />

@@ -72,7 +72,7 @@
         /// In the first case the message is posted as a serialization of the Json.
         /// In the second case the messge is serialized to query string.</param>
         /// <returns>Json deserialization of the content returned from the call.</returns>
-        public static Dictionary<string, object> PostUrlContent(WebRequest webRequest, OIDClientSerializableMessage message, bool json = false)
+        public static string PostUrlContent(WebRequest webRequest, OIDClientSerializableMessage message, bool json = false)
         {
             ((HttpWebRequest)webRequest).CookieContainer = cookies;
             webRequest.Method = "POST";
@@ -101,7 +101,7 @@
             HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
 
             StreamReader rdr = new StreamReader(response.GetResponseStream());
-            return Deserializer.DeserializeFromJson<Dictionary<string, object>>(rdr.ReadToEnd());
+            return rdr.ReadToEnd();
         }
 
         private static bool ValidateSSL(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)

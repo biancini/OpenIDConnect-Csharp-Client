@@ -236,7 +236,7 @@
             return response;
         }
 
-        public OIDCUserInfoResponseMessage GetUserInfo(List<MessageScope> scope, string state, string accessToken)
+        public OIDCUserInfoResponseMessage GetUserInfo(List<MessageScope> scope, string state, string accessToken, string idTokenSub = null, bool bearer = true, string ClientSecret = null, List<OIDCKey> RPKeys = null)
         {
             OIDCUserInfoRequestMessage userInfoRequestMessage = new OIDCUserInfoRequestMessage();
             userInfoRequestMessage.Scope = scope;
@@ -244,7 +244,7 @@
 
             OpenIdRelyingParty rp = new OpenIdRelyingParty();
             var urlInfoUrl = providerMetadata.UserinfoEndpoint;
-            return rp.GetUserInfo(urlInfoUrl, userInfoRequestMessage, accessToken);
+            return rp.GetUserInfo(urlInfoUrl, userInfoRequestMessage, accessToken, idTokenSub, bearer, ClientSecret, RPKeys);
         }
     }
 }
