@@ -4,6 +4,8 @@ OpenID Connect client in C#
 This project contains a full implementation of an OpenID Connect Relying Party written in C#.
 
 A Sample application has also been developed to test integration of this authentication mechanism into MVC .NET apps.
+To test this implementation a nuget package: ``https://www.nuget.org/packages/OpenIDClient.HttpModule/1.0.0``.
+
 The main configuration steps done within this sample app are the following:
 
 1. add the in ``configSessions`` this line:
